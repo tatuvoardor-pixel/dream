@@ -12,9 +12,19 @@
 (function(){
   const ico=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <rect width="512" height="512" rx="112" fill="#09090b"/>
-    <line x1="56" y1="256" x2="120" y2="256" stroke="#1d4ed8" stroke-width="18" stroke-linecap="round"/>
-    <polyline points="120,256 145,256 160,180 178,332 196,160 214,310 228,256 290,256" fill="none" stroke="#6d28d9" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
-    <line x1="290" y1="256" x2="456" y2="256" stroke="#1d4ed8" stroke-width="18" stroke-linecap="round"/>
+    <!-- Lua crescente -->
+    <path d="M 290 130
+             A 110 110 0 1 0 290 382
+             A 75 75 0 1 1 290 130 Z"
+          fill="#3b82f6"/>
+    <!-- Estrelas -->
+    <circle cx="340" cy="148" r="10" fill="#93c5fd"/>
+    <circle cx="380" cy="210" r="7"  fill="#93c5fd"/>
+    <circle cx="355" cy="270" r="5"  fill="#60a5fa"/>
+    <circle cx="310" cy="120" r="5"  fill="#60a5fa"/>
+    <!-- Ondas suaves de sono (delta waves) -->
+    <path d="M 80 400 Q 120 370 160 400 Q 200 430 240 400 Q 280 370 320 400 Q 360 430 400 400"
+          fill="none" stroke="#1d4ed8" stroke-width="12" stroke-linecap="round" opacity="0.6"/>
   </svg>`;
   const iUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ico);
   const mf={name:"MAX.CORE SLEEP",short_name:"SLEEP",display:"fullscreen",orientation:"portrait",start_url:"./index.html",scope:"./",background_color:"#09090b",theme_color:"#09090b",icons:[{src:iUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
@@ -224,8 +234,7 @@ select{-webkit-appearance:none;appearance:none;}
           <div style="font-family:'Oswald',sans-serif;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);">Pronto para analisar seu sono?</div>
         </div>
         <div class="sensor-row">
-          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--deep)"></div><span class="sensor-badge-txt">Amazfit Balance 2</span></div>
-          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--rem)"></div><span class="sensor-badge-txt">CooSpo HW9</span></div>
+
         </div>
       </div>
 
@@ -291,14 +300,12 @@ select{-webkit-appearance:none;appearance:none;}
       <div class="card">
         <div class="lbl">Sensores Fisiológicos</div>
         <div class="sensor-row" style="margin-bottom:4px;">
-          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--rem)"></div><span class="sensor-badge-txt">CooSpo HW9</span></div>
         </div>
         <div class="inp-row">
           <span class="inp-lbl" style="color:#c4b5fd">RMSSD Noturno (ms)</span>
           <input type="number" class="inp-val" id="in-rmssd" value="55" min="0" style="color:#c4b5fd;width:72px;">
         </div>
         <div class="sensor-row" style="margin-top:6px;margin-bottom:4px;">
-          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--deep)"></div><span class="sensor-badge-txt">Amazfit Balance 2</span></div>
         </div>
         <div class="inp-row">
           <span class="inp-lbl" style="color:#93c5fd">SpO2 Mínimo (%)</span>
@@ -331,8 +338,7 @@ select{-webkit-appearance:none;appearance:none;}
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
           <div class="lbl" id="rep-data-txt"></div>
           <div class="sensor-row">
-            <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--deep)"></div><span class="sensor-badge-txt">B2</span></div>
-            <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--rem)"></div><span class="sensor-badge-txt">HW9</span></div>
+
           </div>
         </div>
 
@@ -404,7 +410,7 @@ select{-webkit-appearance:none;appearance:none;}
 
         <!-- Alvos científicos -->
         <div style="margin-top:6px;display:flex;flex-direction:column;gap:3px;">
-          <div style="font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t3);">Alvos: Profundo 15-25% · REM 20-25% (Whoop, Oura, AASM 2025)</div>
+          <div style="font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t3);">Alvos: Profundo 15-25% · REM 20-25% (AASM 2025)</div>
         </div>
       </div>
 
@@ -423,7 +429,7 @@ select{-webkit-appearance:none;appearance:none;}
           <div class="ai-icon">🧠</div>
           <div>
             <div class="ai-titulo">Análise Científica</div>
-            <div class="ai-fonte">Dual-Sensor · HW9 × Balance 2 · PubMed 2025</div>
+            <div class="ai-fonte">Dual-Sensor · PubMed 2025</div>
           </div>
         </div>
         <div class="ai-body" id="ai-body">
@@ -602,7 +608,7 @@ function fmtMin(min) {
 // • Lundstrom et al. EJSC 2025 — SWS% prediz performance R²=0.883
 // • PMC12166452 — SWS aumenta 40% após exercício extremo
 // • AASM 2025 — alvos de fases clínicos
-// • HRV4Training/Marco Altini — HW9 validado vs Polar H10
+// • HRV4Training/Marco Altini — sensor validado vs referência científica
 // Perfil: 37 anos · 63kg músculo · turno pesado noturno
 
 function analisarSono() {
@@ -857,7 +863,7 @@ function renderAlertas(s) {
 // • Lundstrom EJSC 2025 — SWS% R²=0.883 para performance
 // • Frontiers Neurology 2025 — privação sono reduz RMSSD p<0.05
 // • PMC12166452 — SWS aumenta 40% após exercício físico extremo
-// • Marco Altini/HRV4Training — HW9 validado vs Polar H10
+// • Marco Altini/HRV4Training — HW9 validado vs sensor de referência
 // • AASM 2025 — alvos clínicos de fases
 // • Journal Circadian Rhythms 2024 — turno noturno e melatonina
 // • Whoop 2025 — algoritmo HRV ponderado para SWS
@@ -869,67 +875,45 @@ function gerarIA(s) {
 
   setTimeout(() => {
     let txt = '';
-    const sonos = loadSonos();
-    const temHistorico = sonos.length >= 3;
+    // Linha 1 — Score geral
+    if (s.score >= 85)      txt += `✅ Score ${s.score}/100 — Noite excelente. `;
+    else if (s.score >= 70) txt += `🟢 Score ${s.score}/100 — Noite sólida. `;
+    else if (s.score >= 50) txt += `🟡 Score ${s.score}/100 — Noite comprometida. `;
+    else                    txt += `🔴 Score ${s.score}/100 — Noite crítica. `;
 
-    // BLOCO 1 — Avaliação geral
-    if (s.score >= 85) {
-      txt += `Noite excepcional — score ${s.score}/100. O cruzamento dual-sensor confirma qualidade real, não apenas tempo na cama. `;
-    } else if (s.score >= 65) {
-      txt += `Noite sólida — score ${s.score}/100. Arquitetura de sono funcional com margem de melhoria em pelo menos uma fase. `;
-    } else if (s.score >= 45) {
-      txt += `Noite comprometida — score ${s.score}/100. Fatores estruturais estão limitando a regeneração real. `;
-    } else {
-      txt += `Noite crítica — score ${s.score}/100. A regeneração sistêmica foi insuficiente para compensar a demanda do turno. `;
+    // Linha 2 — Fase mais crítica
+    if (s.pctDeep >= 20)
+      txt += `SWS ${s.pctDeep.toFixed(0)}% ✅ (alvo 20%) — reparo muscular máximo. `;
+    else if (s.pctDeep >= 15)
+      txt += `SWS ${s.pctDeep.toFixed(0)}% — dentro do aceitável (alvo 20%). `;
+    else
+      txt += `SWS ${s.pctDeep.toFixed(0)}% ⚠️ abaixo de 15% — reparo muscular insuficiente. `;
+
+    if (s.pctREM >= 20)
+      txt += `REM ${s.pctREM.toFixed(0)}% ✅. `;
+    else
+      txt += `REM ${s.pctREM.toFixed(0)}% — abaixo do alvo (20%). `;
+
+    // Linha 3 — RMSSD se disponível
+    if (s.rmssd && s.baseRMSSD) {
+      const desv = ((s.rmssd - s.baseRMSSD) / s.baseRMSSD) * 100;
+      if (desv >= 5)       txt += `HRV noturno ${s.rmssd}ms ↗ — SNA recuperado. `;
+      else if (desv >= -5) txt += `HRV noturno ${s.rmssd}ms — equilíbrio autonômico. `;
+      else                 txt += `HRV noturno ${s.rmssd}ms ↘ — SNA ainda em recuperação. `;
     }
 
-    // BLOCO 2 — Análise SWS (mais importante para trabalhador físico)
-    if (s.pctDeep >= 20) {
-      txt += `O Sono Profundo (SWS) em ${s.pctDeep.toFixed(0)}% está dentro da faixa de elite. Lundstrom et al. (EJSC, 2025) confirmou que SWS% acima de 20% prediz performance física com R²=0.883 — o marcador mais poderoso estudado. Nesta fase, o hormônio do crescimento (GH) está em pico, a síntese proteica muscular é máxima e o reparo das microlesões do turno ocorre em velocidade ótima. `;
-    } else if (s.pctDeep >= 15) {
-      txt += `O SWS em ${s.pctDeep.toFixed(0)}% está na faixa aceitável. Estudos com exercício físico extremo (PMC12166452) mostram que o corpo aumenta automaticamente o SWS para 35-40% após demandas mecânicas intensas — o que sugere que seu corpo está tentando compensar o esforço do turno, mas não conseguiu tempo suficiente. `;
-    } else {
-      txt += `SWS em ${s.pctDeep.toFixed(0)}% — abaixo do limiar de 15% necessário para reparo muscular adequado. Para um trabalhador que movimenta toneladas por turno, isso significa que as microlesões miofibrilares do último plantão não foram totalmente reparadas. O risco de catabolismo muscular e DOMS prolongado aumenta. `;
-    }
+    // Linha 4 — SpO2 só se relevante
+    if (s.spo2 < 95)
+      txt += `SpO2 ${s.spo2}% ⚠️ — monitore tendência. Abaixo de 92% recorrente: avaliação clínica. `;
 
-    // BLOCO 3 — Cruzamento HRV (insight exclusivo dual-sensor)
-    if (temHistorico) {
-      const desv = s.desvRMSSD;
-      if (desv >= 10) {
-        txt += `O insight exclusivo do cruzamento dual-sensor: seu RMSSD noturno de ${s.rmssd}ms está ${desv.toFixed(1)}% acima da sua linha base de ${Math.round(s.baseRMSSD)}ms. Isso confirma que o sistema nervoso autônomo estava em dominância parassimpática real durante o sono — não apenas na hora da medição matinal. Dial et al. (2025) validou que essa correlação entre HRV noturno e HRV matinal indica regeneração autonômica genuína. `;
-      } else if (desv >= 0) {
-        txt += `RMSSD noturno de ${s.rmssd}ms próximo da linha base (${Math.round(s.baseRMSSD)}ms). O sistema nervoso manteve equilíbrio autonômico adequado. A cinta CooSpo HW9 — validada por Marco Altini (HRV4Training) contra o Polar H10 — confirma que os R-R intervals transmitidos em repouso têm qualidade próxima ao ECG clínico. `;
-      } else {
-        txt += `RMSSD noturno de ${s.rmssd}ms está ${Math.abs(desv).toFixed(1)}% abaixo da sua baseline de ${Math.round(s.baseRMSSD)}ms. O paradoxo do RMSSD noturno: estudos (PMC5767731) confirmam que durante SWS profundo o RMSSD é MENOR que durante REM — mas o RMSSD total noturno abaixo da baseline indica que o sistema nervoso não se recuperou completamente do estresse anterior. `;
-      }
-    } else {
-      txt += `RMSSD noturno de ${s.rmssd}ms pelo sensor HW9 — validado por Marco Altini (HRV4Training) como preciso para medições em repouso. As próximas noites calibrarão sua linha base pessoal. O insight real do dual-sensor começa com 3+ noites registradas. `;
-    }
+    // Linha 5 — Tipo sono
+    if (s.tipo === 'dia') txt += `Sono diurno: eficiência natural ~15% menor. `;
 
-    // BLOCO 4 — SpO2 e respiração
-    if (s.spo2 >= 95) {
-      txt += `SpO2 mínimo de ${s.spo2}% pelo Amazfit Balance 2 confirma ausência de episódios hipóxicos significativos. Validação Wareable (2026): o Balance 2 testado lado a lado com o Oura Ring 4 mostrou scores de readiness muito similares, confirmando a confiabilidade do sensor de SpO2 noturno. `;
-    } else if (s.spo2 >= 92) {
-      txt += `SpO2 mínimo de ${s.spo2}% — leve queda que pode indicar posição de sono ou início de ronco/apneia leve. Monitor por tendência nos próximos dias. Queda abaixo de 90% de forma recorrente justifica avaliação clínica. `;
-    } else {
-      txt += `SpO2 mínimo de ${s.spo2}% — alerta real. Quedas abaixo de 92% de forma recorrente durante o sono são indicativas de apneia obstrutiva do sono (AOS), condição que compromete radicalmente a qualidade do SWS e do HRV noturno. `;
-    }
-
-    // BLOCO 5 — Contexto turno noturno
-    if (s.tipo === 'dia') {
-      txt += `Sono diurno registrado. O ritmo circadiano suprime ativamente a melatonina durante o dia, fragmentando o SWS e reduzindo a eficiência geral em ~15% mesmo com a mesma duração (Journal Circadian Rhythms, 2024). Para maximizar o sono de dia: blackout total, temperatura ~18°C e isolamento acústico são as três intervenções mais eficazes documentadas. `;
-    }
-
-    // BLOCO 6 — Recomendação
-    if (s.score >= 80) {
-      txt += `Recomendação: capital de recuperação alto para o próximo ciclo. Aproveite se houver treino planejado.`;
-    } else if (s.score >= 60) {
-      txt += `Recomendação: se turno pesado hoje, priorize hidratação e proteína. Se folga, treino leve ou recuperação ativa.`;
-    } else if (s.score >= 40) {
-      txt += `Recomendação: evite estresse adicional. Sono de qualidade na próxima janela é a prioridade máxima.`;
-    } else {
-      txt += `Recomendação crítica: não adicione carga de treino sobre esse déficit. Repouso ativo e sono compensatório antes de qualquer esforço.`;
-    }
+    // Linha 6 — Recomendação
+    if (s.score >= 85)      txt += `→ Capital máximo de recuperação. Treino pesado liberado.`;
+    else if (s.score >= 70) txt += `→ Hidratação e proteína. Treino moderado ok.`;
+    else if (s.score >= 50) txt += `→ Evite carga extra. Priorize próxima janela de sono.`;
+    else                    txt += `→ Repouso ativo. Não adicione estresse sobre esse déficit.`;
 
     body.style.opacity = '0'; body.style.transition = 'opacity 0.5s';
     setTimeout(() => { body.textContent = txt; body.style.opacity = '1'; }, 400);
