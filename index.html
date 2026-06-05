@@ -12,19 +12,15 @@
 (function(){
   const ico=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <rect width="512" height="512" rx="112" fill="#09090b"/>
-    <!-- Lua crescente -->
-    <path d="M 290 130
-             A 110 110 0 1 0 290 382
-             A 75 75 0 1 1 290 130 Z"
-          fill="#3b82f6"/>
-    <!-- Estrelas -->
-    <circle cx="340" cy="148" r="10" fill="#93c5fd"/>
-    <circle cx="380" cy="210" r="7"  fill="#93c5fd"/>
-    <circle cx="355" cy="270" r="5"  fill="#60a5fa"/>
-    <circle cx="310" cy="120" r="5"  fill="#60a5fa"/>
-    <!-- Ondas suaves de sono (delta waves) -->
-    <path d="M 80 400 Q 120 370 160 400 Q 200 430 240 400 Q 280 370 320 400 Q 360 430 400 400"
-          fill="none" stroke="#1d4ed8" stroke-width="12" stroke-linecap="round" opacity="0.6"/>
+    <!-- Lua crescente: circulo azul grande + circulo fundo cobrindo parte -->
+    <circle cx="230" cy="256" r="130" fill="#3b82f6"/>
+    <circle cx="190" cy="220" r="115" fill="#09090b"/>
+    <!-- Estrelas simples -->
+    <circle cx="360" cy="140" r="12" fill="#93c5fd"/>
+    <circle cx="400" cy="220" r="8"  fill="#60a5fa"/>
+    <circle cx="370" cy="300" r="6"  fill="#93c5fd"/>
+    <circle cx="340" cy="130" r="5"  fill="#60a5fa"/>
+    <circle cx="410" cy="170" r="5"  fill="#bfdbfe"/>
   </svg>`;
   const iUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ico);
   const mf={name:"MAX.CORE SLEEP",short_name:"SLEEP",display:"fullscreen",orientation:"portrait",start_url:"./index.html",scope:"./",background_color:"#09090b",theme_color:"#09090b",icons:[{src:iUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
