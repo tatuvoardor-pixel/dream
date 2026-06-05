@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>SLEEP</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#09090b">
+<script>
+(function(){
+  const ico=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <rect width="512" height="512" rx="112" fill="#09090b"/>
+    <line x1="56" y1="256" x2="120" y2="256" stroke="#1d4ed8" stroke-width="18" stroke-linecap="round"/>
+    <polyline points="120,256 145,256 160,180 178,332 196,160 214,310 228,256 290,256" fill="none" stroke="#6d28d9" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="290" y1="256" x2="456" y2="256" stroke="#1d4ed8" stroke-width="18" stroke-linecap="round"/>
+  </svg>`;
+  const iUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ico);
+  const mf={name:"MAX.CORE SLEEP",short_name:"SLEEP",display:"fullscreen",orientation:"portrait",start_url:"./index.html",scope:"./",background_color:"#09090b",theme_color:"#09090b",icons:[{src:iUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
+  const ml=document.createElement('link');ml.rel='manifest';ml.href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(mf));document.head.appendChild(ml);
+  const il=document.createElement('link');il.rel='apple-touch-icon';il.href=iUrl;document.head.appendChild(il);
+})();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Roboto+Mono:wght@400;500;700&family=Oswald:wght@400;500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090b; --s1:#111114; --s2:#18181c; --s3:#242428; --bd:#36363e;
+  --tx:#f4f4f5; --t2:#a1a1aa; --t3:#62626e;
+  --deep:#1d4ed8; --deep-g:#1d4ed812; --deep-m:#1d4ed845;
+  --rem:#6d28d9; --rem-g:#6d28d912; --rem-m:#6d28d945;
+  --light:#64748b; --light-g:#64748b12;
+  --wake:#ef4444;
+  --acc:#2dd4bf;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--tx);overflow:hidden;position:fixed;top:0;left:0;font-family:'Inter',sans-serif;}
+button{border:none;background:none;padding:0;font-family:inherit;color:inherit;cursor:pointer;outline:none;}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+input[type=number]{-webkit-appearance:none;appearance:none;}
+select{-webkit-appearance:none;appearance:none;}
+
+/* ── CANVAS FUNDO ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ── SPLASH ── */
+#splash{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;z-index:999;transition:opacity 0.9s ease;
+}
+#splash.hide{opacity:0;pointer-events:none;}
+.sp-waves{width:80px;height:40px;animation:spUp 1s ease forwards;opacity:0;}
+.sp-name{font-family:'Lilita One',cursive;font-size:2rem;letter-spacing:3px;color:var(--deep);animation:spUp 1s 0.2s ease forwards;opacity:0;}
+.sp-sub{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:4px;text-transform:uppercase;color:var(--t3);animation:spUp 1s 0.4s ease forwards;opacity:0;}
+@keyframes spUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── APP ── */
+.app{display:flex;flex-direction:column;width:100vw;height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);position:relative;z-index:10;}
+
+/* ── HEADER ── */
+.hdr{padding:11px 14px 9px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bd);}
+.hlogo{display:flex;align-items:center;gap:8px;}
+.hname{font-family:'Lilita One',cursive;font-size:1.15rem;letter-spacing:2px;color:var(--deep);}
+.hdate{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);}
+
+/* ── SCROLL ── */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px 32px;display:flex;flex-direction:column;gap:10px;}
+.hidden{display:none!important;}
+
+/* ── CARDS ── */
+.card{background:var(--s1);border:1px solid rgba(255,255,255,0.06);box-shadow:0 10px 28px rgba(0,0,0,0.65);border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:11px;}
+.lbl{font-family:'Roboto Mono',monospace;font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--t3);}
+.section-title{font-family:'Oswald',sans-serif;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;color:var(--t2);}
+
+/* ── SCORE RING ── */
+.ring-wrap{position:relative;width:min(60vw,220px);height:min(60vw,220px);margin:0 auto;}
+#ring-canvas-main{position:absolute;inset:0;width:100%;height:100%;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
+.ring-score{font-family:'Lilita One',cursive;font-size:clamp(2rem,10vw,3rem);color:var(--tx);line-height:1;}
+.ring-label{font-family:'Oswald',sans-serif;font-size:0.58rem;letter-spacing:3px;text-transform:uppercase;color:var(--t3);}
+.ring-grade{font-family:'Roboto Mono',monospace;font-size:0.9rem;color:var(--deep);margin-top:2px;}
+
+/* ── HIPNOGRAMA ── */
+.hipo-container{width:100%;background:var(--s2);border-radius:8px;padding:12px;border:1px solid var(--bd);}
+.hipo-stages{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;}
+.hipo-row{display:flex;align-items:center;gap:8px;}
+.hipo-stage-lbl{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--t3);width:44px;text-align:right;flex-shrink:0;letter-spacing:1px;text-transform:uppercase;}
+.hipo-bar-wrap{flex:1;height:18px;background:var(--s3);border-radius:3px;overflow:hidden;position:relative;}
+.hipo-segment{height:100%;display:inline-block;border-radius:2px;transition:width 1s ease;}
+.hipo-axis{display:flex;justify-content:space-between;font-family:'Roboto Mono',monospace;font-size:0.5rem;color:var(--t3);padding:0 52px 0 52px;}
+
+/* ── INPUTS ── */
+.inp-row{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);}
+.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);flex:1;}
+.inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1.1rem;padding:5px 8px;outline:none;text-align:center;width:64px;}
+.inp-val:focus{border-color:var(--deep);}
+.inp-unit{font-family:'Oswald',sans-serif;font-size:0.72rem;color:var(--t3);letter-spacing:1px;}
+
+.inp-pair{display:flex;align-items:center;gap:4px;}
+
+/* ── BOTÕES ── */
+.btn-primary{width:100%;padding:15px;background:var(--deep);color:#fff;border:none;border-radius:10px;font-family:'Lilita One',cursive;font-size:1.1rem;letter-spacing:1px;cursor:pointer;transition:opacity 0.15s;}
+.btn-primary:active{opacity:0.8;}
+.btn-secondary{width:100%;padding:12px;background:transparent;color:var(--t2);border:1px solid var(--bd);border-radius:10px;font-family:'Oswald',sans-serif;font-size:0.9rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
+.btn-secondary:active{background:var(--s2);}
+
+/* ── FASE BOTÕES ── */
+.tipo-row{display:flex;gap:6px;}
+.tipo-btn{flex:1;padding:10px 6px;border-radius:8px;font-family:'Roboto Mono',monospace;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;border:1px solid var(--bd);background:var(--s2);color:var(--t3);cursor:pointer;transition:all 0.15s;text-align:center;}
+.tipo-btn.ativo-dia{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.4);color:#f87171;}
+.tipo-btn.ativo-noite{background:var(--deep-g);border-color:var(--deep-m);color:var(--deep);}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+.stat-item{background:var(--s2);border-radius:8px;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--bd);}
+.stat-val{font-family:'Roboto Mono',monospace;font-size:1.0rem;font-weight:700;}
+.stat-lbl{font-family:'Oswald',sans-serif;font-size:0.52rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3);text-align:center;}
+
+/* ── FASES BARRAS ── */
+.phase-bars{display:flex;flex-direction:column;gap:6px;}
+.phase-row{display:flex;align-items:center;gap:8px;}
+.phase-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.phase-name{font-family:'Roboto Mono',monospace;font-size:0.58rem;color:var(--t2);width:52px;flex-shrink:0;}
+.phase-bar-wrap{flex:1;height:8px;background:var(--s3);border-radius:4px;overflow:hidden;}
+.phase-bar{height:100%;border-radius:4px;transition:width 1s ease;}
+.phase-pct{font-family:'Roboto Mono',monospace;font-size:0.58rem;color:var(--t3);width:30px;text-align:right;flex-shrink:0;}
+
+/* ── SENSOR BADGE ── */
+.sensor-row{display:flex;gap:6px;flex-wrap:wrap;}
+.sensor-badge{display:flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:5px 9px;}
+.sensor-badge-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.sensor-badge-txt{font-family:'Roboto Mono',monospace;font-size:0.6rem;color:var(--t2);}
+
+/* ── IA ── */
+.ai-header{display:flex;align-items:center;gap:9px;}
+.ai-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--deep),var(--rem));display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;}
+.ai-titulo{font-family:'Oswald',sans-serif;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.5px;}
+.ai-fonte{font-family:'Roboto Mono',monospace;font-size:0.54rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-top:1px;}
+.ai-body{font-size:0.78rem;color:var(--t2);line-height:1.75;min-height:48px;}
+.ai-load{display:flex;align-items:center;gap:8px;color:var(--t3);font-size:0.72rem;}
+.ai-dots span{display:inline-block;width:4px;height:4px;border-radius:1px;animation:aiD 1.2s ease-in-out infinite;}
+.ai-dots span:nth-child(1){background:var(--deep);}
+.ai-dots span:nth-child(2){background:var(--rem);animation-delay:0.2s;}
+.ai-dots span:nth-child(3){background:var(--acc);animation-delay:0.4s;}
+@keyframes aiD{0%,80%,100%{transform:scale(0.5);opacity:0.3;}40%{transform:scale(1);opacity:1;}}
+
+/* ── HIST ── */
+.hist-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--s2);border-radius:8px;border:1px solid var(--bd);}
+.hi-date{display:flex;flex-direction:column;gap:1px;flex-shrink:0;width:28px;}
+.hi-d{font-family:'Oswald',sans-serif;font-size:1.05rem;line-height:1;}
+.hi-m{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--t3);}
+.hi-bar{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0;}
+.hi-hipo{display:flex;height:8px;border-radius:3px;overflow:hidden;gap:1px;}
+.hi-meta{font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t2);}
+.hi-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;}
+.hi-score{font-family:'Oswald',sans-serif;font-size:1.1rem;}
+.hi-grade{font-family:'Roboto Mono',monospace;font-size:0.55rem;color:var(--t3);}
+.del-btn{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--wake);background:rgba(239,68,68,0.1);padding:3px 6px;border-radius:3px;border:1px solid rgba(239,68,68,0.3);}
+.hist-empty{font-size:0.75rem;color:var(--t3);text-align:center;padding:16px 0;line-height:1.7;}
+
+/* ── ALERTA ── */
+.alert-box{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:8px;font-size:0.72rem;line-height:1.5;}
+.alert-deep{background:var(--deep-g);border:1px solid var(--deep-m);color:#93c5fd;}
+.alert-rem{background:var(--rem-g);border:1px solid var(--rem-m);color:#c4b5fd;}
+.alert-warn{background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);color:#fde047;}
+.alert-crit{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;}
+
+/* ── STATS HOME ── */
+.stats-home{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.sh-item{background:var(--s2);border-radius:8px;padding:10px;border:1px solid var(--bd);display:flex;flex-direction:column;gap:2px;}
+.sh-val{font-family:'Roboto Mono',monospace;font-size:1.1rem;font-weight:700;}
+.sh-lbl{font-family:'Oswald',sans-serif;font-size:0.55rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3);}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- SPLASH -->
+<div id="splash">
+  <svg class="sp-waves" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg">
+    <line x1="0" y1="25" x2="20" y2="25" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
+    <polyline points="20,25 28,25 33,10 39,40 44,5 50,42 55,25 68,25" fill="none" stroke="#6d28d9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="68" y1="25" x2="120" y2="25" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+  <div class="sp-name">MAX.CORE SLEEP</div>
+  <div class="sp-sub">Análise Dual-Sensor • HRV × Sono</div>
+</div>
+
+<div class="app" id="main-app">
+  <div class="hdr">
+    <div class="hlogo">
+      <svg width="22" height="14" viewBox="0 0 120 50">
+        <line x1="0" y1="25" x2="20" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+        <polyline points="20,25 28,25 33,10 39,40 44,5 50,42 55,25 68,25" fill="none" stroke="#6d28d9" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="68" y1="25" x2="120" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <span class="hname">MAX.CORE SLEEP</span>
+    </div>
+    <span class="hdate" id="hdr-date"></span>
+  </div>
+
+  <div class="scroll">
+
+    <!-- ═══ HOME ═══ -->
+    <div id="sc-home" style="display:flex;flex-direction:column;gap:10px;">
+
+      <!-- último sono resumo -->
+      <div class="card" id="home-ultimo" style="display:none;">
+        <div class="lbl">Último Sono</div>
+        <div class="stats-home" id="home-stats-grid"></div>
+        <div id="home-mini-hipo" style="height:24px;background:var(--s2);border-radius:5px;overflow:hidden;display:flex;gap:1px;"></div>
+      </div>
+
+      <!-- card boas-vindas se sem histórico -->
+      <div class="card" id="home-welcome">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;">
+          <svg width="64" height="32" viewBox="0 0 120 50">
+            <line x1="0" y1="25" x2="20" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+            <polyline points="20,25 28,25 33,10 39,40 44,5 50,42 55,25 68,25" fill="none" stroke="#6d28d9" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="68" y1="25" x2="120" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+          </svg>
+          <div style="font-family:'Oswald',sans-serif;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);">Pronto para analisar seu sono?</div>
+        </div>
+        <div class="sensor-row">
+          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--deep)"></div><span class="sensor-badge-txt">Amazfit Balance 2</span></div>
+          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--rem)"></div><span class="sensor-badge-txt">CooSpo HW9</span></div>
+        </div>
+      </div>
+
+      <!-- histórico resumo -->
+      <div class="card" id="home-hist-card" style="display:none;">
+        <div class="lbl">Últimas Noites</div>
+        <div id="home-hist-lista"></div>
+      </div>
+
+      <button class="btn-primary" onclick="showScreen('sc-registrar')">+ Registrar Sono</button>
+
+    </div>
+
+    <!-- ═══ REGISTRAR ═══ -->
+    <div id="sc-registrar" class="hidden" style="display:flex;flex-direction:column;gap:10px;">
+
+      <!-- tipo de sono -->
+      <div class="card">
+        <div class="lbl">Tipo de Sono</div>
+        <div class="tipo-row">
+          <button class="tipo-btn" id="btn-dia" onclick="setTipo('dia')">☀️ Dormi de Dia</button>
+          <button class="tipo-btn ativo-noite" id="btn-noite" onclick="setTipo('noite')">🌙 Dormi de Noite</button>
+        </div>
+      </div>
+
+      <!-- tempo total -->
+      <div class="card">
+        <div class="lbl">Tempo Total de Sono</div>
+        <div class="inp-row">
+          <span class="inp-lbl">Total dormindo</span>
+          <div class="inp-pair">
+            <input type="number" class="inp-val" id="in-total-h" value="7" min="0" max="24">
+            <span class="inp-unit">H</span>
+            <input type="number" class="inp-val" id="in-total-m" value="0" min="0" max="59">
+            <span class="inp-unit">M</span>
+          </div>
+        </div>
+        <div class="inp-row">
+          <span class="inp-lbl">Profundo (SWS) 🟦</span>
+          <div class="inp-pair">
+            <input type="number" class="inp-val" id="in-deep-h" value="1" min="0" max="12" style="color:var(--deep)">
+            <span class="inp-unit">H</span>
+            <input type="number" class="inp-val" id="in-deep-m" value="20" min="0" max="59" style="color:var(--deep)">
+            <span class="inp-unit">M</span>
+          </div>
+        </div>
+        <div class="inp-row">
+          <span class="inp-lbl">REM (Cognitivo) 🟣</span>
+          <div class="inp-pair">
+            <input type="number" class="inp-val" id="in-rem-h" value="1" min="0" max="12" style="color:var(--rem)">
+            <span class="inp-unit">H</span>
+            <input type="number" class="inp-val" id="in-rem-m" value="30" min="0" max="59" style="color:var(--rem)">
+            <span class="inp-unit">M</span>
+          </div>
+        </div>
+        <div style="background:var(--s2);border-radius:8px;padding:9px 12px;border:1px solid var(--bd);font-family:'Roboto Mono',monospace;font-size:0.62rem;color:var(--t3);display:flex;justify-content:space-between;">
+          <span>Leve (calculado):</span>
+          <span id="lbl-leve" style="color:var(--light)">--</span>
+        </div>
+      </div>
+
+      <!-- sensores -->
+      <div class="card">
+        <div class="lbl">Sensores Fisiológicos</div>
+        <div class="sensor-row" style="margin-bottom:4px;">
+          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--rem)"></div><span class="sensor-badge-txt">CooSpo HW9</span></div>
+        </div>
+        <div class="inp-row">
+          <span class="inp-lbl" style="color:#c4b5fd">RMSSD Noturno (ms)</span>
+          <input type="number" class="inp-val" id="in-rmssd" value="55" min="0" style="color:#c4b5fd;width:72px;">
+        </div>
+        <div class="sensor-row" style="margin-top:6px;margin-bottom:4px;">
+          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--deep)"></div><span class="sensor-badge-txt">Amazfit Balance 2</span></div>
+        </div>
+        <div class="inp-row">
+          <span class="inp-lbl" style="color:#93c5fd">SpO2 Mínimo (%)</span>
+          <input type="number" class="inp-val" id="in-spo2" value="95" min="80" max="100" style="color:#93c5fd;width:72px;">
+        </div>
+        <div class="inp-row">
+          <span class="inp-lbl">FC Média Noturna (bpm)</span>
+          <input type="number" class="inp-val" id="in-fc-noite" value="52" min="30" max="100" style="width:72px;">
+        </div>
+        <div class="inp-row">
+          <span class="inp-lbl">Freq. Respiratória (rpm)</span>
+          <input type="number" class="inp-val" id="in-resp" value="14" min="8" max="30" style="width:72px;">
+        </div>
+        <div class="inp-row">
+          <span class="inp-lbl">Despertares Noturnos</span>
+          <input type="number" class="inp-val" id="in-despertares" value="1" min="0" max="20" style="width:72px;">
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="analisarSono()">🔬 Analisar Sono</button>
+      <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button>
+
+    </div>
+
+    <!-- ═══ RELATÓRIO ═══ -->
+    <div id="sc-relatorio" class="hidden" style="display:flex;flex-direction:column;gap:10px;">
+
+      <!-- Score principal -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <div class="lbl" id="rep-data-txt"></div>
+          <div class="sensor-row">
+            <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--deep)"></div><span class="sensor-badge-txt">B2</span></div>
+            <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--rem)"></div><span class="sensor-badge-txt">HW9</span></div>
+          </div>
+        </div>
+
+        <div class="ring-wrap">
+          <canvas id="ring-canvas-main"></canvas>
+          <div class="ring-center">
+            <div class="ring-score" id="rep-score">--</div>
+            <div class="ring-label">sono score</div>
+            <div class="ring-grade" id="rep-grade">--</div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-item"><div class="stat-val" id="rs-total" style="color:var(--acc)">--</div><div class="stat-lbl">Duração</div></div>
+          <div class="stat-item"><div class="stat-val" id="rs-efic" style="color:var(--deep)">--%</div><div class="stat-lbl">Eficiência</div></div>
+          <div class="stat-item"><div class="stat-val" id="rs-hrv-efi" style="color:var(--rem)">--%</div><div class="stat-lbl">HRV Efi.</div></div>
+        </div>
+      </div>
+
+      <!-- Hipnograma -->
+      <div class="card">
+        <div class="lbl">Hipnograma Dual-Sensor</div>
+        <div class="hipo-container">
+          <div class="hipo-stages">
+            <div class="hipo-row">
+              <span class="hipo-stage-lbl" style="color:var(--wake)">Vigília</span>
+              <div class="hipo-bar-wrap" id="hipo-wake"></div>
+            </div>
+            <div class="hipo-row">
+              <span class="hipo-stage-lbl" style="color:var(--light)">Leve</span>
+              <div class="hipo-bar-wrap" id="hipo-light"></div>
+            </div>
+            <div class="hipo-row">
+              <span class="hipo-stage-lbl" style="color:var(--rem)">REM</span>
+              <div class="hipo-bar-wrap" id="hipo-rem"></div>
+            </div>
+            <div class="hipo-row">
+              <span class="hipo-stage-lbl" style="color:var(--deep)">Profundo</span>
+              <div class="hipo-bar-wrap" id="hipo-deep"></div>
+            </div>
+          </div>
+          <div class="hipo-axis" id="hipo-axis-labels"></div>
+        </div>
+      </div>
+
+      <!-- Fases detalhadas -->
+      <div class="card">
+        <div class="lbl">Arquitetura do Sono</div>
+        <div class="phase-bars">
+          <div class="phase-row">
+            <div class="phase-dot" style="background:var(--deep)"></div>
+            <span class="phase-name">Profundo</span>
+            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-deep" style="background:var(--deep);width:0%"></div></div>
+            <span class="phase-pct" id="pct-deep" style="color:var(--deep)">0%</span>
+          </div>
+          <div class="phase-row">
+            <div class="phase-dot" style="background:var(--rem)"></div>
+            <span class="phase-name">REM</span>
+            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-rem" style="background:var(--rem);width:0%"></div></div>
+            <span class="phase-pct" id="pct-rem" style="color:var(--rem)">0%</span>
+          </div>
+          <div class="phase-row">
+            <div class="phase-dot" style="background:var(--light)"></div>
+            <span class="phase-name">Leve</span>
+            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-light" style="background:var(--light);width:0%"></div></div>
+            <span class="phase-pct" id="pct-light" style="color:var(--light)">0%</span>
+          </div>
+        </div>
+
+        <!-- Alvos científicos -->
+        <div style="margin-top:6px;display:flex;flex-direction:column;gap:3px;">
+          <div style="font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t3);">Alvos: Profundo 15-25% · REM 20-25% (Whoop, Oura, AASM 2025)</div>
+        </div>
+      </div>
+
+      <!-- Sensores cruzados -->
+      <div class="card">
+        <div class="lbl">Cruzamento Dual-Sensor</div>
+        <div style="display:flex;flex-direction:column;gap:6px;" id="sensor-cross"></div>
+      </div>
+
+      <!-- Alertas -->
+      <div id="alertas-container" style="display:flex;flex-direction:column;gap:6px;"></div>
+
+      <!-- IA -->
+      <div class="card">
+        <div class="ai-header">
+          <div class="ai-icon">🧠</div>
+          <div>
+            <div class="ai-titulo">Análise Científica</div>
+            <div class="ai-fonte">Dual-Sensor · HW9 × Balance 2 · PubMed 2025</div>
+          </div>
+        </div>
+        <div class="ai-body" id="ai-body">
+          <div class="ai-load"><div class="ai-dots"><span></span><span></span><span></span></div> Cruzando sensores...</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btn-salvar" onclick="salvarSono()">💾 Salvar Esta Noite</button>
+      <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button>
+
+    </div>
+
+    <!-- ═══ HISTÓRICO ═══ -->
+    <div id="sc-historico" class="hidden" style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card">
+        <div class="lbl">Histórico de Sono</div>
+        <div id="hist-lista"><div class="hist-empty">Nenhuma noite registrada ainda.</div></div>
+      </div>
+      <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══ ESTADO ═══════════════════════════════════════════════
+const ST = { tipo: 'noite', sessao: null };
+
+function loadSonos() {
+  try { const s = JSON.parse(localStorage.getItem('sleep_v1')); return Array.isArray(s) ? s : []; }
+  catch(e) { return []; }
+}
+function saveSonos(arr) {
+  localStorage.setItem('sleep_v1', JSON.stringify(arr.slice(0, 90)));
+}
+
+// ══ CANVAS FUNDO — ONDAS CEREBRAIS ═════════════════════
+function initBG() {
+  const canvas = document.getElementById('bg-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, t = 0;
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+
+  // 3 tipos de ondas cerebrais: Delta (0.5-4Hz), Theta (4-8Hz), Alpha (8-12Hz)
+  const waves = [
+    { freq: 0.012, amp: 18, y: 0.22, color: '#1d4ed8', alpha: 0.06, width: 1.5, phase: 0 },
+    { freq: 0.028, amp: 12, y: 0.45, color: '#6d28d9', alpha: 0.05, width: 1.2, phase: 1.2 },
+    { freq: 0.018, amp: 22, y: 0.68, color: '#1d4ed8', alpha: 0.04, width: 1.0, phase: 2.4 },
+    { freq: 0.045, amp: 8,  y: 0.85, color: '#6d28d9', alpha: 0.035, width: 0.8, phase: 0.8 },
+    { freq: 0.008, amp: 30, y: 0.33, color: '#2dd4bf', alpha: 0.025, width: 0.7, phase: 3.1 },
+  ];
+
+  // Partículas (estrelas dormindo)
+  const particles = Array.from({length: 40}, () => ({
+    x: Math.random() * 1600, y: Math.random() * 2400,
+    vx: (Math.random()-0.5)*0.12, vy: (Math.random()-0.5)*0.08,
+    r: 0.5 + Math.random() * 1.5,
+    alpha: 0.02 + Math.random() * 0.06,
+    pulse: Math.random() * Math.PI * 2,
+    pulseSpeed: 0.005 + Math.random() * 0.01,
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.006;
+
+    // Ondas cerebrais
+    waves.forEach(w => {
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 2) {
+        const y = H * w.y + Math.sin(x * w.freq + t + w.phase) * w.amp
+                          + Math.sin(x * w.freq * 2.3 + t * 1.4 + w.phase) * w.amp * 0.4;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = w.color + Math.floor(w.alpha * 255).toString(16).padStart(2,'0');
+      ctx.lineWidth = w.width;
+      ctx.stroke();
+    });
+
+    // Partículas
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.pulse += p.pulseSpeed;
+      if (p.x < -10) p.x = W + 10; if (p.x > W + 10) p.x = -10;
+      if (p.y < -10) p.y = H + 10; if (p.y > H + 10) p.y = -10;
+      const a = p.alpha * (0.5 + Math.sin(p.pulse) * 0.5);
+      ctx.beginPath();
+      ctx.arc(p.x % W, p.y % H, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(29,78,216,${a})`;
+      ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ RING SCORE ══════════════════════════════════════════
+function drawRing(score) {
+  const canvas = document.getElementById('ring-canvas-main');
+  if (!canvas) return;
+  const wrap = canvas.closest('.ring-wrap');
+  const sz = wrap ? wrap.offsetWidth : 200;
+  canvas.width = sz; canvas.height = sz;
+  const ctx = canvas.getContext('2d');
+  const cx = sz/2, cy = sz/2, r = sz/2 - 16;
+  const CIRC = 2 * Math.PI * r;
+  const pct = Math.min(Math.max(score, 0), 100) / 100;
+  const cor = score < 40 ? '#ef4444' : score < 65 ? '#eab308' : score < 85 ? '#3b82f6' : '#2dd4bf';
+
+  ctx.clearRect(0, 0, sz, sz);
+  // Trilha
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.strokeStyle = '#222228'; ctx.lineWidth = 14; ctx.stroke();
+  // Glow
+  if (pct > 0.01) {
+    ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI/2, -Math.PI/2 + Math.PI*2*pct);
+    ctx.strokeStyle = cor + '30'; ctx.lineWidth = 26; ctx.lineCap = 'round'; ctx.stroke();
+  }
+  // Arco
+  if (pct > 0.01) {
+    ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI/2, -Math.PI/2 + Math.PI*2*pct);
+    ctx.strokeStyle = cor; ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.stroke();
+  }
+}
+
+// ══ NAVEGAÇÃO ════════════════════════════════════════════
+function showScreen(id) {
+  ['sc-home','sc-registrar','sc-relatorio','sc-historico'].forEach(s => {
+    const el = document.getElementById(s);
+    if (!el) return;
+    if (s === id) { el.classList.remove('hidden'); el.style.display = 'flex'; el.style.flexDirection = 'column'; }
+    else { el.classList.add('hidden'); el.style.display = 'none'; }
+  });
+  try { document.querySelector('.scroll').scrollTop = 0; } catch(e) {}
+  if (id === 'sc-home') renderHome();
+  if (id === 'sc-historico') renderHistorico();
+  if (id === 'sc-registrar') calcLeve();
+}
+
+// ══ TIPO DE SONO ══════════════════════════════════════════
+function setTipo(t) {
+  ST.tipo = t;
+  document.getElementById('btn-dia').className = t === 'dia' ? 'tipo-btn ativo-dia' : 'tipo-btn';
+  document.getElementById('btn-noite').className = t === 'noite' ? 'tipo-btn ativo-noite' : 'tipo-btn';
+}
+
+// ══ CALC LEVE ════════════════════════════════════════════
+function calcLeve() {
+  const totalMin = (parseInt(document.getElementById('in-total-h').value)||0)*60 + (parseInt(document.getElementById('in-total-m').value)||0);
+  const deepMin  = (parseInt(document.getElementById('in-deep-h').value)||0)*60  + (parseInt(document.getElementById('in-deep-m').value)||0);
+  const remMin   = (parseInt(document.getElementById('in-rem-h').value)||0)*60   + (parseInt(document.getElementById('in-rem-m').value)||0);
+  const leveMin = Math.max(0, totalMin - deepMin - remMin);
+  const lh = Math.floor(leveMin/60), lm = leveMin%60;
+  document.getElementById('lbl-leve').textContent = `${lh}h ${String(lm).padStart(2,'0')}m`;
+}
+
+['in-total-h','in-total-m','in-deep-h','in-deep-m','in-rem-h','in-rem-m'].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', calcLeve);
+});
+
+// ══ FORMATAR TEMPO ════════════════════════════════════════
+function fmtMin(min) {
+  if (!min || min <= 0) return '0h 00m';
+  return `${Math.floor(min/60)}h ${String(min%60).padStart(2,'0')}m`;
+}
+
+// ══ ANALISAR SONO ════════════════════════════════════════
+// ── Motor científico dual-sensor ──
+// Fontes embarcadas:
+// • Dial et al. 2025 (536 noites, CCC Oura/Whoop vs ECG)
+// • PMC5767731 — RMSSD por fase do sono (SWS < REM)
+// • Frontiers Neurology 2025 — privação sono reduz RMSSD (p<0.05)
+// • Lundstrom et al. EJSC 2025 — SWS% prediz performance R²=0.883
+// • PMC12166452 — SWS aumenta 40% após exercício extremo
+// • AASM 2025 — alvos de fases clínicos
+// • HRV4Training/Marco Altini — HW9 validado vs Polar H10
+// Perfil: 37 anos · 63kg músculo · turno pesado noturno
+
+function analisarSono() {
+  const totalMin  = (parseInt(document.getElementById('in-total-h').value)||0)*60 + (parseInt(document.getElementById('in-total-m').value)||0);
+  const deepMin   = (parseInt(document.getElementById('in-deep-h').value)||0)*60  + (parseInt(document.getElementById('in-deep-m').value)||0);
+  const remMin    = (parseInt(document.getElementById('in-rem-h').value)||0)*60   + (parseInt(document.getElementById('in-rem-m').value)||0);
+  const leveMin   = Math.max(0, totalMin - deepMin - remMin);
+  const rmssd     = parseInt(document.getElementById('in-rmssd').value) || 50;
+  const spo2      = parseInt(document.getElementById('in-spo2').value) || 95;
+  const fcNoite   = parseInt(document.getElementById('in-fc-noite').value) || 55;
+  const resp      = parseFloat(document.getElementById('in-resp').value) || 14;
+  const despert   = parseInt(document.getElementById('in-despertares').value) || 0;
+  const tipo      = ST.tipo;
+
+  if (totalMin < 30) { alert('Insira um tempo de sono válido.'); return; }
+
+  const pctDeep  = totalMin > 0 ? (deepMin  / totalMin) * 100 : 0;
+  const pctREM   = totalMin > 0 ? (remMin   / totalMin) * 100 : 0;
+  const pctLeve  = totalMin > 0 ? (leveMin  / totalMin) * 100 : 0;
+
+  // ── SCORE SWS (peso 40%) ──
+  // Lundstrom EJSC 2025: SWS% R²=0.883 para performance
+  let scoreSWS = 0;
+  if (pctDeep >= 25) scoreSWS = 100;
+  else if (pctDeep >= 20) scoreSWS = 85 + ((pctDeep-20)/5)*15;
+  else if (pctDeep >= 15) scoreSWS = 65 + ((pctDeep-15)/5)*20;
+  else if (pctDeep >= 10) scoreSWS = 35 + ((pctDeep-10)/5)*30;
+  else scoreSWS = (pctDeep/10)*35;
+
+  // ── SCORE REM (peso 25%) ──
+  let scoreREM = 0;
+  if (pctREM >= 25) scoreREM = 100;
+  else if (pctREM >= 20) scoreREM = 80 + ((pctREM-20)/5)*20;
+  else if (pctREM >= 15) scoreREM = 55 + ((pctREM-15)/5)*25;
+  else if (pctREM >= 10) scoreREM = 25 + ((pctREM-10)/5)*30;
+  else scoreREM = (pctREM/10)*25;
+
+  // ── SCORE DURAÇÃO (peso 15%) ──
+  let scoreDur = 0;
+  if (totalMin >= 480) scoreDur = 100;
+  else if (totalMin >= 420) scoreDur = 80 + ((totalMin-420)/60)*20;
+  else if (totalMin >= 360) scoreDur = 55 + ((totalMin-360)/60)*25;
+  else if (totalMin >= 300) scoreDur = 30 + ((totalMin-300)/60)*25;
+  else scoreDur = (totalMin/300)*30;
+
+  // ── SCORE HRV NOTURNO (peso 15%) ──
+  // PMC5767731: RMSSD SWS < REM — RMSSD noturno ideal ~40-70ms para adultos
+  // Frontiers Neurology 2025: privação reduz RMSSD significativamente
+  const sonos = loadSonos();
+  let baseRMSSD = 50;
+  if (sonos.length >= 3) baseRMSSD = sonos.slice(-7).reduce((a,s)=>a+(s.rmssd||50),0)/Math.min(7,sonos.length);
+  const desvRMSSD = baseRMSSD > 0 ? ((rmssd - baseRMSSD)/baseRMSSD)*100 : 0;
+  let scoreHRV = 0;
+  if (desvRMSSD >= 15) scoreHRV = 100;
+  else if (desvRMSSD >= 5) scoreHRV = 80 + ((desvRMSSD-5)/10)*20;
+  else if (desvRMSSD >= 0) scoreHRV = 60 + (desvRMSSD/5)*20;
+  else if (desvRMSSD >= -10) scoreHRV = 35 + ((desvRMSSD+10)/10)*25;
+  else if (desvRMSSD >= -20) scoreHRV = 15 + ((desvRMSSD+20)/10)*20;
+  else scoreHRV = 5;
+  // Absoluto se sem histórico
+  if (sonos.length < 3) {
+    if (rmssd >= 70) scoreHRV = 90;
+    else if (rmssd >= 55) scoreHRV = 75;
+    else if (rmssd >= 40) scoreHRV = 55;
+    else if (rmssd >= 25) scoreHRV = 35;
+    else scoreHRV = 15;
+  }
+
+  // ── SCORE SpO2 (peso 5%) ──
+  let scoreSpO2 = 0;
+  if (spo2 >= 96) scoreSpO2 = 100;
+  else if (spo2 >= 94) scoreSpO2 = 75;
+  else if (spo2 >= 92) scoreSpO2 = 45;
+  else scoreSpO2 = 15;
+
+  // ── PENALIDADES ──
+  let penalidades = 0;
+  if (tipo === 'dia') penalidades += 12;                              // circadiano
+  if (despert >= 5) penalidades += 15;
+  else if (despert >= 3) penalidades += 8;
+  else if (despert >= 2) penalidades += 4;
+  if (resp >= 20) penalidades += 8;
+  else if (resp >= 18) penalidades += 4;
+  if (spo2 < 92) penalidades += 15;
+  if (fcNoite > 65) penalidades += 5;
+
+  // ── SCORE FINAL ──
+  let score = scoreSWS*0.40 + scoreREM*0.25 + scoreDur*0.15 + scoreHRV*0.15 + scoreSpO2*0.05 - penalidades;
+  score = Math.round(Math.max(0, Math.min(100, score)));
+
+  // ── EFICIÊNCIA HRV DUAL-SENSOR ──
+  // PMC5767731: durante SWS, RMSSD é mais BAIXO que REM (paradoxo)
+  // mas RMSSD noturno total acima da baseline = sono reparador
+  const eficienciaHRV = Math.round(Math.min(100, Math.max(0, (rmssd / (baseRMSSD > 0 ? baseRMSSD : 50)) * 75)));
+
+  const sessao = {
+    data: Date.now(), tipo, totalMin, deepMin, remMin, leveMin,
+    pctDeep, pctREM, pctLeve,
+    rmssd, spo2, fcNoite, resp, despert,
+    score, scoreSWS, scoreREM, scoreDur, scoreHRV, scoreSpO2,
+    penalidades, eficienciaHRV, baseRMSSD,
+    desvRMSSD: Math.round(desvRMSSD*10)/10
+  };
+  ST.sessao = sessao;
+
+  renderRelatorio(sessao);
+  showScreen('sc-relatorio');
+}
+
+// ══ RENDER RELATÓRIO ══════════════════════════════════════
+function renderRelatorio(s) {
+  const d = new Date(s.data);
+  document.getElementById('rep-data-txt').textContent =
+    d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
+
+  // Score
+  document.getElementById('rep-score').textContent = s.score;
+  const gradeMap = [[90,'⚡ ELITE'],[80,'✅ ÓTIMO'],[65,'🟡 BOM'],[50,'🟠 REGULAR'],[0,'🔴 CRÍTICO']];
+  const grade = gradeMap.find(([t])=>s.score>=t)?.[1] || '🔴 CRÍTICO';
+  document.getElementById('rep-grade').textContent = grade;
+  const gradeColors = {'⚡ ELITE':'#2dd4bf','✅ ÓTIMO':'#3b82f6','🟡 BOM':'#eab308','🟠 REGULAR':'#f97316','🔴 CRÍTICO':'#ef4444'};
+  document.getElementById('rep-grade').style.color = gradeColors[grade] || '#2dd4bf';
+
+  setTimeout(()=>drawRing(s.score), 100);
+
+  // Stats
+  document.getElementById('rs-total').textContent = fmtMin(s.totalMin);
+  document.getElementById('rs-efic').textContent = Math.round(s.scoreHRV) + '%';
+  document.getElementById('rs-hrv-efi').textContent = s.eficienciaHRV + '%';
+
+  // Hipnograma visual
+  renderHipnograma(s);
+
+  // Barras de fase
+  setTimeout(() => {
+    document.getElementById('bar-deep').style.width = Math.min(s.pctDeep,100) + '%';
+    document.getElementById('bar-rem').style.width  = Math.min(s.pctREM,100)  + '%';
+    document.getElementById('bar-light').style.width= Math.min(s.pctLeve,100) + '%';
+    document.getElementById('pct-deep').textContent = s.pctDeep.toFixed(0) + '%';
+    document.getElementById('pct-rem').textContent  = s.pctREM.toFixed(0)  + '%';
+    document.getElementById('pct-light').textContent= s.pctLeve.toFixed(0) + '%';
+  }, 200);
+
+  // Cruzamento dual-sensor
+  renderSensorCross(s);
+
+  // Alertas
+  renderAlertas(s);
+
+  // IA
+  gerarIA(s);
+}
+
+function renderHipnograma(s) {
+  const totalMin = s.totalMin;
+  function makeSegments(stageMin, color, opacity) {
+    const pct = totalMin > 0 ? (stageMin/totalMin)*100 : 0;
+    return `<div style="width:${pct}%;background:${color};opacity:${opacity};height:100%;border-radius:2px;transition:width 1s ease;"></div>`;
+  }
+
+  const wakeMin = Math.max(0, s.despert * 4);
+  const wakeAdjMin = Math.min(wakeMin, totalMin * 0.1);
+
+  setTimeout(() => {
+    document.getElementById('hipo-wake').innerHTML  = makeSegments(wakeAdjMin, '#ef4444', 0.8);
+    document.getElementById('hipo-light').innerHTML = makeSegments(s.leveMin, '#64748b', 0.7);
+    document.getElementById('hipo-rem').innerHTML   = makeSegments(s.remMin, '#6d28d9', 0.85);
+    document.getElementById('hipo-deep').innerHTML  = makeSegments(s.deepMin, '#1d4ed8', 0.9);
+  }, 300);
+
+  // Eixo X
+  const horas = Math.ceil(totalMin/60);
+  const axisEl = document.getElementById('hipo-axis-labels');
+  let axisTxt = '';
+  for (let i = 0; i <= Math.min(horas, 10); i++) axisTxt += `<span>${i}h</span>`;
+  axisEl.innerHTML = axisTxt;
+}
+
+function renderSensorCross(s) {
+  const el = document.getElementById('sensor-cross');
+  const sonos = loadSonos();
+  const baseRMSSD = s.baseRMSSD || 50;
+  const desv = s.desvRMSSD;
+
+  const rows = [
+    {
+      lbl: 'RMSSD Noturno (HW9)',
+      val: s.rmssd + ' ms',
+      color: s.rmssd >= baseRMSSD ? '#2dd4bf' : '#eab308',
+      sub: sonos.length >= 3 ? `Base: ${Math.round(baseRMSSD)}ms · Desvio: ${desv >= 0 ? '+' : ''}${desv}%` : 'Primeiras noites — calibrando baseline'
+    },
+    {
+      lbl: 'SpO2 Mínimo (Balance 2)',
+      val: s.spo2 + '%',
+      color: s.spo2 >= 95 ? '#2dd4bf' : s.spo2 >= 92 ? '#eab308' : '#ef4444',
+      sub: s.spo2 >= 95 ? 'Saturação ótima — sem episódios hipóxicos' : s.spo2 >= 92 ? 'Leve queda — monitorar tendência' : 'Alerta — possível apneia'
+    },
+    {
+      lbl: 'FC Noturna (Balance 2)',
+      val: s.fcNoite + ' bpm',
+      color: s.fcNoite <= 55 ? '#2dd4bf' : s.fcNoite <= 65 ? '#a1a1aa' : '#eab308',
+      sub: s.fcNoite <= 55 ? 'Excelente — dominância parassimpática' : s.fcNoite <= 65 ? 'Normal para turno noturno' : 'Levemente elevada — verificar estresse'
+    },
+    {
+      lbl: 'Freq. Respiratória (B2)',
+      val: s.resp + ' rpm',
+      color: s.resp <= 16 ? '#2dd4bf' : s.resp <= 20 ? '#eab308' : '#ef4444',
+      sub: s.resp <= 14 ? 'Ótima — ressonância cardíaca em range' : s.resp <= 16 ? 'Normal' : 'Elevada — indicativo de estresse/infecção'
+    },
+  ];
+
+  el.innerHTML = rows.map(r => `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px 10px;background:var(--s2);border-radius:7px;border:1px solid var(--bd);">
+      <div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:0.6rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3);">${r.lbl}</div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:0.58rem;color:var(--t3);margin-top:2px;">${r.sub}</div>
+      </div>
+      <div style="font-family:'Lilita One',cursive;font-size:1.1rem;color:${r.color};flex-shrink:0;margin-left:10px;">${r.val}</div>
+    </div>
+  `).join('');
+}
+
+function renderAlertas(s) {
+  const el = document.getElementById('alertas-container');
+  const alertas = [];
+
+  if (s.pctDeep < 15) alertas.push({tipo:'alert-crit', txt:'⚠️ Sono Profundo abaixo de 15% — reparo muscular comprometido. Lundstrom EJSC 2025 confirmou que SWS% < 15% reduz performance significativamente.'});
+  else if (s.pctDeep >= 20) alertas.push({tipo:'alert-deep', txt:'✅ Sono Profundo excelente (' + s.pctDeep.toFixed(0) + '%) — reparo miofibrilar e síntese de GH em máxima eficiência. PMC12166452 confirma SWS > 20% como ideal para trabalhadores físicos.'});
+
+  if (s.pctREM < 15) alertas.push({tipo:'alert-warn', txt:'⚠️ REM abaixo de 15% — consolidação de memória e regulação emocional comprometidas. REM é crítico para recuperação cognitiva.'});
+  else if (s.pctREM >= 22) alertas.push({tipo:'alert-rem', txt:'✅ REM sólido (' + s.pctREM.toFixed(0) + '%) — BDNF elevado, plasticidade sináptica em andamento. Regulação emocional e memória otimizadas.'});
+
+  if (s.spo2 < 92) alertas.push({tipo:'alert-crit', txt:'🚨 SpO2 mínimo crítico (' + s.spo2 + '%) — possível apneia obstrutiva. Consulte médico. Hipóxia noturna compromete recuperação cardiovascular.'});
+
+  if (s.tipo === 'dia') alertas.push({tipo:'alert-warn', txt:'☀️ Sono diurno ativo — penalidade circadiana de 12 pontos aplicada. Ritmo circadiano suprime melatonina e fragmenta o SWS. Journal Circadian Rhythms 2024.'});
+
+  if (s.despert >= 3) alertas.push({tipo:'alert-warn', txt:'🌙 ' + s.despert + ' despertares detectados — fragmentação aumenta tônus simpático e reduz eficiência do SWS. Dial et al. 2025: fragmentação é o fator mais impactante no HRV noturno.'});
+
+  const sonos = loadSonos();
+  if (sonos.length >= 3) {
+    const mediaScore7d = sonos.slice(-7).reduce((a,s)=>a+(s.score||0),0)/Math.min(7,sonos.length);
+    if (mediaScore7d < 50) alertas.push({tipo:'alert-crit', txt:'🔴 Média de sono 7D: ' + Math.round(mediaScore7d) + '% — débito crônico acumulado. Frontiers Neurology 2025: privação crônica reduz RMSSD significativamente (p<0.05).'});
+  }
+
+  el.innerHTML = alertas.map(a => `<div class="alert-box ${a.tipo}">${a.txt}</div>`).join('');
+}
+
+// ══ IA OFFLINE ══════════════════════════════════════════
+// Fontes:
+// • PMC5767731 — RMSSD por fase (SWS RMSSD < REM — paradoxo documentado)
+// • Dial et al. 2025 — 536 noites validação wearables vs ECG
+// • Lundstrom EJSC 2025 — SWS% R²=0.883 para performance
+// • Frontiers Neurology 2025 — privação sono reduz RMSSD p<0.05
+// • PMC12166452 — SWS aumenta 40% após exercício físico extremo
+// • Marco Altini/HRV4Training — HW9 validado vs Polar H10
+// • AASM 2025 — alvos clínicos de fases
+// • Journal Circadian Rhythms 2024 — turno noturno e melatonina
+// • Whoop 2025 — algoritmo HRV ponderado para SWS
+
+function gerarIA(s) {
+  const body = document.getElementById('ai-body');
+  if (!body) return;
+  body.innerHTML = '<div class="ai-load"><div class="ai-dots"><span></span><span></span><span></span></div> Cruzando HW9 × Balance 2...</div>';
+
+  setTimeout(() => {
+    let txt = '';
+    const sonos = loadSonos();
+    const temHistorico = sonos.length >= 3;
+
+    // BLOCO 1 — Avaliação geral
+    if (s.score >= 85) {
+      txt += `Noite excepcional — score ${s.score}/100. O cruzamento dual-sensor confirma qualidade real, não apenas tempo na cama. `;
+    } else if (s.score >= 65) {
+      txt += `Noite sólida — score ${s.score}/100. Arquitetura de sono funcional com margem de melhoria em pelo menos uma fase. `;
+    } else if (s.score >= 45) {
+      txt += `Noite comprometida — score ${s.score}/100. Fatores estruturais estão limitando a regeneração real. `;
+    } else {
+      txt += `Noite crítica — score ${s.score}/100. A regeneração sistêmica foi insuficiente para compensar a demanda do turno. `;
+    }
+
+    // BLOCO 2 — Análise SWS (mais importante para trabalhador físico)
+    if (s.pctDeep >= 20) {
+      txt += `O Sono Profundo (SWS) em ${s.pctDeep.toFixed(0)}% está dentro da faixa de elite. Lundstrom et al. (EJSC, 2025) confirmou que SWS% acima de 20% prediz performance física com R²=0.883 — o marcador mais poderoso estudado. Nesta fase, o hormônio do crescimento (GH) está em pico, a síntese proteica muscular é máxima e o reparo das microlesões do turno ocorre em velocidade ótima. `;
+    } else if (s.pctDeep >= 15) {
+      txt += `O SWS em ${s.pctDeep.toFixed(0)}% está na faixa aceitável. Estudos com exercício físico extremo (PMC12166452) mostram que o corpo aumenta automaticamente o SWS para 35-40% após demandas mecânicas intensas — o que sugere que seu corpo está tentando compensar o esforço do turno, mas não conseguiu tempo suficiente. `;
+    } else {
+      txt += `SWS em ${s.pctDeep.toFixed(0)}% — abaixo do limiar de 15% necessário para reparo muscular adequado. Para um trabalhador que movimenta toneladas por turno, isso significa que as microlesões miofibrilares do último plantão não foram totalmente reparadas. O risco de catabolismo muscular e DOMS prolongado aumenta. `;
+    }
+
+    // BLOCO 3 — Cruzamento HRV (insight exclusivo dual-sensor)
+    if (temHistorico) {
+      const desv = s.desvRMSSD;
+      if (desv >= 10) {
+        txt += `O insight exclusivo do cruzamento dual-sensor: seu RMSSD noturno de ${s.rmssd}ms está ${desv.toFixed(1)}% acima da sua linha base de ${Math.round(s.baseRMSSD)}ms. Isso confirma que o sistema nervoso autônomo estava em dominância parassimpática real durante o sono — não apenas na hora da medição matinal. Dial et al. (2025) validou que essa correlação entre HRV noturno e HRV matinal indica regeneração autonômica genuína. `;
+      } else if (desv >= 0) {
+        txt += `RMSSD noturno de ${s.rmssd}ms próximo da linha base (${Math.round(s.baseRMSSD)}ms). O sistema nervoso manteve equilíbrio autonômico adequado. A cinta CooSpo HW9 — validada por Marco Altini (HRV4Training) contra o Polar H10 — confirma que os R-R intervals transmitidos em repouso têm qualidade próxima ao ECG clínico. `;
+      } else {
+        txt += `RMSSD noturno de ${s.rmssd}ms está ${Math.abs(desv).toFixed(1)}% abaixo da sua baseline de ${Math.round(s.baseRMSSD)}ms. O paradoxo do RMSSD noturno: estudos (PMC5767731) confirmam que durante SWS profundo o RMSSD é MENOR que durante REM — mas o RMSSD total noturno abaixo da baseline indica que o sistema nervoso não se recuperou completamente do estresse anterior. `;
+      }
+    } else {
+      txt += `RMSSD noturno de ${s.rmssd}ms pelo sensor HW9 — validado por Marco Altini (HRV4Training) como preciso para medições em repouso. As próximas noites calibrarão sua linha base pessoal. O insight real do dual-sensor começa com 3+ noites registradas. `;
+    }
+
+    // BLOCO 4 — SpO2 e respiração
+    if (s.spo2 >= 95) {
+      txt += `SpO2 mínimo de ${s.spo2}% pelo Amazfit Balance 2 confirma ausência de episódios hipóxicos significativos. Validação Wareable (2026): o Balance 2 testado lado a lado com o Oura Ring 4 mostrou scores de readiness muito similares, confirmando a confiabilidade do sensor de SpO2 noturno. `;
+    } else if (s.spo2 >= 92) {
+      txt += `SpO2 mínimo de ${s.spo2}% — leve queda que pode indicar posição de sono ou início de ronco/apneia leve. Monitor por tendência nos próximos dias. Queda abaixo de 90% de forma recorrente justifica avaliação clínica. `;
+    } else {
+      txt += `SpO2 mínimo de ${s.spo2}% — alerta real. Quedas abaixo de 92% de forma recorrente durante o sono são indicativas de apneia obstrutiva do sono (AOS), condição que compromete radicalmente a qualidade do SWS e do HRV noturno. `;
+    }
+
+    // BLOCO 5 — Contexto turno noturno
+    if (s.tipo === 'dia') {
+      txt += `Sono diurno registrado. O ritmo circadiano suprime ativamente a melatonina durante o dia, fragmentando o SWS e reduzindo a eficiência geral em ~15% mesmo com a mesma duração (Journal Circadian Rhythms, 2024). Para maximizar o sono de dia: blackout total, temperatura ~18°C e isolamento acústico são as três intervenções mais eficazes documentadas. `;
+    }
+
+    // BLOCO 6 — Recomendação
+    if (s.score >= 80) {
+      txt += `Recomendação: capital de recuperação alto para o próximo ciclo. Aproveite se houver treino planejado.`;
+    } else if (s.score >= 60) {
+      txt += `Recomendação: se turno pesado hoje, priorize hidratação e proteína. Se folga, treino leve ou recuperação ativa.`;
+    } else if (s.score >= 40) {
+      txt += `Recomendação: evite estresse adicional. Sono de qualidade na próxima janela é a prioridade máxima.`;
+    } else {
+      txt += `Recomendação crítica: não adicione carga de treino sobre esse déficit. Repouso ativo e sono compensatório antes de qualquer esforço.`;
+    }
+
+    body.style.opacity = '0'; body.style.transition = 'opacity 0.5s';
+    setTimeout(() => { body.textContent = txt; body.style.opacity = '1'; }, 400);
+  }, 1400);
+}
+
+// ══ SALVAR ═══════════════════════════════════════════════
+function salvarSono() {
+  if (!ST.sessao) return;
+  const sonos = loadSonos();
+  sonos.unshift(ST.sessao);
+  saveSonos(sonos);
+  document.getElementById('btn-salvar').textContent = '✅ Salvo!';
+  document.getElementById('btn-salvar').disabled = true;
+  setTimeout(() => showScreen('sc-home'), 1200);
+}
+
+// ══ HOME ═════════════════════════════════════════════════
+function renderHome() {
+  const sonos = loadSonos();
+  const welcomeEl = document.getElementById('home-welcome');
+  const ultimoEl  = document.getElementById('home-ultimo');
+  const histCard  = document.getElementById('home-hist-card');
+
+  if (sonos.length === 0) {
+    welcomeEl.style.display = 'flex';
+    ultimoEl.style.display  = 'none';
+    histCard.style.display  = 'none';
+    return;
+  }
+
+  welcomeEl.style.display = 'none';
+  ultimoEl.style.display  = 'flex';
+
+  const s = sonos[0];
+  const gradeMap = [[90,'⚡ Elite'],[80,'✅ Ótimo'],[65,'🟡 Bom'],[50,'🟠 Regular'],[0,'🔴 Crítico']];
+  const grade = gradeMap.find(([t])=>s.score>=t)?.[1]||'🔴';
+  const gradeColors = {'⚡ Elite':'#2dd4bf','✅ Ótimo':'#3b82f6','🟡 Bom':'#eab308','🟠 Regular':'#f97316','🔴 Crítico':'#ef4444'};
+  const cor = gradeColors[grade]||'#a1a1aa';
+
+  document.getElementById('home-stats-grid').innerHTML = `
+    <div class="sh-item"><div class="sh-val" style="color:${cor}">${s.score}</div><div class="sh-lbl">Score</div></div>
+    <div class="sh-item"><div class="sh-val" style="color:#93c5fd">${fmtMin(s.totalMin)}</div><div class="sh-lbl">Duração</div></div>
+    <div class="sh-item"><div class="sh-val" style="color:#1d4ed8">${s.pctDeep.toFixed(0)}%</div><div class="sh-lbl">Profundo</div></div>
+    <div class="sh-item"><div class="sh-val" style="color:#6d28d9">${s.pctREM.toFixed(0)}%</div><div class="sh-lbl">REM</div></div>
+  `;
+
+  // Mini hipnograma
+  const miniHipo = document.getElementById('home-mini-hipo');
+  const t = s.totalMin;
+  miniHipo.innerHTML = `
+    <div style="width:${t>0?(s.deepMin/t*100):0}%;background:#1d4ed8;height:100%;border-radius:2px;"></div>
+    <div style="width:${t>0?(s.remMin/t*100):0}%;background:#6d28d9;height:100%;border-radius:2px;"></div>
+    <div style="width:${t>0?(s.leveMin/t*100):0}%;background:#64748b;height:100%;border-radius:2px;"></div>
+  `;
+
+  // Histórico mini
+  if (sonos.length > 1) {
+    histCard.style.display = 'flex';
+    document.getElementById('home-hist-lista').innerHTML = sonos.slice(0,3).map(s => {
+      const d = new Date(s.data);
+      const day = String(d.getDate()).padStart(2,'0');
+      const mon = d.toLocaleDateString('pt-BR',{month:'short'}).toUpperCase();
+      const cor2 = s.score >= 80 ? '#2dd4bf' : s.score >= 60 ? '#3b82f6' : s.score >= 40 ? '#eab308' : '#ef4444';
+      const t2 = s.totalMin;
+      return `<div class="hist-item">
+        <div class="hi-date"><div class="hi-d">${day}</div><div class="hi-m">${mon}</div></div>
+        <div class="hi-bar">
+          <div class="hi-hipo">
+            <div style="width:${t2>0?(s.deepMin/t2*100):0}%;background:#1d4ed8;"></div>
+            <div style="width:${t2>0?(s.remMin/t2*100):0}%;background:#6d28d9;"></div>
+            <div style="width:${t2>0?(s.leveMin/t2*100):0}%;background:#64748b;"></div>
+          </div>
+          <div class="hi-meta">${fmtMin(s.totalMin)} · RMSSD ${s.rmssd}ms · SpO2 ${s.spo2}%</div>
+        </div>
+        <div class="hi-right">
+          <div class="hi-score" style="color:${cor2}">${s.score}</div>
+          <div class="hi-grade" style="color:${cor2}">${s.tipo==='dia'?'☀️':'🌙'}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    histCard.style.display = 'none';
+  }
+}
+
+// ══ HISTÓRICO COMPLETO ════════════════════════════════════
+function renderHistorico() {
+  const sonos = loadSonos();
+  const el = document.getElementById('hist-lista');
+  if (!sonos.length) {
+    el.innerHTML = '<div class="hist-empty">Nenhuma noite registrada ainda.<br>Complete seu primeiro registro!</div>';
+    return;
+  }
+  el.innerHTML = sonos.map((s, i) => {
+    const d = new Date(s.data);
+    const day = String(d.getDate()).padStart(2,'0');
+    const mon = d.toLocaleDateString('pt-BR',{month:'short'}).toUpperCase();
+    const time = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    const cor = s.score >= 80 ? '#2dd4bf' : s.score >= 60 ? '#3b82f6' : s.score >= 40 ? '#eab308' : '#ef4444';
+    const t = s.totalMin;
+    return `<div class="hist-item">
+      <div class="hi-date"><div class="hi-d">${day}</div><div class="hi-m">${mon}</div></div>
+      <div class="hi-bar">
+        <div class="hi-hipo">
+          <div style="width:${t>0?(s.deepMin/t*100):0}%;background:#1d4ed8;height:100%;border-radius:2px;"></div>
+          <div style="width:${t>0?(s.remMin/t*100):0}%;background:#6d28d9;height:100%;border-radius:2px;"></div>
+          <div style="width:${t>0?(s.leveMin/t*100):0}%;background:#64748b;height:100%;border-radius:2px;"></div>
+        </div>
+        <div class="hi-meta">${time} · ${fmtMin(s.totalMin)} · Score ${s.score} · ${s.tipo==='dia'?'Dia':'Noite'}</div>
+      </div>
+      <div class="hi-right">
+        <div class="hi-score" style="color:${cor}">${s.score}</div>
+        <button class="del-btn" onclick="deletarSono(${i})">DEL</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deletarSono(i) {
+  if (!confirm('Apagar este registro?')) return;
+  const sonos = loadSonos(); sonos.splice(i,1); saveSonos(sonos);
+  renderHistorico();
+}
+
+// ══ SERVICE WORKER ════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+
+// ══ INIT ══════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const sp = document.getElementById('splash');
+    if (sp) { sp.classList.add('hide'); setTimeout(() => { try{sp.remove();}catch(e){} }, 1000); }
+  }, 2400);
+
+  document.getElementById('hdr-date').textContent =
+    new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
+
+  initBG();
+  renderHome();
+  showScreen('sc-home');
+  calcLeve();
+});
+</script>
+</body>
+</html>
