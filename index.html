@@ -97,13 +97,13 @@ select{-webkit-appearance:none;appearance:none;}
 .hipo-axis{display:flex;justify-content:space-between;font-family:'Roboto Mono',monospace;font-size:0.5rem;color:var(--t3);padding:0 52px 0 52px;}
 
 /* ── INPUTS ── */
-.inp-row{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);}
-.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);flex:1;}
-.inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1.1rem;padding:5px 8px;outline:none;text-align:center;width:64px;}
+.inp-row{display:flex;align-items:center;gap:6px;background:var(--s2);border-radius:8px;padding:9px 10px;border:1px solid var(--bd);}
+.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:1px;text-transform:uppercase;color:var(--t2);flex:1;min-width:0;}
+.inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1rem;padding:4px 6px;outline:none;text-align:center;width:52px;}
 .inp-val:focus{border-color:var(--deep);}
 .inp-unit{font-family:'Oswald',sans-serif;font-size:0.72rem;color:var(--t3);letter-spacing:1px;}
 
-.inp-pair{display:flex;align-items:center;gap:4px;}
+.inp-pair{display:flex;align-items:center;gap:3px;flex-shrink:0;}
 
 /* ── BOTÕES ── */
 .btn-primary{width:100%;padding:15px;background:var(--deep);color:#fff;border:none;border-radius:10px;font-family:'Lilita One',cursive;font-size:1.1rem;letter-spacing:1px;cursor:pointer;transition:opacity 0.15s;}
@@ -260,11 +260,11 @@ select{-webkit-appearance:none;appearance:none;}
       <div class="card">
         <div class="lbl">Tempo Total de Sono</div>
         <div class="inp-row">
-          <span class="inp-lbl">Total dormindo</span>
+          <span class="inp-lbl" style="color:var(--light)">Sono Leve 🔵</span>
           <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-total-h" value="7" min="0" max="24">
+            <input type="number" class="inp-val" id="in-leve-h" value="4" min="0" max="24" style="color:var(--light)">
             <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-total-m" value="0" min="0" max="59">
+            <input type="number" class="inp-val" id="in-leve-m" value="10" min="0" max="59" style="color:var(--light)">
             <span class="inp-unit">M</span>
           </div>
         </div>
@@ -287,8 +287,8 @@ select{-webkit-appearance:none;appearance:none;}
           </div>
         </div>
         <div style="background:var(--s2);border-radius:8px;padding:9px 12px;border:1px solid var(--bd);font-family:'Roboto Mono',monospace;font-size:0.62rem;color:var(--t3);display:flex;justify-content:space-between;">
-          <span>Leve (calculado):</span>
-          <span id="lbl-leve" style="color:var(--light)">--</span>
+          <span>Total (calculado):</span>
+          <span id="lbl-total" style="color:var(--acc)">--</span>
         </div>
       </div>
 
@@ -576,12 +576,12 @@ function setTipo(t) {
 
 // ══ CALC LEVE ════════════════════════════════════════════
 function calcLeve() {
-  const totalMin = (parseInt(document.getElementById('in-total-h').value)||0)*60 + (parseInt(document.getElementById('in-total-m').value)||0);
+  const totalMin = (parseInt(document.getElementById('in-leve-h').value)||0)*60 + (parseInt(document.getElementById('in-leve-m').value)||0);
   const deepMin  = (parseInt(document.getElementById('in-deep-h').value)||0)*60  + (parseInt(document.getElementById('in-deep-m').value)||0);
   const remMin   = (parseInt(document.getElementById('in-rem-h').value)||0)*60   + (parseInt(document.getElementById('in-rem-m').value)||0);
   const leveMin = Math.max(0, totalMin - deepMin - remMin);
   const lh = Math.floor(leveMin/60), lm = leveMin%60;
-  document.getElementById('lbl-leve').textContent = `${lh}h ${String(lm).padStart(2,'0')}m`;
+  document.getElementById('lbl-total').textContent = `${lh}h ${String(lm).padStart(2,'0')}m`;
 }
 
 ['in-total-h','in-total-m','in-deep-h','in-deep-m','in-rem-h','in-rem-m'].forEach(id => {
@@ -608,7 +608,7 @@ function fmtMin(min) {
 // Perfil: 37 anos · 63kg músculo · turno pesado noturno
 
 function analisarSono() {
-  const totalMin  = (parseInt(document.getElementById('in-total-h').value)||0)*60 + (parseInt(document.getElementById('in-total-m').value)||0);
+  const totalMin  = (parseInt(document.getElementById('in-leve-h').value)||0)*60 + (parseInt(document.getElementById('in-leve-m').value)||0);
   const deepMin   = (parseInt(document.getElementById('in-deep-h').value)||0)*60  + (parseInt(document.getElementById('in-deep-m').value)||0);
   const remMin    = (parseInt(document.getElementById('in-rem-h').value)||0)*60   + (parseInt(document.getElementById('in-rem-m').value)||0);
   const leveMin   = Math.max(0, totalMin - deepMin - remMin);
