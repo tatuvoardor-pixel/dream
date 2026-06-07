@@ -1,1060 +1,1081 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SLEEP</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#09090b">
-<script>
-(function(){
-  const ico=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-    <rect width="512" height="512" rx="112" fill="#09090b"/>
-    <!-- Lua crescente: circulo azul grande + circulo fundo cobrindo parte -->
-    <circle cx="230" cy="256" r="130" fill="#3b82f6"/>
-    <circle cx="190" cy="220" r="115" fill="#09090b"/>
-    <!-- Estrelas simples -->
-    <circle cx="360" cy="140" r="12" fill="#93c5fd"/>
-    <circle cx="400" cy="220" r="8"  fill="#60a5fa"/>
-    <circle cx="370" cy="300" r="6"  fill="#93c5fd"/>
-    <circle cx="340" cy="130" r="5"  fill="#60a5fa"/>
-    <circle cx="410" cy="170" r="5"  fill="#bfdbfe"/>
-  </svg>`;
-  const iUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ico);
-  const mf={name:"MAX.CORE SLEEP",short_name:"SLEEP",display:"fullscreen",orientation:"portrait",start_url:"./index.html",scope:"./",background_color:"#09090b",theme_color:"#09090b",icons:[{src:iUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
-  const ml=document.createElement('link');ml.rel='manifest';ml.href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(mf));document.head.appendChild(ml);
-  const il=document.createElement('link');il.rel='apple-touch-icon';il.href=iUrl;document.head.appendChild(il);
-})();
-</script>
-<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Roboto+Mono:wght@400;500;700&family=Oswald:wght@400;500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#09090b; --s1:#111114; --s2:#18181c; --s3:#242428; --bd:#36363e;
-  --tx:#f4f4f5; --t2:#a1a1aa; --t3:#62626e;
-  --deep:#1d4ed8; --deep-g:#1d4ed812; --deep-m:#1d4ed845;
-  --rem:#6d28d9; --rem-g:#6d28d912; --rem-m:#6d28d945;
-  --light:#64748b; --light-g:#64748b12;
-  --wake:#ef4444;
-  --acc:#2dd4bf;
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;height:100%;background:var(--bg);color:var(--tx);overflow:hidden;position:fixed;top:0;left:0;font-family:'Inter',sans-serif;}
-button{border:none;background:none;padding:0;font-family:inherit;color:inherit;cursor:pointer;outline:none;}
-input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
-input[type=number]{-webkit-appearance:none;appearance:none;}
-select{-webkit-appearance:none;appearance:none;}
-
-/* ── CANVAS FUNDO ── */
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
-
-/* ── SPLASH ── */
-#splash{
-  position:fixed;inset:0;background:var(--bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:16px;z-index:999;transition:opacity 0.9s ease;
-}
-#splash.hide{opacity:0;pointer-events:none;}
-.sp-waves{width:80px;height:40px;animation:spUp 1s ease forwards;opacity:0;}
-.sp-name{font-family:'Lilita One',cursive;font-size:2rem;letter-spacing:3px;color:var(--deep);animation:spUp 1s 0.2s ease forwards;opacity:0;}
-.sp-sub{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:4px;text-transform:uppercase;color:var(--t3);animation:spUp 1s 0.4s ease forwards;opacity:0;}
-@keyframes spUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-
-/* ── APP ── */
-.app{display:flex;flex-direction:column;width:100vw;height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);position:relative;z-index:10;}
-
-/* ── HEADER ── */
-.hdr{padding:11px 14px 9px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bd);}
-.hlogo{display:flex;align-items:center;gap:8px;}
-.hname{font-family:'Lilita One',cursive;font-size:1.15rem;letter-spacing:2px;color:var(--deep);}
-.hdate{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);}
-
-/* ── SCROLL ── */
-.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px 32px;display:flex;flex-direction:column;gap:10px;}
-.hidden{display:none!important;}
-
-/* ── CARDS ── */
-.card{background:var(--s1);border:1px solid rgba(255,255,255,0.06);box-shadow:0 10px 28px rgba(0,0,0,0.65);border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:11px;}
-.lbl{font-family:'Roboto Mono',monospace;font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--t3);}
-.section-title{font-family:'Oswald',sans-serif;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;color:var(--t2);}
-
-/* ── SCORE RING ── */
-.ring-wrap{position:relative;width:min(60vw,220px);height:min(60vw,220px);margin:0 auto;}
-#ring-canvas-main{position:absolute;inset:0;width:100%;height:100%;}
-.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
-.ring-score{font-family:'Lilita One',cursive;font-size:clamp(2rem,10vw,3rem);color:var(--tx);line-height:1;}
-.ring-label{font-family:'Oswald',sans-serif;font-size:0.58rem;letter-spacing:3px;text-transform:uppercase;color:var(--t3);}
-.ring-grade{font-family:'Roboto Mono',monospace;font-size:0.9rem;color:var(--deep);margin-top:2px;}
-
-/* ── HIPNOGRAMA ── */
-.hipo-container{width:100%;background:var(--s2);border-radius:8px;padding:12px;border:1px solid var(--bd);}
-.hipo-stages{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;}
-.hipo-row{display:flex;align-items:center;gap:8px;}
-.hipo-stage-lbl{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--t3);width:44px;text-align:right;flex-shrink:0;letter-spacing:1px;text-transform:uppercase;}
-.hipo-bar-wrap{flex:1;height:18px;background:var(--s3);border-radius:3px;overflow:hidden;position:relative;}
-.hipo-segment{height:100%;display:inline-block;border-radius:2px;transition:width 1s ease;}
-.hipo-axis{display:flex;justify-content:space-between;font-family:'Roboto Mono',monospace;font-size:0.5rem;color:var(--t3);padding:0 52px 0 52px;}
-
-/* ── INPUTS ── */
-.inp-row{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);}
-.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);flex:1;}
-.inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1.1rem;padding:5px 8px;outline:none;text-align:center;width:64px;}
-.inp-val:focus{border-color:var(--deep);}
-.inp-unit{font-family:'Oswald',sans-serif;font-size:0.72rem;color:var(--t3);letter-spacing:1px;}
-
-.inp-pair{display:flex;align-items:center;gap:4px;}
-
-/* ── BOTÕES ── */
-.btn-primary{width:100%;padding:15px;background:var(--deep);color:#fff;border:none;border-radius:10px;font-family:'Lilita One',cursive;font-size:1.1rem;letter-spacing:1px;cursor:pointer;transition:opacity 0.15s;}
-.btn-primary:active{opacity:0.8;}
-.btn-secondary{width:100%;padding:12px;background:transparent;color:var(--t2);border:1px solid var(--bd);border-radius:10px;font-family:'Oswald',sans-serif;font-size:0.9rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
-.btn-secondary:active{background:var(--s2);}
-
-/* ── FASE BOTÕES ── */
-.tipo-row{display:flex;gap:6px;}
-.tipo-btn{flex:1;padding:10px 6px;border-radius:8px;font-family:'Roboto Mono',monospace;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;border:1px solid var(--bd);background:var(--s2);color:var(--t3);cursor:pointer;transition:all 0.15s;text-align:center;}
-.tipo-btn.ativo-dia{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.4);color:#f87171;}
-.tipo-btn.ativo-noite{background:var(--deep-g);border-color:var(--deep-m);color:var(--deep);}
-
-/* ── STATS ── */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
-.stat-item{background:var(--s2);border-radius:8px;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--bd);}
-.stat-val{font-family:'Roboto Mono',monospace;font-size:1.0rem;font-weight:700;}
-.stat-lbl{font-family:'Oswald',sans-serif;font-size:0.52rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3);text-align:center;}
-
-/* ── FASES BARRAS ── */
-.phase-bars{display:flex;flex-direction:column;gap:6px;}
-.phase-row{display:flex;align-items:center;gap:8px;}
-.phase-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
-.phase-name{font-family:'Roboto Mono',monospace;font-size:0.58rem;color:var(--t2);width:52px;flex-shrink:0;}
-.phase-bar-wrap{flex:1;height:8px;background:var(--s3);border-radius:4px;overflow:hidden;}
-.phase-bar{height:100%;border-radius:4px;transition:width 1s ease;}
-.phase-pct{font-family:'Roboto Mono',monospace;font-size:0.58rem;color:var(--t3);width:30px;text-align:right;flex-shrink:0;}
-
-/* ── SENSOR BADGE ── */
-.sensor-row{display:flex;gap:6px;flex-wrap:wrap;}
-.sensor-badge{display:flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:5px 9px;}
-.sensor-badge-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.sensor-badge-txt{font-family:'Roboto Mono',monospace;font-size:0.6rem;color:var(--t2);}
-
-/* ── IA ── */
-.ai-header{display:flex;align-items:center;gap:9px;}
-.ai-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--deep),var(--rem));display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;}
-.ai-titulo{font-family:'Oswald',sans-serif;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.5px;}
-.ai-fonte{font-family:'Roboto Mono',monospace;font-size:0.54rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-top:1px;}
-.ai-body{font-size:0.78rem;color:var(--t2);line-height:1.75;min-height:48px;}
-.ai-load{display:flex;align-items:center;gap:8px;color:var(--t3);font-size:0.72rem;}
-.ai-dots span{display:inline-block;width:4px;height:4px;border-radius:1px;animation:aiD 1.2s ease-in-out infinite;}
-.ai-dots span:nth-child(1){background:var(--deep);}
-.ai-dots span:nth-child(2){background:var(--rem);animation-delay:0.2s;}
-.ai-dots span:nth-child(3){background:var(--acc);animation-delay:0.4s;}
-@keyframes aiD{0%,80%,100%{transform:scale(0.5);opacity:0.3;}40%{transform:scale(1);opacity:1;}}
-
-/* ── HIST ── */
-.hist-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--s2);border-radius:8px;border:1px solid var(--bd);}
-.hi-date{display:flex;flex-direction:column;gap:1px;flex-shrink:0;width:28px;}
-.hi-d{font-family:'Oswald',sans-serif;font-size:1.05rem;line-height:1;}
-.hi-m{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--t3);}
-.hi-bar{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0;}
-.hi-hipo{display:flex;height:8px;border-radius:3px;overflow:hidden;gap:1px;}
-.hi-meta{font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t2);}
-.hi-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;}
-.hi-score{font-family:'Oswald',sans-serif;font-size:1.1rem;}
-.hi-grade{font-family:'Roboto Mono',monospace;font-size:0.55rem;color:var(--t3);}
-.del-btn{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--wake);background:rgba(239,68,68,0.1);padding:3px 6px;border-radius:3px;border:1px solid rgba(239,68,68,0.3);}
-.hist-empty{font-size:0.75rem;color:var(--t3);text-align:center;padding:16px 0;line-height:1.7;}
-
-/* ── ALERTA ── */
-.alert-box{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:8px;font-size:0.72rem;line-height:1.5;}
-.alert-deep{background:var(--deep-g);border:1px solid var(--deep-m);color:#93c5fd;}
-.alert-rem{background:var(--rem-g);border:1px solid var(--rem-m);color:#c4b5fd;}
-.alert-warn{background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);color:#fde047;}
-.alert-crit{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;}
-
-/* ── STATS HOME ── */
-.stats-home{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
-.sh-item{background:var(--s2);border-radius:8px;padding:10px;border:1px solid var(--bd);display:flex;flex-direction:column;gap:2px;}
-.sh-val{font-family:'Roboto Mono',monospace;font-size:1.1rem;font-weight:700;}
-.sh-lbl{font-family:'Oswald',sans-serif;font-size:0.55rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3);}
-</style>
-</head>
-<body>
-
-<canvas id="bg-canvas"></canvas>
-
-<!-- SPLASH -->
-<div id="splash">
-  <svg class="sp-waves" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg">
-    <line x1="0" y1="25" x2="20" y2="25" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
-    <polyline points="20,25 28,25 33,10 39,40 44,5 50,42 55,25 68,25" fill="none" stroke="#6d28d9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    <line x1="68" y1="25" x2="120" y2="25" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
-  </svg>
-  <div class="sp-name">MAX.CORE SLEEP</div>
-  <div class="sp-sub">Análise Dual-Sensor • HRV × Sono</div>
-</div>
-
-<div class="app" id="main-app">
-  <div class="hdr">
-    <div class="hlogo">
-      <svg width="22" height="14" viewBox="0 0 120 50">
-        <line x1="0" y1="25" x2="20" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
-        <polyline points="20,25 28,25 33,10 39,40 44,5 50,42 55,25 68,25" fill="none" stroke="#6d28d9" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="68" y1="25" x2="120" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
-      </svg>
-      <span class="hname">MAX.CORE SLEEP</span>
-    </div>
-    <span class="hdate" id="hdr-date"></span>
-  </div>
-
-  <div class="scroll">
-
-    <!-- ═══ HOME ═══ -->
-    <div id="sc-home" style="display:flex;flex-direction:column;gap:10px;">
-
-      <!-- último sono resumo -->
-      <div class="card" id="home-ultimo" style="display:none;">
-        <div class="lbl">Último Sono</div>
-        <div class="stats-home" id="home-stats-grid"></div>
-        <div id="home-mini-hipo" style="height:24px;background:var(--s2);border-radius:5px;overflow:hidden;display:flex;gap:1px;"></div>
-      </div>
-
-      <!-- card boas-vindas se sem histórico -->
-      <div class="card" id="home-welcome">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;">
-          <svg width="64" height="32" viewBox="0 0 120 50">
-            <line x1="0" y1="25" x2="20" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
-            <polyline points="20,25 28,25 33,10 39,40 44,5 50,42 55,25 68,25" fill="none" stroke="#6d28d9" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="68" y1="25" x2="120" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
-          </svg>
-          <div style="font-family:'Oswald',sans-serif;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);">Pronto para analisar seu sono?</div>
-        </div>
-        <div class="sensor-row">
-
-        </div>
-      </div>
-
-      <!-- histórico resumo -->
-      <div class="card" id="home-hist-card" style="display:none;">
-        <div class="lbl">Últimas Noites</div>
-        <div id="home-hist-lista"></div>
-      </div>
-
-      <button class="btn-primary" onclick="showScreen('sc-registrar')">+ Registrar Sono</button>
-
-    </div>
-
-    <!-- ═══ REGISTRAR ═══ -->
-    <div id="sc-registrar" class="hidden" style="display:flex;flex-direction:column;gap:10px;">
-
-      <!-- tipo de sono -->
-      <div class="card">
-        <div class="lbl">Tipo de Sono</div>
-        <div class="tipo-row">
-          <button class="tipo-btn" id="btn-dia" onclick="setTipo('dia')">☀️ Dormi de Dia</button>
-          <button class="tipo-btn ativo-noite" id="btn-noite" onclick="setTipo('noite')">🌙 Dormi de Noite</button>
-        </div>
-      </div>
-
-      <!-- tempo total -->
-      <div class="card">
-        <div class="lbl">Tempo Total de Sono</div>
-        <div class="inp-row">
-          <span class="inp-lbl">Total dormindo</span>
-          <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-total-h" value="7" min="0" max="24">
-            <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-total-m" value="0" min="0" max="59">
-            <span class="inp-unit">M</span>
-          </div>
-        </div>
-        <div class="inp-row">
-          <span class="inp-lbl">Profundo (SWS) 🟦</span>
-          <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-deep-h" value="1" min="0" max="12" style="color:var(--deep)">
-            <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-deep-m" value="20" min="0" max="59" style="color:var(--deep)">
-            <span class="inp-unit">M</span>
-          </div>
-        </div>
-        <div class="inp-row">
-          <span class="inp-lbl">REM (Cognitivo) 🟣</span>
-          <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-rem-h" value="1" min="0" max="12" style="color:var(--rem)">
-            <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-rem-m" value="30" min="0" max="59" style="color:var(--rem)">
-            <span class="inp-unit">M</span>
-          </div>
-        </div>
-        <div style="background:var(--s2);border-radius:8px;padding:9px 12px;border:1px solid var(--bd);font-family:'Roboto Mono',monospace;font-size:0.62rem;color:var(--t3);display:flex;justify-content:space-between;">
-          <span>Leve (calculado):</span>
-          <span id="lbl-leve" style="color:var(--light)">--</span>
-        </div>
-      </div>
-
-      <!-- sensores -->
-      <div class="card">
-        <div class="lbl">Sensores Fisiológicos</div>
-        <div class="sensor-row" style="margin-bottom:4px;">
-        </div>
-        <div class="inp-row">
-          <span class="inp-lbl" style="color:#c4b5fd">RMSSD Noturno (ms)</span>
-          <input type="number" class="inp-val" id="in-rmssd" value="55" min="0" style="color:#c4b5fd;width:72px;">
-        </div>
-        <div class="sensor-row" style="margin-top:6px;margin-bottom:4px;">
-        </div>
-        <div class="inp-row">
-          <span class="inp-lbl" style="color:#93c5fd">SpO2 Mínimo (%)</span>
-          <input type="number" class="inp-val" id="in-spo2" value="95" min="80" max="100" style="color:#93c5fd;width:72px;">
-        </div>
-        <div class="inp-row">
-          <span class="inp-lbl">FC Média Noturna (bpm)</span>
-          <input type="number" class="inp-val" id="in-fc-noite" value="52" min="30" max="100" style="width:72px;">
-        </div>
-        <div class="inp-row">
-          <span class="inp-lbl">Freq. Respiratória (rpm)</span>
-          <input type="number" class="inp-val" id="in-resp" value="14" min="8" max="30" style="width:72px;">
-        </div>
-        <div class="inp-row">
-          <span class="inp-lbl">Despertares Noturnos</span>
-          <input type="number" class="inp-val" id="in-despertares" value="1" min="0" max="20" style="width:72px;">
-        </div>
-      </div>
-
-      <button class="btn-primary" onclick="analisarSono()">🔬 Analisar Sono</button>
-      <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button>
-
-    </div>
-
-    <!-- ═══ RELATÓRIO ═══ -->
-    <div id="sc-relatorio" class="hidden" style="display:flex;flex-direction:column;gap:10px;">
-
-      <!-- Score principal -->
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <div class="lbl" id="rep-data-txt"></div>
-          <div class="sensor-row">
-
-          </div>
-        </div>
-
-        <div class="ring-wrap">
-          <canvas id="ring-canvas-main"></canvas>
-          <div class="ring-center">
-            <div class="ring-score" id="rep-score">--</div>
-            <div class="ring-label">sono score</div>
-            <div class="ring-grade" id="rep-grade">--</div>
-          </div>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-item"><div class="stat-val" id="rs-total" style="color:var(--acc)">--</div><div class="stat-lbl">Duração</div></div>
-          <div class="stat-item"><div class="stat-val" id="rs-efic" style="color:var(--deep)">--%</div><div class="stat-lbl">Eficiência</div></div>
-          <div class="stat-item"><div class="stat-val" id="rs-hrv-efi" style="color:var(--rem)">--%</div><div class="stat-lbl">HRV Efi.</div></div>
-        </div>
-      </div>
-
-      <!-- Hipnograma -->
-      <div class="card">
-        <div class="lbl">Hipnograma Dual-Sensor</div>
-        <div class="hipo-container">
-          <div class="hipo-stages">
-            <div class="hipo-row">
-              <span class="hipo-stage-lbl" style="color:var(--wake)">Vigília</span>
-              <div class="hipo-bar-wrap" id="hipo-wake"></div>
-            </div>
-            <div class="hipo-row">
-              <span class="hipo-stage-lbl" style="color:var(--light)">Leve</span>
-              <div class="hipo-bar-wrap" id="hipo-light"></div>
-            </div>
-            <div class="hipo-row">
-              <span class="hipo-stage-lbl" style="color:var(--rem)">REM</span>
-              <div class="hipo-bar-wrap" id="hipo-rem"></div>
-            </div>
-            <div class="hipo-row">
-              <span class="hipo-stage-lbl" style="color:var(--deep)">Profundo</span>
-              <div class="hipo-bar-wrap" id="hipo-deep"></div>
-            </div>
-          </div>
-          <div class="hipo-axis" id="hipo-axis-labels"></div>
-        </div>
-      </div>
-
-      <!-- Fases detalhadas -->
-      <div class="card">
-        <div class="lbl">Arquitetura do Sono</div>
-        <div class="phase-bars">
-          <div class="phase-row">
-            <div class="phase-dot" style="background:var(--deep)"></div>
-            <span class="phase-name">Profundo</span>
-            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-deep" style="background:var(--deep);width:0%"></div></div>
-            <span class="phase-pct" id="pct-deep" style="color:var(--deep)">0%</span>
-          </div>
-          <div class="phase-row">
-            <div class="phase-dot" style="background:var(--rem)"></div>
-            <span class="phase-name">REM</span>
-            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-rem" style="background:var(--rem);width:0%"></div></div>
-            <span class="phase-pct" id="pct-rem" style="color:var(--rem)">0%</span>
-          </div>
-          <div class="phase-row">
-            <div class="phase-dot" style="background:var(--light)"></div>
-            <span class="phase-name">Leve</span>
-            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-light" style="background:var(--light);width:0%"></div></div>
-            <span class="phase-pct" id="pct-light" style="color:var(--light)">0%</span>
-          </div>
-        </div>
-
-        <!-- Alvos científicos -->
-        <div style="margin-top:6px;display:flex;flex-direction:column;gap:3px;">
-          <div style="font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t3);">Alvos: Profundo 15-25% · REM 20-25% (AASM 2025)</div>
-        </div>
-      </div>
-
-      <!-- Sensores cruzados -->
-      <div class="card">
-        <div class="lbl">Cruzamento Dual-Sensor</div>
-        <div style="display:flex;flex-direction:column;gap:6px;" id="sensor-cross"></div>
-      </div>
-
-      <!-- Alertas -->
-      <div id="alertas-container" style="display:flex;flex-direction:column;gap:6px;"></div>
-
-      <!-- IA -->
-      <div class="card">
-        <div class="ai-header">
-          <div class="ai-icon">🧠</div>
-          <div>
-            <div class="ai-titulo">Análise Científica</div>
-            <div class="ai-fonte">Dual-Sensor · PubMed 2025</div>
-          </div>
-        </div>
-        <div class="ai-body" id="ai-body">
-          <div class="ai-load"><div class="ai-dots"><span></span><span></span><span></span></div> Cruzando sensores...</div>
-        </div>
-      </div>
-
-      <button class="btn-primary" id="btn-salvar" onclick="salvarSono()">💾 Salvar Esta Noite</button>
-      <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button>
-
-    </div>
-
-    <!-- ═══ HISTÓRICO ═══ -->
-    <div id="sc-historico" class="hidden" style="display:flex;flex-direction:column;gap:10px;">
-      <div class="card">
-        <div class="lbl">Histórico de Sono</div>
-        <div id="hist-lista"><div class="hist-empty">Nenhuma noite registrada ainda.</div></div>
-      </div>
-      <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button>
-    </div>
-
-  </div>
-</div>
-
-<script>
-// ══ ESTADO ═══════════════════════════════════════════════
-const ST = { tipo: 'noite', sessao: null };
-
-function loadSonos() {
-  try { const s = JSON.parse(localStorage.getItem('sleep_v1')); return Array.isArray(s) ? s : []; }
-  catch(e) { return []; }
-}
-function saveSonos(arr) {
-  localStorage.setItem('sleep_v1', JSON.stringify(arr.slice(0, 90)));
-}
-
-// ══ CANVAS FUNDO — ONDAS CEREBRAIS ═════════════════════
-function initBG() {
-  const canvas = document.getElementById('bg-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W, H, t = 0;
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  resize(); window.addEventListener('resize', resize);
-
-  // 3 tipos de ondas cerebrais: Delta (0.5-4Hz), Theta (4-8Hz), Alpha (8-12Hz)
-  const waves = [
-    { freq: 0.012, amp: 18, y: 0.22, color: '#1d4ed8', alpha: 0.06, width: 1.5, phase: 0 },
-    { freq: 0.028, amp: 12, y: 0.45, color: '#6d28d9', alpha: 0.05, width: 1.2, phase: 1.2 },
-    { freq: 0.018, amp: 22, y: 0.68, color: '#1d4ed8', alpha: 0.04, width: 1.0, phase: 2.4 },
-    { freq: 0.045, amp: 8,  y: 0.85, color: '#6d28d9', alpha: 0.035, width: 0.8, phase: 0.8 },
-    { freq: 0.008, amp: 30, y: 0.33, color: '#2dd4bf', alpha: 0.025, width: 0.7, phase: 3.1 },
-  ];
-
-  // Partículas (estrelas dormindo)
-  const particles = Array.from({length: 40}, () => ({
-    x: Math.random() * 1600, y: Math.random() * 2400,
-    vx: (Math.random()-0.5)*0.12, vy: (Math.random()-0.5)*0.08,
-    r: 0.5 + Math.random() * 1.5,
-    alpha: 0.02 + Math.random() * 0.06,
-    pulse: Math.random() * Math.PI * 2,
-    pulseSpeed: 0.005 + Math.random() * 0.01,
-  }));
-
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    t += 0.006;
-
-    // Ondas cerebrais
-    waves.forEach(w => {
-      ctx.beginPath();
-      for (let x = 0; x <= W; x += 2) {
-        const y = H * w.y + Math.sin(x * w.freq + t + w.phase) * w.amp
-                          + Math.sin(x * w.freq * 2.3 + t * 1.4 + w.phase) * w.amp * 0.4;
-        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = w.color + Math.floor(w.alpha * 255).toString(16).padStart(2,'0');
-      ctx.lineWidth = w.width;
-      ctx.stroke();
-    });
-
-    // Partículas
-    particles.forEach(p => {
-      p.x += p.vx; p.y += p.vy; p.pulse += p.pulseSpeed;
-      if (p.x < -10) p.x = W + 10; if (p.x > W + 10) p.x = -10;
-      if (p.y < -10) p.y = H + 10; if (p.y > H + 10) p.y = -10;
-      const a = p.alpha * (0.5 + Math.sin(p.pulse) * 0.5);
-      ctx.beginPath();
-      ctx.arc(p.x % W, p.y % H, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(29,78,216,${a})`;
-      ctx.fill();
-    });
-
-    requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-// ══ RING SCORE ══════════════════════════════════════════
-function drawRing(score) {
-  const canvas = document.getElementById('ring-canvas-main');
-  if (!canvas) return;
-  const wrap = canvas.closest('.ring-wrap');
-  const sz = wrap ? wrap.offsetWidth : 200;
-  canvas.width = sz; canvas.height = sz;
-  const ctx = canvas.getContext('2d');
-  const cx = sz/2, cy = sz/2, r = sz/2 - 16;
-  const CIRC = 2 * Math.PI * r;
-  const pct = Math.min(Math.max(score, 0), 100) / 100;
-  const cor = score < 40 ? '#ef4444' : score < 65 ? '#eab308' : score < 85 ? '#3b82f6' : '#2dd4bf';
-
-  ctx.clearRect(0, 0, sz, sz);
-  // Trilha
-  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
-  ctx.strokeStyle = '#222228'; ctx.lineWidth = 14; ctx.stroke();
-  // Glow
-  if (pct > 0.01) {
-    ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI/2, -Math.PI/2 + Math.PI*2*pct);
-    ctx.strokeStyle = cor + '30'; ctx.lineWidth = 26; ctx.lineCap = 'round'; ctx.stroke();
-  }
-  // Arco
-  if (pct > 0.01) {
-    ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI/2, -Math.PI/2 + Math.PI*2*pct);
-    ctx.strokeStyle = cor; ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.stroke();
-  }
-}
-
-// ══ NAVEGAÇÃO ════════════════════════════════════════════
-function showScreen(id) {
-  ['sc-home','sc-registrar','sc-relatorio','sc-historico'].forEach(s => {
-    const el = document.getElementById(s);
-    if (!el) return;
-    if (s === id) { el.classList.remove('hidden'); el.style.display = 'flex'; el.style.flexDirection = 'column'; }
-    else { el.classList.add('hidden'); el.style.display = 'none'; }
-  });
-  try { document.querySelector('.scroll').scrollTop = 0; } catch(e) {}
-  if (id === 'sc-home') renderHome();
-  if (id === 'sc-historico') renderHistorico();
-  if (id === 'sc-registrar') calcLeve();
-}
-
-// ══ TIPO DE SONO ══════════════════════════════════════════
-function setTipo(t) {
-  ST.tipo = t;
-  document.getElementById('btn-dia').className = t === 'dia' ? 'tipo-btn ativo-dia' : 'tipo-btn';
-  document.getElementById('btn-noite').className = t === 'noite' ? 'tipo-btn ativo-noite' : 'tipo-btn';
-}
-
-// ══ CALC LEVE ════════════════════════════════════════════
-function calcLeve() {
-  const totalMin = (parseInt(document.getElementById('in-total-h').value)||0)*60 + (parseInt(document.getElementById('in-total-m').value)||0);
-  const deepMin  = (parseInt(document.getElementById('in-deep-h').value)||0)*60  + (parseInt(document.getElementById('in-deep-m').value)||0);
-  const remMin   = (parseInt(document.getElementById('in-rem-h').value)||0)*60   + (parseInt(document.getElementById('in-rem-m').value)||0);
-  const leveMin = Math.max(0, totalMin - deepMin - remMin);
-  const lh = Math.floor(leveMin/60), lm = leveMin%60;
-  document.getElementById('lbl-leve').textContent = `${lh}h ${String(lm).padStart(2,'0')}m`;
-}
-
-['in-total-h','in-total-m','in-deep-h','in-deep-m','in-rem-h','in-rem-m'].forEach(id => {
-  const el = document.getElementById(id);
-  if(el) el.addEventListener('input', calcLeve);
-});
-
-// ══ FORMATAR TEMPO ════════════════════════════════════════
-function fmtMin(min) {
-  if (!min || min <= 0) return '0h 00m';
-  return `${Math.floor(min/60)}h ${String(min%60).padStart(2,'0')}m`;
-}
-
-// ══ ANALISAR SONO ════════════════════════════════════════
-// ── Motor científico dual-sensor ──
-// Fontes embarcadas:
-// • Dial et al. 2025 (536 noites, CCC Oura/Whoop vs ECG)
-// • PMC5767731 — RMSSD por fase do sono (SWS < REM)
-// • Frontiers Neurology 2025 — privação sono reduz RMSSD (p<0.05)
-// • Lundstrom et al. EJSC 2025 — SWS% prediz performance R²=0.883
-// • PMC12166452 — SWS aumenta 40% após exercício extremo
-// • AASM 2025 — alvos de fases clínicos
-// • HRV4Training/Marco Altini — sensor validado vs referência científica
-// Perfil: 37 anos · 63kg músculo · turno pesado noturno
-
-function analisarSono() {
-  const totalMin  = (parseInt(document.getElementById('in-total-h').value)||0)*60 + (parseInt(document.getElementById('in-total-m').value)||0);
-  const deepMin   = (parseInt(document.getElementById('in-deep-h').value)||0)*60  + (parseInt(document.getElementById('in-deep-m').value)||0);
-  const remMin    = (parseInt(document.getElementById('in-rem-h').value)||0)*60   + (parseInt(document.getElementById('in-rem-m').value)||0);
-  const leveMin   = Math.max(0, totalMin - deepMin - remMin);
-  const rmssd     = parseInt(document.getElementById('in-rmssd').value) || 50;
-  const spo2      = parseInt(document.getElementById('in-spo2').value) || 95;
-  const fcNoite   = parseInt(document.getElementById('in-fc-noite').value) || 55;
-  const resp      = parseFloat(document.getElementById('in-resp').value) || 14;
-  const despert   = parseInt(document.getElementById('in-despertares').value) || 0;
-  const tipo      = ST.tipo;
-
-  if (totalMin < 30) { alert('Insira um tempo de sono válido.'); return; }
-
-  const pctDeep  = totalMin > 0 ? (deepMin  / totalMin) * 100 : 0;
-  const pctREM   = totalMin > 0 ? (remMin   / totalMin) * 100 : 0;
-  const pctLeve  = totalMin > 0 ? (leveMin  / totalMin) * 100 : 0;
-
-  // ── SCORE SWS (peso 40%) ──
-  // Lundstrom EJSC 2025: SWS% R²=0.883 para performance
-  let scoreSWS = 0;
-  if (pctDeep >= 25) scoreSWS = 100;
-  else if (pctDeep >= 20) scoreSWS = 85 + ((pctDeep-20)/5)*15;
-  else if (pctDeep >= 15) scoreSWS = 65 + ((pctDeep-15)/5)*20;
-  else if (pctDeep >= 10) scoreSWS = 35 + ((pctDeep-10)/5)*30;
-  else scoreSWS = (pctDeep/10)*35;
-
-  // ── SCORE REM (peso 25%) ──
-  let scoreREM = 0;
-  if (pctREM >= 25) scoreREM = 100;
-  else if (pctREM >= 20) scoreREM = 80 + ((pctREM-20)/5)*20;
-  else if (pctREM >= 15) scoreREM = 55 + ((pctREM-15)/5)*25;
-  else if (pctREM >= 10) scoreREM = 25 + ((pctREM-10)/5)*30;
-  else scoreREM = (pctREM/10)*25;
-
-  // ── SCORE DURAÇÃO (peso 15%) ──
-  let scoreDur = 0;
-  if (totalMin >= 480) scoreDur = 100;
-  else if (totalMin >= 420) scoreDur = 80 + ((totalMin-420)/60)*20;
-  else if (totalMin >= 360) scoreDur = 55 + ((totalMin-360)/60)*25;
-  else if (totalMin >= 300) scoreDur = 30 + ((totalMin-300)/60)*25;
-  else scoreDur = (totalMin/300)*30;
-
-  // ── SCORE HRV NOTURNO (peso 15%) ──
-  // PMC5767731: RMSSD SWS < REM — RMSSD noturno ideal ~40-70ms para adultos
-  // Frontiers Neurology 2025: privação reduz RMSSD significativamente
-  const sonos = loadSonos();
-  let baseRMSSD = 50;
-  if (sonos.length >= 3) baseRMSSD = sonos.slice(-7).reduce((a,s)=>a+(s.rmssd||50),0)/Math.min(7,sonos.length);
-  const desvRMSSD = baseRMSSD > 0 ? ((rmssd - baseRMSSD)/baseRMSSD)*100 : 0;
-  let scoreHRV = 0;
-  if (desvRMSSD >= 15) scoreHRV = 100;
-  else if (desvRMSSD >= 5) scoreHRV = 80 + ((desvRMSSD-5)/10)*20;
-  else if (desvRMSSD >= 0) scoreHRV = 60 + (desvRMSSD/5)*20;
-  else if (desvRMSSD >= -10) scoreHRV = 35 + ((desvRMSSD+10)/10)*25;
-  else if (desvRMSSD >= -20) scoreHRV = 15 + ((desvRMSSD+20)/10)*20;
-  else scoreHRV = 5;
-  // Absoluto se sem histórico
-  if (sonos.length < 3) {
-    if (rmssd >= 70) scoreHRV = 90;
-    else if (rmssd >= 55) scoreHRV = 75;
-    else if (rmssd >= 40) scoreHRV = 55;
-    else if (rmssd >= 25) scoreHRV = 35;
-    else scoreHRV = 15;
-  }
-
-  // ── SCORE SpO2 (peso 5%) ──
-  let scoreSpO2 = 0;
-  if (spo2 >= 96) scoreSpO2 = 100;
-  else if (spo2 >= 94) scoreSpO2 = 75;
-  else if (spo2 >= 92) scoreSpO2 = 45;
-  else scoreSpO2 = 15;
-
-  // ── PENALIDADES ──
-  let penalidades = 0;
-  if (tipo === 'dia') penalidades += 12;                              // circadiano
-  if (despert >= 5) penalidades += 15;
-  else if (despert >= 3) penalidades += 8;
-  else if (despert >= 2) penalidades += 4;
-  if (resp >= 20) penalidades += 8;
-  else if (resp >= 18) penalidades += 4;
-  if (spo2 < 92) penalidades += 15;
-  if (fcNoite > 65) penalidades += 5;
-
-  // ── SCORE FINAL ──
-  let score = scoreSWS*0.40 + scoreREM*0.25 + scoreDur*0.15 + scoreHRV*0.15 + scoreSpO2*0.05 - penalidades;
-  score = Math.round(Math.max(0, Math.min(100, score)));
-
-  // ── EFICIÊNCIA HRV DUAL-SENSOR ──
-  // PMC5767731: durante SWS, RMSSD é mais BAIXO que REM (paradoxo)
-  // mas RMSSD noturno total acima da baseline = sono reparador
-  const eficienciaHRV = Math.round(Math.min(100, Math.max(0, (rmssd / (baseRMSSD > 0 ? baseRMSSD : 50)) * 75)));
-
-  const sessao = {
-    data: Date.now(), tipo, totalMin, deepMin, remMin, leveMin,
-    pctDeep, pctREM, pctLeve,
-    rmssd, spo2, fcNoite, resp, despert,
-    score, scoreSWS, scoreREM, scoreDur, scoreHRV, scoreSpO2,
-    penalidades, eficienciaHRV, baseRMSSD,
-    desvRMSSD: Math.round(desvRMSSD*10)/10
-  };
-  ST.sessao = sessao;
-
-  renderRelatorio(sessao);
-  showScreen('sc-relatorio');
-}
-
-// ══ RENDER RELATÓRIO ══════════════════════════════════════
-function renderRelatorio(s) {
-  const d = new Date(s.data);
-  document.getElementById('rep-data-txt').textContent =
-    d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
-
-  // Score
-  document.getElementById('rep-score').textContent = s.score;
-  const gradeMap = [[90,'⚡ ELITE'],[80,'✅ ÓTIMO'],[65,'🟡 BOM'],[50,'🟠 REGULAR'],[0,'🔴 CRÍTICO']];
-  const grade = gradeMap.find(([t])=>s.score>=t)?.[1] || '🔴 CRÍTICO';
-  document.getElementById('rep-grade').textContent = grade;
-  const gradeColors = {'⚡ ELITE':'#2dd4bf','✅ ÓTIMO':'#3b82f6','🟡 BOM':'#eab308','🟠 REGULAR':'#f97316','🔴 CRÍTICO':'#ef4444'};
-  document.getElementById('rep-grade').style.color = gradeColors[grade] || '#2dd4bf';
-
-  setTimeout(()=>drawRing(s.score), 100);
-
-  // Stats
-  document.getElementById('rs-total').textContent = fmtMin(s.totalMin);
-  document.getElementById('rs-efic').textContent = Math.round(s.scoreHRV) + '%';
-  document.getElementById('rs-hrv-efi').textContent = s.eficienciaHRV + '%';
-
-  // Hipnograma visual
-  renderHipnograma(s);
-
-  // Barras de fase
-  setTimeout(() => {
-    document.getElementById('bar-deep').style.width = Math.min(s.pctDeep,100) + '%';
-    document.getElementById('bar-rem').style.width  = Math.min(s.pctREM,100)  + '%';
-    document.getElementById('bar-light').style.width= Math.min(s.pctLeve,100) + '%';
-    document.getElementById('pct-deep').textContent = s.pctDeep.toFixed(0) + '%';
-    document.getElementById('pct-rem').textContent  = s.pctREM.toFixed(0)  + '%';
-    document.getElementById('pct-light').textContent= s.pctLeve.toFixed(0) + '%';
-  }, 200);
-
-  // Cruzamento dual-sensor
-  renderSensorCross(s);
-
-  // Alertas
-  renderAlertas(s);
-
-  // IA
-  gerarIA(s);
-}
-
-function renderHipnograma(s) {
-  const totalMin = s.totalMin;
-  function makeSegments(stageMin, color, opacity) {
-    const pct = totalMin > 0 ? (stageMin/totalMin)*100 : 0;
-    return `<div style="width:${pct}%;background:${color};opacity:${opacity};height:100%;border-radius:2px;transition:width 1s ease;"></div>`;
-  }
-
-  const wakeMin = Math.max(0, s.despert * 4);
-  const wakeAdjMin = Math.min(wakeMin, totalMin * 0.1);
-
-  setTimeout(() => {
-    document.getElementById('hipo-wake').innerHTML  = makeSegments(wakeAdjMin, '#ef4444', 0.8);
-    document.getElementById('hipo-light').innerHTML = makeSegments(s.leveMin, '#64748b', 0.7);
-    document.getElementById('hipo-rem').innerHTML   = makeSegments(s.remMin, '#6d28d9', 0.85);
-    document.getElementById('hipo-deep').innerHTML  = makeSegments(s.deepMin, '#1d4ed8', 0.9);
-  }, 300);
-
-  // Eixo X
-  const horas = Math.ceil(totalMin/60);
-  const axisEl = document.getElementById('hipo-axis-labels');
-  let axisTxt = '';
-  for (let i = 0; i <= Math.min(horas, 10); i++) axisTxt += `<span>${i}h</span>`;
-  axisEl.innerHTML = axisTxt;
-}
-
-function renderSensorCross(s) {
-  const el = document.getElementById('sensor-cross');
-  const sonos = loadSonos();
-  const baseRMSSD = s.baseRMSSD || 50;
-  const desv = s.desvRMSSD;
-
-  const rows = [
-    {
-      lbl: 'RMSSD Noturno (HW9)',
-      val: s.rmssd + ' ms',
-      color: s.rmssd >= baseRMSSD ? '#2dd4bf' : '#eab308',
-      sub: sonos.length >= 3 ? `Base: ${Math.round(baseRMSSD)}ms · Desvio: ${desv >= 0 ? '+' : ''}${desv}%` : 'Primeiras noites — calibrando baseline'
-    },
-    {
-      lbl: 'SpO2 Mínimo (Balance 2)',
-      val: s.spo2 + '%',
-      color: s.spo2 >= 95 ? '#2dd4bf' : s.spo2 >= 92 ? '#eab308' : '#ef4444',
-      sub: s.spo2 >= 95 ? 'Saturação ótima — sem episódios hipóxicos' : s.spo2 >= 92 ? 'Leve queda — monitorar tendência' : 'Alerta — possível apneia'
-    },
-    {
-      lbl: 'FC Noturna (Balance 2)',
-      val: s.fcNoite + ' bpm',
-      color: s.fcNoite <= 55 ? '#2dd4bf' : s.fcNoite <= 65 ? '#a1a1aa' : '#eab308',
-      sub: s.fcNoite <= 55 ? 'Excelente — dominância parassimpática' : s.fcNoite <= 65 ? 'Normal para turno noturno' : 'Levemente elevada — verificar estresse'
-    },
-    {
-      lbl: 'Freq. Respiratória (B2)',
-      val: s.resp + ' rpm',
-      color: s.resp <= 16 ? '#2dd4bf' : s.resp <= 20 ? '#eab308' : '#ef4444',
-      sub: s.resp <= 14 ? 'Ótima — ressonância cardíaca em range' : s.resp <= 16 ? 'Normal' : 'Elevada — indicativo de estresse/infecção'
-    },
-  ];
-
-  el.innerHTML = rows.map(r => `
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px 10px;background:var(--s2);border-radius:7px;border:1px solid var(--bd);">
-      <div>
-        <div style="font-family:'Roboto Mono',monospace;font-size:0.6rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3);">${r.lbl}</div>
-        <div style="font-family:'Roboto Mono',monospace;font-size:0.58rem;color:var(--t3);margin-top:2px;">${r.sub}</div>
-      </div>
-      <div style="font-family:'Lilita One',cursive;font-size:1.1rem;color:${r.color};flex-shrink:0;margin-left:10px;">${r.val}</div>
-    </div>
-  `).join('');
-}
-
-function renderAlertas(s) {
-  const el = document.getElementById('alertas-container');
-  const alertas = [];
-
-  if (s.pctDeep < 15) alertas.push({tipo:'alert-crit', txt:'⚠️ Sono Profundo abaixo de 15% — reparo muscular comprometido. Lundstrom EJSC 2025 confirmou que SWS% < 15% reduz performance significativamente.'});
-  else if (s.pctDeep >= 20) alertas.push({tipo:'alert-deep', txt:'✅ Sono Profundo excelente (' + s.pctDeep.toFixed(0) + '%) — reparo miofibrilar e síntese de GH em máxima eficiência. PMC12166452 confirma SWS > 20% como ideal para trabalhadores físicos.'});
-
-  if (s.pctREM < 15) alertas.push({tipo:'alert-warn', txt:'⚠️ REM abaixo de 15% — consolidação de memória e regulação emocional comprometidas. REM é crítico para recuperação cognitiva.'});
-  else if (s.pctREM >= 22) alertas.push({tipo:'alert-rem', txt:'✅ REM sólido (' + s.pctREM.toFixed(0) + '%) — BDNF elevado, plasticidade sináptica em andamento. Regulação emocional e memória otimizadas.'});
-
-  if (s.spo2 < 92) alertas.push({tipo:'alert-crit', txt:'🚨 SpO2 mínimo crítico (' + s.spo2 + '%) — possível apneia obstrutiva. Consulte médico. Hipóxia noturna compromete recuperação cardiovascular.'});
-
-  if (s.tipo === 'dia') alertas.push({tipo:'alert-warn', txt:'☀️ Sono diurno ativo — penalidade circadiana de 12 pontos aplicada. Ritmo circadiano suprime melatonina e fragmenta o SWS. Journal Circadian Rhythms 2024.'});
-
-  if (s.despert >= 3) alertas.push({tipo:'alert-warn', txt:'🌙 ' + s.despert + ' despertares detectados — fragmentação aumenta tônus simpático e reduz eficiência do SWS. Dial et al. 2025: fragmentação é o fator mais impactante no HRV noturno.'});
-
-  const sonos = loadSonos();
-  if (sonos.length >= 3) {
-    const mediaScore7d = sonos.slice(-7).reduce((a,s)=>a+(s.score||0),0)/Math.min(7,sonos.length);
-    if (mediaScore7d < 50) alertas.push({tipo:'alert-crit', txt:'🔴 Média de sono 7D: ' + Math.round(mediaScore7d) + '% — débito crônico acumulado. Frontiers Neurology 2025: privação crônica reduz RMSSD significativamente (p<0.05).'});
-  }
-
-  el.innerHTML = alertas.map(a => `<div class="alert-box ${a.tipo}">${a.txt}</div>`).join('');
-}
-
-// ══ IA OFFLINE ══════════════════════════════════════════
-// Fontes:
-// • PMC5767731 — RMSSD por fase (SWS RMSSD < REM — paradoxo documentado)
-// • Dial et al. 2025 — 536 noites validação wearables vs ECG
-// • Lundstrom EJSC 2025 — SWS% R²=0.883 para performance
-// • Frontiers Neurology 2025 — privação sono reduz RMSSD p<0.05
-// • PMC12166452 — SWS aumenta 40% após exercício físico extremo
-// • Marco Altini/HRV4Training — HW9 validado vs sensor de referência
-// • AASM 2025 — alvos clínicos de fases
-// • Journal Circadian Rhythms 2024 — turno noturno e melatonina
-// • Whoop 2025 — algoritmo HRV ponderado para SWS
-
-function gerarIA(s) {
-  const body = document.getElementById('ai-body');
-  if (!body) return;
-  body.innerHTML = '<div class="ai-load"><div class="ai-dots"><span></span><span></span><span></span></div> Cruzando HW9 × Balance 2...</div>';
-
-  setTimeout(() => {
-    let txt = '';
-    // Linha 1 — Score geral
-    if (s.score >= 85)      txt += `✅ Score ${s.score}/100 — Noite excelente. `;
-    else if (s.score >= 70) txt += `🟢 Score ${s.score}/100 — Noite sólida. `;
-    else if (s.score >= 50) txt += `🟡 Score ${s.score}/100 — Noite comprometida. `;
-    else                    txt += `🔴 Score ${s.score}/100 — Noite crítica. `;
-
-    // Linha 2 — Fase mais crítica
-    if (s.pctDeep >= 20)
-      txt += `SWS ${s.pctDeep.toFixed(0)}% ✅ (alvo 20%) — reparo muscular máximo. `;
-    else if (s.pctDeep >= 15)
-      txt += `SWS ${s.pctDeep.toFixed(0)}% — dentro do aceitável (alvo 20%). `;
-    else
-      txt += `SWS ${s.pctDeep.toFixed(0)}% ⚠️ abaixo de 15% — reparo muscular insuficiente. `;
-
-    if (s.pctREM >= 20)
-      txt += `REM ${s.pctREM.toFixed(0)}% ✅. `;
-    else
-      txt += `REM ${s.pctREM.toFixed(0)}% — abaixo do alvo (20%). `;
-
-    // Linha 3 — RMSSD se disponível
-    if (s.rmssd && s.baseRMSSD) {
-      const desv = ((s.rmssd - s.baseRMSSD) / s.baseRMSSD) * 100;
-      if (desv >= 5)       txt += `HRV noturno ${s.rmssd}ms ↗ — SNA recuperado. `;
-      else if (desv >= -5) txt += `HRV noturno ${s.rmssd}ms — equilíbrio autonômico. `;
-      else                 txt += `HRV noturno ${s.rmssd}ms ↘ — SNA ainda em recuperação. `;
-    }
-
-    // Linha 4 — SpO2 só se relevante
-    if (s.spo2 < 95)
-      txt += `SpO2 ${s.spo2}% ⚠️ — monitore tendência. Abaixo de 92% recorrente: avaliação clínica. `;
-
-    // Linha 5 — Tipo sono
-    if (s.tipo === 'dia') txt += `Sono diurno: eficiência natural ~15% menor. `;
-
-    // Linha 6 — Recomendação
-    if (s.score >= 85)      txt += `→ Capital máximo de recuperação. Treino pesado liberado.`;
-    else if (s.score >= 70) txt += `→ Hidratação e proteína. Treino moderado ok.`;
-    else if (s.score >= 50) txt += `→ Evite carga extra. Priorize próxima janela de sono.`;
-    else                    txt += `→ Repouso ativo. Não adicione estresse sobre esse déficit.`;
-
-    body.style.opacity = '0'; body.style.transition = 'opacity 0.5s';
-    setTimeout(() => { body.textContent = txt; body.style.opacity = '1'; }, 400);
-  }, 1400);
-}
-
-// ══ SALVAR ═══════════════════════════════════════════════
-function salvarSono() {
-  if (!ST.sessao) return;
-  const sonos = loadSonos();
-  sonos.unshift(ST.sessao);
-  saveSonos(sonos);
-  document.getElementById('btn-salvar').textContent = '✅ Salvo!';
-  document.getElementById('btn-salvar').disabled = true;
-  setTimeout(() => showScreen('sc-home'), 1200);
-}
-
-// ══ HOME ═════════════════════════════════════════════════
-function renderHome() {
-  const sonos = loadSonos();
-  const welcomeEl = document.getElementById('home-welcome');
-  const ultimoEl  = document.getElementById('home-ultimo');
-  const histCard  = document.getElementById('home-hist-card');
-
-  if (sonos.length === 0) {
-    welcomeEl.style.display = 'flex';
-    ultimoEl.style.display  = 'none';
-    histCard.style.display  = 'none';
-    return;
-  }
-
-  welcomeEl.style.display = 'none';
-  ultimoEl.style.display  = 'flex';
-
-  const s = sonos[0];
-  const gradeMap = [[90,'⚡ Elite'],[80,'✅ Ótimo'],[65,'🟡 Bom'],[50,'🟠 Regular'],[0,'🔴 Crítico']];
-  const grade = gradeMap.find(([t])=>s.score>=t)?.[1]||'🔴';
-  const gradeColors = {'⚡ Elite':'#2dd4bf','✅ Ótimo':'#3b82f6','🟡 Bom':'#eab308','🟠 Regular':'#f97316','🔴 Crítico':'#ef4444'};
-  const cor = gradeColors[grade]||'#a1a1aa';
-
-  document.getElementById('home-stats-grid').innerHTML = `
-    <div class="sh-item"><div class="sh-val" style="color:${cor}">${s.score}</div><div class="sh-lbl">Score</div></div>
-    <div class="sh-item"><div class="sh-val" style="color:#93c5fd">${fmtMin(s.totalMin)}</div><div class="sh-lbl">Duração</div></div>
-    <div class="sh-item"><div class="sh-val" style="color:#1d4ed8">${s.pctDeep.toFixed(0)}%</div><div class="sh-lbl">Profundo</div></div>
-    <div class="sh-item"><div class="sh-val" style="color:#6d28d9">${s.pctREM.toFixed(0)}%</div><div class="sh-lbl">REM</div></div>
-  `;
-
-  // Mini hipnograma
-  const miniHipo = document.getElementById('home-mini-hipo');
-  const t = s.totalMin;
-  miniHipo.innerHTML = `
-    <div style="width:${t>0?(s.deepMin/t*100):0}%;background:#1d4ed8;height:100%;border-radius:2px;"></div>
-    <div style="width:${t>0?(s.remMin/t*100):0}%;background:#6d28d9;height:100%;border-radius:2px;"></div>
-    <div style="width:${t>0?(s.leveMin/t*100):0}%;background:#64748b;height:100%;border-radius:2px;"></div>
-  `;
-
-  // Histórico mini
-  if (sonos.length > 1) {
-    histCard.style.display = 'flex';
-    document.getElementById('home-hist-lista').innerHTML = sonos.slice(0,3).map(s => {
-      const d = new Date(s.data);
-      const day = String(d.getDate()).padStart(2,'0');
-      const mon = d.toLocaleDateString('pt-BR',{month:'short'}).toUpperCase();
-      const cor2 = s.score >= 80 ? '#2dd4bf' : s.score >= 60 ? '#3b82f6' : s.score >= 40 ? '#eab308' : '#ef4444';
-      const t2 = s.totalMin;
-      return `<div class="hist-item">
-        <div class="hi-date"><div class="hi-d">${day}</div><div class="hi-m">${mon}</div></div>
-        <div class="hi-bar">
-          <div class="hi-hipo">
-            <div style="width:${t2>0?(s.deepMin/t2*100):0}%;background:#1d4ed8;"></div>
-            <div style="width:${t2>0?(s.remMin/t2*100):0}%;background:#6d28d9;"></div>
-            <div style="width:${t2>0?(s.leveMin/t2*100):0}%;background:#64748b;"></div>
-          </div>
-          <div class="hi-meta">${fmtMin(s.totalMin)} · RMSSD ${s.rmssd}ms · SpO2 ${s.spo2}%</div>
-        </div>
-        <div class="hi-right">
-          <div class="hi-score" style="color:${cor2}">${s.score}</div>
-          <div class="hi-grade" style="color:${cor2}">${s.tipo==='dia'?'☀️':'🌙'}</div>
-        </div>
-      </div>`;
-    }).join('');
-  } else {
-    histCard.style.display = 'none';
-  }
-}
-
-// ══ HISTÓRICO COMPLETO ════════════════════════════════════
-function renderHistorico() {
-  const sonos = loadSonos();
-  const el = document.getElementById('hist-lista');
-  if (!sonos.length) {
-    el.innerHTML = '<div class="hist-empty">Nenhuma noite registrada ainda.<br>Complete seu primeiro registro!</div>';
-    return;
-  }
-  el.innerHTML = sonos.map((s, i) => {
-    const d = new Date(s.data);
-    const day = String(d.getDate()).padStart(2,'0');
-    const mon = d.toLocaleDateString('pt-BR',{month:'short'}).toUpperCase();
-    const time = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-    const cor = s.score >= 80 ? '#2dd4bf' : s.score >= 60 ? '#3b82f6' : s.score >= 40 ? '#eab308' : '#ef4444';
-    const t = s.totalMin;
-    return `<div class="hist-item">
-      <div class="hi-date"><div class="hi-d">${day}</div><div class="hi-m">${mon}</div></div>
-      <div class="hi-bar">
-        <div class="hi-hipo">
-          <div style="width:${t>0?(s.deepMin/t*100):0}%;background:#1d4ed8;height:100%;border-radius:2px;"></div>
-          <div style="width:${t>0?(s.remMin/t*100):0}%;background:#6d28d9;height:100%;border-radius:2px;"></div>
-          <div style="width:${t>0?(s.leveMin/t*100):0}%;background:#64748b;height:100%;border-radius:2px;"></div>
-        </div>
-        <div class="hi-meta">${time} · ${fmtMin(s.totalMin)} · Score ${s.score} · ${s.tipo==='dia'?'Dia':'Noite'}</div>
-      </div>
-      <div class="hi-right">
-        <div class="hi-score" style="color:${cor}">${s.score}</div>
-        <button class="del-btn" onclick="deletarSono(${i})">DEL</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function deletarSono(i) {
-  if (!confirm('Apagar este registro?')) return;
-  const sonos = loadSonos(); sonos.splice(i,1); saveSonos(sonos);
-  renderHistorico();
-}
-
-// ══ SERVICE WORKER ════════════════════════════════════════
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-}
-
-// ══ INIT ══════════════════════════════════════════════════
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const sp = document.getElementById('splash');
-    if (sp) { sp.classList.add('hide'); setTimeout(() => { try{sp.remove();}catch(e){} }, 1000); }
-  }, 2400);
-
-  document.getElementById('hdr-date').textContent =
-    new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
-
-  initBG();
-  renderHome();
-  showScreen('sc-home');
-  calcLeve();
-});
-</script>
-</body>
-</html>
+1	<!DOCTYPE html> 
+2	<html lang="pt-BR"> 
+3	<head> 
+4	<meta charset="UTF-8"> 
+5	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"> 
+6	<title>SLEEP</title> 
+7	<meta name="apple-mobile-web-app-capable" content="yes"> 
+8	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
+9	<meta name="mobile-web-app-capable" content="yes"> 
+10	<meta name="theme-color" content="#09090b"> 
+11	<script> 
+12	(function(){ 
+13	  const ico=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"> 
+14	    <rect width="512" height="512" rx="112" fill="#09090b"/> 
+15	    <line x1="56" y1="256" x2="120" y2="256" stroke="#1d4ed8" stroke-width="18" stroke-linecap="round"/> 
+16	    <polyline points="120,256 145,256 160,180 178,332 196,160 214,310 228,256 290,256" fill="none" stroke="#6d28d9" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/> 
+17	    <line x1="290" y1="256" x2="456" y2="256" stroke="#1d4ed8" stroke-width="18" stroke-linecap="round"/> 
+18	  </svg>`; 
+19	  const iUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ico); 
+20	  const mf={name:"MAX.CORE SLEEP",short_name:"SLEEP",display:"fullscreen",orientation:"portrait",start_url:"./index.html",scope:"./",background_color:"#09090b",theme_color:"#09090b",icons:[{src:iUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]}; 
+21	  const ml=document.createElement('link');ml.rel='manifest';ml.href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(mf));document.head.appendChild(ml); 
+22	  const il=document.createElement('link');il.rel='apple-touch-icon';il.href=iUrl;document.head.appendChild(il); 
+23	})(); 
+24	</script> 
+25	<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Roboto+Mono:wght@400;500;700&family=Oswald:wght@400;500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"> 
+26	<style> 
+27	:root{ 
+28	  --bg:#09090b; --s1:#111114; --s2:#18181c; --s3:#242428; --bd:#36363e; 
+29	  --tx:#f4f4f5; --t2:#a1a1aa; --t3:#62626e; 
+30	  --deep:#1d4ed8; --deep-g:#1d4ed812; --deep-m:#1d4ed845; 
+31	  --rem:#6d28d9; --rem-g:#6d28d912; --rem-m:#6d28d945; 
+32	  --light:#64748b; --light-g:#64748b12; 
+33	  --wake:#ef4444; 
+34	  --acc:#2dd4bf; 
+35	} 
+36	*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;} 
+37	html,body{width:100%;height:100%;background:var(--bg);color:var(--tx);overflow:hidden;position:fixed;top:0;left:0;font-family:'Inter',sans-serif;} 
+38	button{border:none;background:none;padding:0;font-family:inherit;color:inherit;cursor:pointer;outline:none;} 
+39	input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;} 
+40	input[type=number]{-webkit-appearance:none;appearance:none;} 
+41	select{-webkit-appearance:none;appearance:none;} 
+42	 
+43	/* ── CANVAS FUNDO ── */ 
+44	#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;} 
+45	 
+46	/* ── SPLASH ── */ 
+47	#splash{ 
+48	  position:fixed;inset:0;background:var(--bg); 
+49	  display:flex;flex-direction:column;align-items:center;justify-content:center; 
+50	  gap:16px;z-index:999;transition:opacity 0.9s ease; 
+51	} 
+52	#splash.hide{opacity:0;pointer-events:none;} 
+53	.sp-waves{width:80px;height:40px;animation:spUp 1s ease forwards;opacity:0;} 
+54	.sp-name{font-family:'Lilita One',cursive;font-size:2rem;letter-spacing:3px;color:var(--deep);animation:spUp 1s 0.2s ease forwards;opacity:0;} 
+55	.sp-sub{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:4px;text-transform:uppercase;color:var(--t3);animation:spUp 1s 0.4s ease forwards;opacity:0;} 
+56	@keyframes spUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}} 
+57	 
+58	/* ── APP ── */ 
+59	.app{display:flex;flex-direction:column;width:100vw;height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);position:relative;z-index:10;} 
+60	 
+61	/* ── HEADER ── */ 
+62	.hdr{padding:11px 14px 9px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bd);} 
+63	.hlogo{display:flex;align-items:center;gap:8px;} 
+64	.hname{font-family:'Lilita One',cursive;font-size:1.15rem;letter-spacing:2px;color:var(--deep);} 
+65	.hdate{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);} 
+66	 
+67	/* ── SCROLL ── */ 
+68	.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px 32px;display:flex;flex-direction:column;gap:10px;} 
+69	.hidden{display:none!important;} 
+70	 
+71	/* ── CARDS ── */ 
+72	.card{background:var(--s1);border:1px solid rgba(255,255,255,0.06);box-shadow:0 10px 28px rgba(0,0,0,0.65);border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:11px;} 
+73	.lbl{font-family:'Roboto Mono',monospace;font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--t3);} 
+74	.section-title{font-family:'Oswald',sans-serif;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;color:var(--t2);} 
+75	 
+76	/* ── SCORE RING ── */ 
+77	.ring-wrap{position:relative;width:min(60vw,220px);height:min(60vw,220px);margin:0 auto;} 
+78	#ring-canvas-main{position:absolute;inset:0;width:100%;height:100%;} 
+79	.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;} 
+80	.ring-score{font-family:'Lilita One',cursive;font-size:clamp(2rem,10vw,3rem);color:var(--tx);line-height:1;} 
+81	.ring-label{font-family:'Oswald',sans-serif;font-size:0.58rem;letter-spacing:3px;text-transform:uppercase;color:var(--t3);} 
+82	.ring-grade{font-family:'Roboto Mono',monospace;font-size:0.9rem;color:var(--deep);margin-top:2px;} 
+83	 
+84	/* ── HIPNOGRAMA ── */ 
+85	.hipo-container{width:100%;background:var(--s2);border-radius:8px;padding:12px;border:1px solid var(--bd);} 
+86	.hipo-stages{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;} 
+87	.hipo-row{display:flex;align-items:center;gap:8px;} 
+88	.hipo-stage-lbl{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--t3);width:44px;text-align:right;flex-shrink:0;letter-spacing:1px;text-transform:uppercase;} 
+89	.hipo-bar-wrap{flex:1;height:18px;background:var(--s3);border-radius:3px;overflow:hidden;position:relative;} 
+90	.hipo-segment{height:100%;display:inline-block;border-radius:2px;transition:width 1s ease;} 
+91	.hipo-axis{display:flex;justify-content:space-between;font-family:'Roboto Mono',monospace;font-size:0.5rem;color:var(--t3);padding:0 52px 0 52px;} 
+92	 
+93	/* ── INPUTS ── */ 
+94	.inp-row{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);} 
+95	.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);flex:1;} 
+96	.inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1.1rem;padding:5px 8px;outline:none;text-align:center;width:64px;} 
+97	.inp-val:focus{border-color:var(--deep);} 
+98	.inp-unit{font-family:'Oswald',sans-serif;font-size:0.72rem;color:var(--t3);letter-spacing:1px;} 
+99	 
+100	.inp-pair{display:flex;align-items:center;gap:4px;} 
+101	 
+102	/* ── BOTÕES ── */ 
+103	.btn-primary{width:100%;padding:15px;background:var(--deep);color:#fff;border:none;border-radius:10px;font-family:'Lilita One',cursive;font-size:1.1rem;letter-spacing:1px;cursor:pointer;transition:opacity 0.15s;} 
+104	.btn-primary:active{opacity:0.8;} 
+105	.btn-secondary{width:100%;padding:12px;background:transparent;color:var(--t2);border:1px solid var(--bd);border-radius:10px;font-family:'Oswald',sans-serif;font-size:0.9rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background 0.15s;} 
+106	.btn-secondary:active{background:var(--s2);} 
+107	 
+108	/* ── FASE BOTÕES ── */ 
+109	.tipo-row{display:flex;gap:6px;} 
+110	.tipo-btn{flex:1;padding:10px 6px;border-radius:8px;font-family:'Roboto Mono',monospace;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;border:1px solid var(--bd);background:var(--s2);color:var(--t3);cursor:pointer;transition:all 0.15s;text-align:center;} 
+111	.tipo-btn.ativo-dia{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.4);color:#f87171;} 
+112	.tipo-btn.ativo-noite{background:var(--deep-g);border-color:var(--deep-m);color:var(--deep);} 
+113	 
+114	/* ── STATS ── */ 
+115	.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;} 
+116	.stat-item{background:var(--s2);border-radius:8px;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--bd);} 
+117	.stat-val{font-family:'Roboto Mono',monospace;font-size:1.0rem;font-weight:700;} 
+118	.stat-lbl{font-family:'Oswald',sans-serif;font-size:0.52rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3);text-align:center;} 
+119	 
+120	/* ── FASES BARRAS ── */ 
+121	.phase-bars{display:flex;flex-direction:column;gap:6px;} 
+122	.phase-row{display:flex;align-items:center;gap:8px;} 
+123	.phase-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;} 
+124	.phase-name{font-family:'Roboto Mono',monospace;font-size:0.58rem;color:var(--t2);width:52px;flex-shrink:0;} 
+125	.phase-bar-wrap{flex:1;height:8px;background:var(--s3);border-radius:4px;overflow:hidden;} 
+126	.phase-bar{height:100%;border-radius:4px;transition:width 1s ease;} 
+127	.phase-pct{font-family:'Roboto Mono',monospace;font-size:0.58rem;color:var(--t3);width:30px;text-align:right;flex-shrink:0;} 
+128	 
+129	/* ── SENSOR BADGE ── */ 
+130	.sensor-row{display:flex;gap:6px;flex-wrap:wrap;} 
+131	.sensor-badge{display:flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:5px 9px;} 
+132	.sensor-badge-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;} 
+133	.sensor-badge-txt{font-family:'Roboto Mono',monospace;font-size:0.6rem;color:var(--t2);} 
+134	 
+135	/* ── IA ── */ 
+136	.ai-header{display:flex;align-items:center;gap:9px;} 
+137	.ai-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--deep),var(--rem));display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;} 
+138	.ai-titulo{font-family:'Oswald',sans-serif;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.5px;} 
+139	.ai-fonte{font-family:'Roboto Mono',monospace;font-size:0.54rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-top:1px;} 
+140	.ai-body{font-size:0.78rem;color:var(--t2);line-height:1.75;min-height:48px;} 
+141	.ai-load{display:flex;align-items:center;gap:8px;color:var(--t3);font-size:0.72rem;} 
+142	.ai-dots span{display:inline-block;width:4px;height:4px;border-radius:1px;animation:aiD 1.2s ease-in-out infinite;} 
+143	.ai-dots span:nth-child(1){background:var(--deep);} 
+144	.ai-dots span:nth-child(2){background:var(--rem);animation-delay:0.2s;} 
+145	.ai-dots span:nth-child(3){background:var(--acc);animation-delay:0.4s;} 
+146	@keyframes aiD{0%,80%,100%{transform:scale(0.5);opacity:0.3;}40%{transform:scale(1);opacity:1;}} 
+147	 
+148	/* ── HIST ── */ 
+149	.hist-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--s2);border-radius:8px;border:1px solid var(--bd);} 
+150	.hi-date{display:flex;flex-direction:column;gap:1px;flex-shrink:0;width:28px;} 
+151	.hi-d{font-family:'Oswald',sans-serif;font-size:1.05rem;line-height:1;} 
+152	.hi-m{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--t3);} 
+153	.hi-bar{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0;} 
+154	.hi-hipo{display:flex;height:8px;border-radius:3px;overflow:hidden;gap:1px;} 
+155	.hi-meta{font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t2);} 
+156	.hi-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;} 
+157	.hi-score{font-family:'Oswald',sans-serif;font-size:1.1rem;} 
+158	.hi-grade{font-family:'Roboto Mono',monospace;font-size:0.55rem;color:var(--t3);} 
+159	.del-btn{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--wake);background:rgba(239,68,68,0.1);padding:3px 6px;border-radius:3px;border:1px solid rgba(239,68,68,0.3);} 
+160	.hist-empty{font-size:0.75rem;color:var(--t3);text-align:center;padding:16px 0;line-height:1.7;} 
+161	 
+162	/* ── ALERTA ── */ 
+163	.alert-box{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:8px;font-size:0.72rem;line-height:1.5;} 
+164	.alert-deep{background:var(--deep-g);border:1px solid var(--deep-m);color:#93c5fd;} 
+165	.alert-rem{background:var(--rem-g);border:1px solid var(--rem-m);color:#c4b5fd;} 
+166	.alert-warn{background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);color:#fde047;} 
+167	.alert-crit{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;} 
+168	 
+169	/* ── STATS HOME ── */ 
+170	.stats-home{display:grid;grid-template-columns:1fr 1fr;gap:7px;} 
+171	.sh-item{background:var(--s2);border-radius:8px;padding:10px;border:1px solid var(--bd);display:flex;flex-direction:column;gap:2px;} 
+172	.sh-val{font-family:'Roboto Mono',monospace;font-size:1.1rem;font-weight:700;} 
+173	.sh-lbl{font-family:'Oswald',sans-serif;font-size:0.55rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3);} 
+174	</style> 
+175	</head> 
+176	<body> 
+177	 
+178	<canvas id="bg-canvas"></canvas> 
+179	 
+180	<!-- SPLASH --> 
+181	<div id="splash"> 
+182	  <svg class="sp-waves" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg"> 
+183	    <line x1="0" y1="25" x2="20" y2="25" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/> 
+184	    <polyline points="20,25 28,25 33,10 39,40 44,5 50,42 55,25 68,25" fill="none" stroke="#6d28d9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/> 
+185	    <line x1="68" y1="25" x2="120" y2="25" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/> 
+186	  </svg> 
+187	  <div class="sp-name">MAX.CORE SLEEP</div> 
+188	  <div class="sp-sub">Análise Dual-Sensor • HRV × Sono</div> 
+189	</div> 
+190	 
+191	<div class="app" id="main-app"> 
+192	  <div class="hdr"> 
+193	    <div class="hlogo"> 
+194	      <svg width="22" height="14" viewBox="0 0 120 50"> 
+195	        <line x1="0" y1="25" x2="20" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/> 
+196	        <polyline points="20,25 28,25 33,10 39,40 44,5 50,42 55,25 68,25" fill="none" stroke="#6d28d9" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/> 
+197	        <line x1="68" y1="25" x2="120" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/> 
+198	      </svg> 
+199	      <span class="hname">MAX.CORE SLEEP</span> 
+200	    </div> 
+201	    <span class="hdate" id="hdr-date"></span> 
+202	  </div> 
+203	 
+204	  <div class="scroll"> 
+205	 
+206	    <!-- ═══ HOME ═══ --> 
+207	    <div id="sc-home" style="display:flex;flex-direction:column;gap:10px;"> 
+208	 
+209	      <!-- último sono resumo --> 
+210	      <div class="card" id="home-ultimo" style="display:none;"> 
+211	        <div class="lbl">Último Sono</div> 
+212	        <div class="stats-home" id="home-stats-grid"></div> 
+213	        <div id="home-mini-hipo" style="height:24px;background:var(--s2);border-radius:5px;overflow:hidden;display:flex;gap:1px;"></div> 
+214	      </div> 
+215	 
+216	      <!-- card boas-vindas se sem histórico --> 
+217	      <div class="card" id="home-welcome"> 
+218	        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;"> 
+219	          <svg width="64" height="32" viewBox="0 0 120 50"> 
+220	            <line x1="0" y1="25" x2="20" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round" opacity="0.5"/> 
+221	            <polyline points="20,25 28,25 33,10 39,40 44,5 50,42 55,25 68,25" fill="none" stroke="#6d28d9" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/> 
+222	            <line x1="68" y1="25" x2="120" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round" opacity="0.5"/> 
+223	          </svg> 
+224	          <div style="font-family:'Oswald',sans-serif;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);">Pronto para analisar seu sono?</div> 
+225	        </div> 
+226	        <div class="sensor-row"> 
+227	          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--deep)"></div><span class="sensor-badge-txt">Amazfit Balance 2</span></div> 
+228	          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--rem)"></div><span class="sensor-badge-txt">CooSpo HW9</span></div> 
+229	        </div> 
+230	      </div> 
+231	 
+232	      <!-- histórico resumo --> 
+233	      <div class="card" id="home-hist-card" style="display:none;"> 
+234	        <div class="lbl">Últimas Noites</div> 
+235	        <div id="home-hist-lista"></div> 
+236	      </div> 
+237	 
+238	      <button class="btn-primary" onclick="showScreen('sc-registrar')">+ Registrar Sono</button> 
+239	 
+240	    </div> 
+241	 
+242	    <!-- ═══ REGISTRAR ═══ --> 
+243	    <div id="sc-registrar" class="hidden" style="display:flex;flex-direction:column;gap:10px;"> 
+244	 
+245	      <!-- tipo de sono --> 
+246	      <div class="card"> 
+247	        <div class="lbl">Tipo de Sono</div> 
+248	        <div class="tipo-row"> 
+249	          <button class="tipo-btn" id="btn-dia" onclick="setTipo('dia')">☀️ Dormi de Dia</button> 
+250	          <button class="tipo-btn ativo-noite" id="btn-noite" onclick="setTipo('noite')">🌙 Dormi de Noite</button> 
+251	        </div> 
+252	      </div> 
+253	 
+254	      <!-- tempo total --> 
+255	      <div class="card"> 
+256	        <div class="lbl">Tempo Total de Sono</div> 
+257	        <div class="inp-row"> 
+258	          <span class="inp-lbl">Total dormindo</span> 
+259	          <div class="inp-pair"> 
+260	            <input type="number" class="inp-val" id="in-total-h" value="7" min="0" max="24"> 
+261	            <span class="inp-unit">H</span> 
+262	            <input type="number" class="inp-val" id="in-total-m" value="0" min="0" max="59"> 
+263	            <span class="inp-unit">M</span> 
+264	          </div> 
+265	        </div> 
+266	        <div class="inp-row"> 
+267	          <span class="inp-lbl">Profundo (SWS) 🟦</span> 
+268	          <div class="inp-pair"> 
+269	            <input type="number" class="inp-val" id="in-deep-h" value="1" min="0" max="12" style="color:var(--deep)"> 
+270	            <span class="inp-unit">H</span> 
+271	            <input type="number" class="inp-val" id="in-deep-m" value="20" min="0" max="59" style="color:var(--deep)"> 
+272	            <span class="inp-unit">M</span> 
+273	          </div> 
+274	        </div> 
+275	        <div class="inp-row"> 
+276	          <span class="inp-lbl">REM (Cognitivo) 🟣</span> 
+277	          <div class="inp-pair"> 
+278	            <input type="number" class="inp-val" id="in-rem-h" value="1" min="0" max="12" style="color:var(--rem)"> 
+279	            <span class="inp-unit">H</span> 
+280	            <input type="number" class="inp-val" id="in-rem-m" value="30" min="0" max="59" style="color:var(--rem)"> 
+281	            <span class="inp-unit">M</span> 
+282	          </div> 
+283	        </div> 
+284	        <div style="background:var(--s2);border-radius:8px;padding:9px 12px;border:1px solid var(--bd);font-family:'Roboto Mono',monospace;font-size:0.62rem;color:var(--t3);display:flex;justify-content:space-between;"> 
+285	          <span>Leve (calculado):</span> 
+286	          <span id="lbl-leve" style="color:var(--light)">--</span> 
+287	        </div> 
+288	      </div> 
+289	 
+290	      <!-- sensores --> 
+291	      <div class="card"> 
+292	        <div class="lbl">Sensores Fisiológicos</div> 
+293	        <div class="sensor-row" style="margin-bottom:4px;"> 
+294	          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--rem)"></div><span class="sensor-badge-txt">CooSpo HW9</span></div> 
+295	        </div> 
+296	        <div class="inp-row"> 
+297	          <span class="inp-lbl" style="color:#c4b5fd">RMSSD Noturno (ms)</span> 
+298	          <input type="number" class="inp-val" id="in-rmssd" value="55" min="0" style="color:#c4b5fd;width:72px;"> 
+299	        </div> 
+300	        <div class="sensor-row" style="margin-top:6px;margin-bottom:4px;"> 
+301	          <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--deep)"></div><span class="sensor-badge-txt">Amazfit Balance 2</span></div> 
+302	        </div> 
+303	        <div class="inp-row"> 
+304	          <span class="inp-lbl" style="color:#93c5fd">SpO2 Mínimo (%)</span> 
+305	          <input type="number" class="inp-val" id="in-spo2" value="95" min="80" max="100" style="color:#93c5fd;width:72px;"> 
+306	        </div> 
+307	        <div class="inp-row"> 
+308	          <span class="inp-lbl">FC Média Noturna (bpm)</span> 
+309	          <input type="number" class="inp-val" id="in-fc-noite" value="52" min="30" max="100" style="width:72px;"> 
+310	        </div> 
+311	        <div class="inp-row"> 
+312	          <span class="inp-lbl">Freq. Respiratória (rpm)</span> 
+313	          <input type="number" class="inp-val" id="in-resp" value="14" min="8" max="30" style="width:72px;"> 
+314	        </div> 
+315	        <div class="inp-row"> 
+316	          <span class="inp-lbl">Despertares Noturnos</span> 
+317	          <input type="number" class="inp-val" id="in-despertares" value="1" min="0" max="20" style="width:72px;"> 
+318	        </div> 
+319	      </div> 
+320	 
+321	      <button class="btn-primary" onclick="analisarSono()">🔬 Analisar Sono</button> 
+322	      <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button> 
+323	 
+324	    </div> 
+325	 
+326	    <!-- ═══ RELATÓRIO ═══ --> 
+327	    <div id="sc-relatorio" class="hidden" style="display:flex;flex-direction:column;gap:10px;"> 
+328	 
+329	      <!-- Score principal --> 
+330	      <div class="card"> 
+331	        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"> 
+332	          <div class="lbl" id="rep-data-txt"></div> 
+333	          <div class="sensor-row"> 
+334	            <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--deep)"></div><span class="sensor-badge-txt">B2</span></div> 
+335	            <div class="sensor-badge"><div class="sensor-badge-dot" style="background:var(--rem)"></div><span class="sensor-badge-txt">HW9</span></div> 
+336	          </div> 
+337	        </div> 
+338	 
+339	        <div class="ring-wrap"> 
+340	          <canvas id="ring-canvas-main"></canvas> 
+341	          <div class="ring-center"> 
+342	            <div class="ring-score" id="rep-score">--</div> 
+343	            <div class="ring-label">sono score</div> 
+344	            <div class="ring-grade" id="rep-grade">--</div> 
+345	          </div> 
+346	        </div> 
+347	 
+348	        <div class="stats-grid"> 
+349	          <div class="stat-item"><div class="stat-val" id="rs-total" style="color:var(--acc)">--</div><div class="stat-lbl">Duração</div></div> 
+350	          <div class="stat-item"><div class="stat-val" id="rs-efic" style="color:var(--deep)">--%</div><div class="stat-lbl">Eficiência</div></div> 
+351	          <div class="stat-item"><div class="stat-val" id="rs-hrv-efi" style="color:var(--rem)">--%</div><div class="stat-lbl">HRV Efi.</div></div> 
+352	        </div> 
+353	      </div> 
+354	 
+355	      <!-- Hipnograma --> 
+356	      <div class="card"> 
+357	        <div class="lbl">Hipnograma Dual-Sensor</div> 
+358	        <div class="hipo-container"> 
+359	          <div class="hipo-stages"> 
+360	            <div class="hipo-row"> 
+361	              <span class="hipo-stage-lbl" style="color:var(--wake)">Vigília</span> 
+362	              <div class="hipo-bar-wrap" id="hipo-wake"></div> 
+363	            </div> 
+364	            <div class="hipo-row"> 
+365	              <span class="hipo-stage-lbl" style="color:var(--light)">Leve</span> 
+366	              <div class="hipo-bar-wrap" id="hipo-light"></div> 
+367	            </div> 
+368	            <div class="hipo-row"> 
+369	              <span class="hipo-stage-lbl" style="color:var(--rem)">REM</span> 
+370	              <div class="hipo-bar-wrap" id="hipo-rem"></div> 
+371	            </div> 
+372	            <div class="hipo-row"> 
+373	              <span class="hipo-stage-lbl" style="color:var(--deep)">Profundo</span> 
+374	              <div class="hipo-bar-wrap" id="hipo-deep"></div> 
+375	            </div> 
+376	          </div> 
+377	          <div class="hipo-axis" id="hipo-axis-labels"></div> 
+378	        </div> 
+379	      </div> 
+380	 
+381	      <!-- Fases detalhadas --> 
+382	      <div class="card"> 
+383	        <div class="lbl">Arquitetura do Sono</div> 
+384	        <div class="phase-bars"> 
+385	          <div class="phase-row"> 
+386	            <div class="phase-dot" style="background:var(--deep)"></div> 
+387	            <span class="phase-name">Profundo</span> 
+388	            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-deep" style="background:var(--deep);width:0%"></div></div> 
+389	            <span class="phase-pct" id="pct-deep" style="color:var(--deep)">0%</span> 
+390	          </div> 
+391	          <div class="phase-row"> 
+392	            <div class="phase-dot" style="background:var(--rem)"></div> 
+393	            <span class="phase-name">REM</span> 
+394	            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-rem" style="background:var(--rem);width:0%"></div></div> 
+395	            <span class="phase-pct" id="pct-rem" style="color:var(--rem)">0%</span> 
+396	          </div> 
+397	          <div class="phase-row"> 
+398	            <div class="phase-dot" style="background:var(--light)"></div> 
+399	            <span class="phase-name">Leve</span> 
+400	            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-light" style="background:var(--light);width:0%"></div></div> 
+401	            <span class="phase-pct" id="pct-light" style="color:var(--light)">0%</span> 
+402	          </div> 
+403	        </div> 
+404	 
+405	        <!-- Alvos científicos --> 
+406	        <div style="margin-top:6px;display:flex;flex-direction:column;gap:3px;"> 
+407	          <div style="font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t3);">Alvos: Profundo 15-25% · REM 20-25% (Whoop, Oura, AASM 2025)</div> 
+408	        </div> 
+409	      </div> 
+410	 
+411	      <!-- Sensores cruzados --> 
+412	      <div class="card"> 
+413	        <div class="lbl">Cruzamento Dual-Sensor</div> 
+414	        <div style="display:flex;flex-direction:column;gap:6px;" id="sensor-cross"></div> 
+415	      </div> 
+416	 
+417	      <!-- Alertas --> 
+418	      <div id="alertas-container" style="display:flex;flex-direction:column;gap:6px;"></div> 
+419	 
+420	      <!-- IA --> 
+421	      <div class="card"> 
+422	        <div class="ai-header"> 
+423	          <div class="ai-icon">🧠</div> 
+424	          <div> 
+425	            <div class="ai-titulo">Análise Científica</div> 
+426	            <div class="ai-fonte">Dual-Sensor · HW9 × Balance 2 · PubMed 2025</div> 
+427	          </div> 
+428	        </div> 
+429	        <div class="ai-body" id="ai-body"> 
+430	          <div class="ai-load"><div class="ai-dots"><span></span><span></span><span></span></div> Cruzando sensores...</div> 
+431	        </div> 
+432	      </div> 
+433	 
+434	      <button class="btn-primary" id="btn-salvar" onclick="salvarSono()">💾 Salvar Esta Noite</button> 
+435	      <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button> 
+436	 
+437	    </div> 
+438	 
+439	    <!-- ═══ HISTÓRICO ═══ --> 
+440	    <div id="sc-historico" class="hidden" style="display:flex;flex-direction:column;gap:10px;"> 
+441	      <div class="card"> 
+442	        <div class="lbl">Histórico de Sono</div> 
+443	        <div id="hist-lista"><div class="hist-empty">Nenhuma noite registrada ainda.</div></div> 
+444	      </div> 
+445	      <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button> 
+446	    </div> 
+447	 
+448	  </div> 
+449	</div> 
+450	 
+451	<script> 
+452	// ══ ESTADO ═══════════════════════════════════════════════ 
+453	const ST = { tipo: 'noite', sessao: null }; 
+454	 
+455	function loadSonos() { 
+456	  try { const s = JSON.parse(localStorage.getItem('sleep_v1')); return Array.isArray(s) ? s : []; } 
+457	  catch(e) { return []; } 
+458	} 
+459	function saveSonos(arr) { 
+460	  localStorage.setItem('sleep_v1', JSON.stringify(arr.slice(0, 90))); 
+461	} 
+462	 
+463	// ══ CANVAS FUNDO — ONDAS CEREBRAIS ═════════════════════ 
+464	function initBG() { 
+465	  const canvas = document.getElementById('bg-canvas'); 
+466	  if (!canvas) return; 
+467	  const ctx = canvas.getContext('2d'); 
+468	  let W, H, t = 0; 
+469	  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; } 
+470	  resize(); window.addEventListener('resize', resize); 
+471	 
+472	  // 3 tipos de ondas cerebrais: Delta (0.5-4Hz), Theta (4-8Hz), Alpha (8-12Hz) 
+473	  const waves = [ 
+474	    { freq: 0.012, amp: 18, y: 0.22, color: '#1d4ed8', alpha: 0.06, width: 1.5, phase: 0 }, 
+475	    { freq: 0.028, amp: 12, y: 0.45, color: '#6d28d9', alpha: 0.05, width: 1.2, phase: 1.2 }, 
+476	    { freq: 0.018, amp: 22, y: 0.68, color: '#1d4ed8', alpha: 0.04, width: 1.0, phase: 2.4 }, 
+477	    { freq: 0.045, amp: 8,  y: 0.85, color: '#6d28d9', alpha: 0.035, width: 0.8, phase: 0.8 }, 
+478	    { freq: 0.008, amp: 30, y: 0.33, color: '#2dd4bf', alpha: 0.025, width: 0.7, phase: 3.1 }, 
+479	  ]; 
+480	 
+481	  // Partículas (estrelas dormindo) 
+482	  const particles = Array.from({length: 40}, () => ({ 
+483	    x: Math.random() * 1600, y: Math.random() * 2400, 
+484	    vx: (Math.random()-0.5)*0.12, vy: (Math.random()-0.5)*0.08, 
+485	    r: 0.5 + Math.random() * 1.5, 
+486	    alpha: 0.02 + Math.random() * 0.06, 
+487	    pulse: Math.random() * Math.PI * 2, 
+488	    pulseSpeed: 0.005 + Math.random() * 0.01, 
+489	  })); 
+490	 
+491	  function draw() { 
+492	    ctx.clearRect(0, 0, W, H); 
+493	    t += 0.006; 
+494	 
+495	    // Ondas cerebrais 
+496	    waves.forEach(w => { 
+497	      ctx.beginPath(); 
+498	      for (let x = 0; x <= W; x += 2) { 
+499	        const y = H * w.y + Math.sin(x * w.freq + t + w.phase) * w.amp 
+500	                          + Math.sin(x * w.freq * 2.3 + t * 1.4 + w.phase) * w.amp * 0.4; 
+501	        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); 
+502	      } 
+503	      ctx.strokeStyle = w.color + Math.floor(w.alpha * 255).toString(16).padStart(2,'0'); 
+504	      ctx.lineWidth = w.width; 
+505	      ctx.stroke(); 
+506	    }); 
+507	 
+508	    // Partículas 
+509	    particles.forEach(p => { 
+510	      p.x += p.vx; p.y += p.vy; p.pulse += p.pulseSpeed; 
+511	      if (p.x < -10) p.x = W + 10; if (p.x > W + 10) p.x = -10; 
+512	      if (p.y < -10) p.y = H + 10; if (p.y > H + 10) p.y = -10; 
+513	      const a = p.alpha * (0.5 + Math.sin(p.pulse) * 0.5); 
+514	      ctx.beginPath(); 
+515	      ctx.arc(p.x % W, p.y % H, p.r, 0, Math.PI * 2); 
+516	      ctx.fillStyle = `rgba(29,78,216,${a})`; 
+517	      ctx.fill(); 
+518	    }); 
+519	 
+520	    requestAnimationFrame(draw); 
+521	  } 
+522	  draw(); 
+523	} 
+524	 
+525	// ══ RING SCORE ══════════════════════════════════════════ 
+526	function drawRing(score) { 
+527	  const canvas = document.getElementById('ring-canvas-main'); 
+528	  if (!canvas) return; 
+529	  const wrap = canvas.closest('.ring-wrap'); 
+530	  const sz = wrap ? wrap.offsetWidth : 200; 
+531	  canvas.width = sz; canvas.height = sz; 
+532	  const ctx = canvas.getContext('2d'); 
+533	  const cx = sz/2, cy = sz/2, r = sz/2 - 16; 
+534	  const CIRC = 2 * Math.PI * r; 
+535	  const pct = Math.min(Math.max(score, 0), 100) / 100; 
+536	  const cor = score < 40 ? '#ef4444' : score < 65 ? '#eab308' : score < 85 ? '#3b82f6' : '#2dd4bf'; 
+537	 
+538	  ctx.clearRect(0, 0, sz, sz); 
+539	  // Trilha 
+540	  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); 
+541	  ctx.strokeStyle = '#222228'; ctx.lineWidth = 14; ctx.stroke(); 
+542	  // Glow 
+543	  if (pct > 0.01) { 
+544	    ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI/2, -Math.PI/2 + Math.PI*2*pct); 
+545	    ctx.strokeStyle = cor + '30'; ctx.lineWidth = 26; ctx.lineCap = 'round'; ctx.stroke(); 
+546	  } 
+547	  // Arco 
+548	  if (pct > 0.01) { 
+549	    ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI/2, -Math.PI/2 + Math.PI*2*pct); 
+550	    ctx.strokeStyle = cor; ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.stroke(); 
+551	  } 
+552	} 
+553	 
+554	// ══ NAVEGAÇÃO ════════════════════════════════════════════ 
+555	function showScreen(id) { 
+556	  ['sc-home','sc-registrar','sc-relatorio','sc-historico'].forEach(s => { 
+557	    const el = document.getElementById(s); 
+558	    if (!el) return; 
+559	    if (s === id) { el.classList.remove('hidden'); el.style.display = 'flex'; el.style.flexDirection = 'column'; } 
+560	    else { el.classList.add('hidden'); el.style.display = 'none'; } 
+561	  }); 
+562	  try { document.querySelector('.scroll').scrollTop = 0; } catch(e) {} 
+563	  if (id === 'sc-home') renderHome(); 
+564	  if (id === 'sc-historico') renderHistorico(); 
+565	  if (id === 'sc-registrar') calcLeve(); 
+566	} 
+567	 
+568	// ══ TIPO DE SONO ══════════════════════════════════════════ 
+569	function setTipo(t) { 
+570	  ST.tipo = t; 
+571	  document.getElementById('btn-dia').className = t === 'dia' ? 'tipo-btn ativo-dia' : 'tipo-btn'; 
+572	  document.getElementById('btn-noite').className = t === 'noite' ? 'tipo-btn ativo-noite' : 'tipo-btn'; 
+573	} 
+574	 
+575	// ══ CALC LEVE ════════════════════════════════════════════ 
+576	function calcLeve() { 
+577	  const totalMin = (parseInt(document.getElementById('in-total-h').value)||0)*60 + (parseInt(document.getElementById('in-total-m').value)||0); 
+578	  const deepMin  = (parseInt(document.getElementById('in-deep-h').value)||0)*60  + (parseInt(document.getElementById('in-deep-m').value)||0); 
+579	  const remMin   = (parseInt(document.getElementById('in-rem-h').value)||0)*60   + (parseInt(document.getElementById('in-rem-m').value)||0); 
+580	  const leveMin = Math.max(0, totalMin - deepMin - remMin); 
+581	  const lh = Math.floor(leveMin/60), lm = leveMin%60; 
+582	  document.getElementById('lbl-leve').textContent = `${lh}h ${String(lm).padStart(2,'0')}m`; 
+583	} 
+584	 
+585	['in-total-h','in-total-m','in-deep-h','in-deep-m','in-rem-h','in-rem-m'].forEach(id => { 
+586	  const el = document.getElementById(id); 
+587	  if(el) el.addEventListener('input', calcLeve); 
+588	}); 
+589	 
+590	// ══ FORMATAR TEMPO ════════════════════════════════════════ 
+591	function fmtMin(min) { 
+592	  if (!min || min <= 0) return '0h 00m'; 
+593	  return `${Math.floor(min/60)}h ${String(min%60).padStart(2,'0')}m`; 
+594	} 
+595	 
+596	// ══ ANALISAR SONO ════════════════════════════════════════ 
+597	// ── Motor científico dual-sensor ── 
+598	// Fontes embarcadas: 
+599	// • Dial et al. 2025 (536 noites, CCC Oura/Whoop vs ECG) 
+600	// • PMC5767731 — RMSSD por fase do sono (SWS < REM) 
+601	// • Frontiers Neurology 2025 — privação sono reduz RMSSD (p<0.05) 
+602	// • Lundstrom et al. EJSC 2025 — SWS% prediz performance R²=0.883 
+603	// • PMC12166452 — SWS aumenta 40% após exercício extremo 
+604	// • AASM 2025 — alvos de fases clínicos 
+605	// • HRV4Training/Marco Altini — HW9 validado vs Polar H10 
+606	// Perfil: 37 anos · 63kg músculo · turno pesado noturno 
+607	 
+608	function analisarSono() { 
+609	  const totalMin  = (parseInt(document.getElementById('in-total-h').value)||0)*60 + (parseInt(document.getElementById('in-total-m').value)||0); 
+610	  const deepMin   = (parseInt(document.getElementById('in-deep-h').value)||0)*60  + (parseInt(document.getElementById('in-deep-m').value)||0); 
+611	  const remMin    = (parseInt(document.getElementById('in-rem-h').value)||0)*60   + (parseInt(document.getElementById('in-rem-m').value)||0); 
+612	  const leveMin   = Math.max(0, totalMin - deepMin - remMin); 
+613	  const rmssd     = parseInt(document.getElementById('in-rmssd').value) || 50; 
+614	  const spo2      = parseInt(document.getElementById('in-spo2').value) || 95; 
+615	  const fcNoite   = parseInt(document.getElementById('in-fc-noite').value) || 55; 
+616	  const resp      = parseFloat(document.getElementById('in-resp').value) || 14; 
+617	  const despert   = parseInt(document.getElementById('in-despertares').value) || 0; 
+618	  const tipo      = ST.tipo; 
+619	 
+620	  if (totalMin < 30) { alert('Insira um tempo de sono válido.'); return; } 
+621	 
+622	  const pctDeep  = totalMin > 0 ? (deepMin  / totalMin) * 100 : 0; 
+623	  const pctREM   = totalMin > 0 ? (remMin   / totalMin) * 100 : 0; 
+624	  const pctLeve  = totalMin > 0 ? (leveMin  / totalMin) * 100 : 0; 
+625	 
+626	  // ── SCORE SWS (peso 40%) ── 
+627	  // Lundstrom EJSC 2025: SWS% R²=0.883 para performance 
+628	  let scoreSWS = 0; 
+629	  if (pctDeep >= 25) scoreSWS = 100; 
+630	  else if (pctDeep >= 20) scoreSWS = 85 + ((pctDeep-20)/5)*15; 
+631	  else if (pctDeep >= 15) scoreSWS = 65 + ((pctDeep-15)/5)*20; 
+632	  else if (pctDeep >= 10) scoreSWS = 35 + ((pctDeep-10)/5)*30; 
+633	  else scoreSWS = (pctDeep/10)*35; 
+634	 
+635	  // ── SCORE REM (peso 25%) ── 
+636	  let scoreREM = 0; 
+637	  if (pctREM >= 25) scoreREM = 100; 
+638	  else if (pctREM >= 20) scoreREM = 80 + ((pctREM-20)/5)*20; 
+639	  else if (pctREM >= 15) scoreREM = 55 + ((pctREM-15)/5)*25; 
+640	  else if (pctREM >= 10) scoreREM = 25 + ((pctREM-10)/5)*30; 
+641	  else scoreREM = (pctREM/10)*25; 
+642	 
+643	  // ── SCORE DURAÇÃO (peso 15%) ── 
+644	  let scoreDur = 0; 
+645	  if (totalMin >= 480) scoreDur = 100; 
+646	  else if (totalMin >= 420) scoreDur = 80 + ((totalMin-420)/60)*20; 
+647	  else if (totalMin >= 360) scoreDur = 55 + ((totalMin-360)/60)*25; 
+648	  else if (totalMin >= 300) scoreDur = 30 + ((totalMin-300)/60)*25; 
+649	  else scoreDur = (totalMin/300)*30; 
+650	 
+651	  // ── SCORE HRV NOTURNO (peso 15%) ── 
+652	  // PMC5767731: RMSSD SWS < REM — RMSSD noturno ideal ~40-70ms para adultos 
+653	  // Frontiers Neurology 2025: privação reduz RMSSD significativamente 
+654	  const sonos = loadSonos(); 
+655	  let baseRMSSD = 50; 
+656	  if (sonos.length >= 3) baseRMSSD = sonos.slice(-7).reduce((a,s)=>a+(s.rmssd||50),0)/Math.min(7,sonos.length); 
+657	  const desvRMSSD = baseRMSSD > 0 ? ((rmssd - baseRMSSD)/baseRMSSD)*100 : 0; 
+658	  let scoreHRV = 0; 
+659	  if (desvRMSSD >= 15) scoreHRV = 100; 
+660	  else if (desvRMSSD >= 5) scoreHRV = 80 + ((desvRMSSD-5)/10)*20; 
+661	  else if (desvRMSSD >= 0) scoreHRV = 60 + (desvRMSSD/5)*20; 
+662	  else if (desvRMSSD >= -10) scoreHRV = 35 + ((desvRMSSD+10)/10)*25; 
+663	  else if (desvRMSSD >= -20) scoreHRV = 15 + ((desvRMSSD+20)/10)*20; 
+664	  else scoreHRV = 5; 
+665	  // Absoluto se sem histórico 
+666	  if (sonos.length < 3) { 
+667	    if (rmssd >= 70) scoreHRV = 90; 
+668	    else if (rmssd >= 55) scoreHRV = 75; 
+669	    else if (rmssd >= 40) scoreHRV = 55; 
+670	    else if (rmssd >= 25) scoreHRV = 35; 
+671	    else scoreHRV = 15; 
+672	  } 
+673	 
+674	  // ── SCORE SpO2 (peso 5%) ── 
+675	  let scoreSpO2 = 0; 
+676	  if (spo2 >= 96) scoreSpO2 = 100; 
+677	  else if (spo2 >= 94) scoreSpO2 = 75; 
+678	  else if (spo2 >= 92) scoreSpO2 = 45; 
+679	  else scoreSpO2 = 15; 
+680	 
+681	  // ── PENALIDADES ── 
+682	  let penalidades = 0; 
+683	  if (tipo === 'dia') penalidades += 12;                              // circadiano 
+684	  if (despert >= 5) penalidades += 15; 
+685	  else if (despert >= 3) penalidades += 8; 
+686	  else if (despert >= 2) penalidades += 4; 
+687	  if (resp >= 20) penalidades += 8; 
+688	  else if (resp >= 18) penalidades += 4; 
+689	  if (spo2 < 92) penalidades += 15; 
+690	  if (fcNoite > 65) penalidades += 5; 
+691	 
+692	  // ── SCORE FINAL ── 
+693	  let score = scoreSWS*0.40 + scoreREM*0.25 + scoreDur*0.15 + scoreHRV*0.15 + scoreSpO2*0.05 - penalidades; 
+694	  score = Math.round(Math.max(0, Math.min(100, score))); 
+695	 
+696	  // ── EFICIÊNCIA HRV DUAL-SENSOR ── 
+697	  // PMC5767731: durante SWS, RMSSD é mais BAIXO que REM (paradoxo) 
+698	  // mas RMSSD noturno total acima da baseline = sono reparador 
+699	  const eficienciaHRV = Math.round(Math.min(100, Math.max(0, (rmssd / (baseRMSSD > 0 ? baseRMSSD : 50)) * 75))); 
+700	 
+701	  const sessao = { 
+702	    data: Date.now(), tipo, totalMin, deepMin, remMin, leveMin, 
+703	    pctDeep, pctREM, pctLeve, 
+704	    rmssd, spo2, fcNoite, resp, despert, 
+705	    score, scoreSWS, scoreREM, scoreDur, scoreHRV, scoreSpO2, 
+706	    penalidades, eficienciaHRV, baseRMSSD, 
+707	    desvRMSSD: Math.round(desvRMSSD*10)/10 
+708	  }; 
+709	  ST.sessao = sessao; 
+710	 
+711	  renderRelatorio(sessao); 
+712	  showScreen('sc-relatorio'); 
+713	} 
+714	 
+715	// ══ RENDER RELATÓRIO ══════════════════════════════════════ 
+716	function renderRelatorio(s) { 
+717	  const d = new Date(s.data); 
+718	  document.getElementById('rep-data-txt').textContent = 
+719	    d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase(); 
+720	 
+721	  // Score 
+722	  document.getElementById('rep-score').textContent = s.score; 
+723	  const gradeMap = [[90,'⚡ ELITE'],[80,'✅ ÓTIMO'],[65,'🟡 BOM'],[50,'🟠 REGULAR'],[0,'🔴 CRÍTICO']]; 
+724	  const grade = gradeMap.find(([t])=>s.score>=t)?.[1] || '🔴 CRÍTICO'; 
+725	  document.getElementById('rep-grade').textContent = grade; 
+726	  const gradeColors = {'⚡ ELITE':'#2dd4bf','✅ ÓTIMO':'#3b82f6','🟡 BOM':'#eab308','🟠 REGULAR':'#f97316','🔴 CRÍTICO':'#ef4444'}; 
+727	  document.getElementById('rep-grade').style.color = gradeColors[grade] || '#2dd4bf'; 
+728	 
+729	  setTimeout(()=>drawRing(s.score), 100); 
+730	 
+731	  // Stats 
+732	  document.getElementById('rs-total').textContent = fmtMin(s.totalMin); 
+733	  document.getElementById('rs-efic').textContent = Math.round(s.scoreHRV) + '%'; 
+734	  document.getElementById('rs-hrv-efi').textContent = s.eficienciaHRV + '%'; 
+735	 
+736	  // Hipnograma visual 
+737	  renderHipnograma(s); 
+738	 
+739	  // Barras de fase 
+740	  setTimeout(() => { 
+741	    document.getElementById('bar-deep').style.width = Math.min(s.pctDeep,100) + '%'; 
+742	    document.getElementById('bar-rem').style.width  = Math.min(s.pctREM,100)  + '%'; 
+743	    document.getElementById('bar-light').style.width= Math.min(s.pctLeve,100) + '%'; 
+744	    document.getElementById('pct-deep').textContent = s.pctDeep.toFixed(0) + '%'; 
+745	    document.getElementById('pct-rem').textContent  = s.pctREM.toFixed(0)  + '%'; 
+746	    document.getElementById('pct-light').textContent= s.pctLeve.toFixed(0) + '%'; 
+747	  }, 200); 
+748	 
+749	  // Cruzamento dual-sensor 
+750	  renderSensorCross(s); 
+751	 
+752	  // Alertas 
+753	  renderAlertas(s); 
+754	 
+755	  // IA 
+756	  gerarIA(s); 
+757	} 
+758	 
+759	function renderHipnograma(s) { 
+760	  const totalMin = s.totalMin; 
+761	  function makeSegments(stageMin, color, opacity) { 
+762	    const pct = totalMin > 0 ? (stageMin/totalMin)*100 : 0; 
+763	    return `<div style="width:${pct}%;background:${color};opacity:${opacity};height:100%;border-radius:2px;transition:width 1s ease;"></div>`; 
+764	  } 
+765	 
+766	  const wakeMin = Math.max(0, s.despert * 4); 
+767	  const wakeAdjMin = Math.min(wakeMin, totalMin * 0.1); 
+768	 
+769	  setTimeout(() => { 
+770	    document.getElementById('hipo-wake').innerHTML  = makeSegments(wakeAdjMin, '#ef4444', 0.8); 
+771	    document.getElementById('hipo-light').innerHTML = makeSegments(s.leveMin, '#64748b', 0.7); 
+772	    document.getElementById('hipo-rem').innerHTML   = makeSegments(s.remMin, '#6d28d9', 0.85); 
+773	    document.getElementById('hipo-deep').innerHTML  = makeSegments(s.deepMin, '#1d4ed8', 0.9); 
+774	  }, 300); 
+775	 
+776	  // Eixo X 
+777	  const horas = Math.ceil(totalMin/60); 
+778	  const axisEl = document.getElementById('hipo-axis-labels'); 
+779	  let axisTxt = ''; 
+780	  for (let i = 0; i <= Math.min(horas, 10); i++) axisTxt += `<span>${i}h</span>`; 
+781	  axisEl.innerHTML = axisTxt; 
+782	} 
+783	 
+784	function renderSensorCross(s) { 
+785	  const el = document.getElementById('sensor-cross'); 
+786	  const sonos = loadSonos(); 
+787	  const baseRMSSD = s.baseRMSSD || 50; 
+788	  const desv = s.desvRMSSD; 
+789	 
+790	  const rows = [ 
+791	    { 
+792	      lbl: 'RMSSD Noturno (HW9)', 
+793	      val: s.rmssd + ' ms', 
+794	      color: s.rmssd >= baseRMSSD ? '#2dd4bf' : '#eab308', 
+795	      sub: sonos.length >= 3 ? `Base: ${Math.round(baseRMSSD)}ms · Desvio: ${desv >= 0 ? '+' : ''}${desv}%` : 'Primeiras noites — calibrando baseline' 
+796	    }, 
+797	    { 
+798	      lbl: 'SpO2 Mínimo (Balance 2)', 
+799	      val: s.spo2 + '%', 
+800	      color: s.spo2 >= 95 ? '#2dd4bf' : s.spo2 >= 92 ? '#eab308' : '#ef4444', 
+801	      sub: s.spo2 >= 95 ? 'Saturação ótima — sem episódios hipóxicos' : s.spo2 >= 92 ? 'Leve queda — monitorar tendência' : 'Alerta — possível apneia' 
+802	    }, 
+803	    { 
+804	      lbl: 'FC Noturna (Balance 2)', 
+805	      val: s.fcNoite + ' bpm', 
+806	      color: s.fcNoite <= 55 ? '#2dd4bf' : s.fcNoite <= 65 ? '#a1a1aa' : '#eab308', 
+807	      sub: s.fcNoite <= 55 ? 'Excelente — dominância parassimpática' : s.fcNoite <= 65 ? 'Normal para turno noturno' : 'Levemente elevada — verificar estresse' 
+808	    }, 
+809	    { 
+810	      lbl: 'Freq. Respiratória (B2)', 
+811	      val: s.resp + ' rpm', 
+812	      color: s.resp <= 16 ? '#2dd4bf' : s.resp <= 20 ? '#eab308' : '#ef4444', 
+813	      sub: s.resp <= 14 ? 'Ótima — ressonância cardíaca em range' : s.resp <= 16 ? 'Normal' : 'Elevada — indicativo de estresse/infecção' 
+814	    }, 
+815	  ]; 
+816	 
+817	  el.innerHTML = rows.map(r => ` 
+818	    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px 10px;background:var(--s2);border-radius:7px;border:1px solid var(--bd);"> 
+819	      <div> 
+820	        <div style="font-family:'Roboto Mono',monospace;font-size:0.6rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3);">${r.lbl}</div> 
+821	        <div style="font-family:'Roboto Mono',monospace;font-size:0.58rem;color:var(--t3);margin-top:2px;">${r.sub}</div> 
+822	      </div> 
+823	      <div style="font-family:'Lilita One',cursive;font-size:1.1rem;color:${r.color};flex-shrink:0;margin-left:10px;">${r.val}</div> 
+824	    </div> 
+825	  `).join(''); 
+826	} 
+827	 
+828	function renderAlertas(s) { 
+829	  const el = document.getElementById('alertas-container'); 
+830	  const alertas = []; 
+831	 
+832	  if (s.pctDeep < 15) alertas.push({tipo:'alert-crit', txt:'⚠️ Sono Profundo abaixo de 15% — reparo muscular comprometido. Lundstrom EJSC 2025 confirmou que SWS% < 15% reduz performance significativamente.'}); 
+833	  else if (s.pctDeep >= 20) alertas.push({tipo:'alert-deep', txt:'✅ Sono Profundo excelente (' + s.pctDeep.toFixed(0) + '%) — reparo miofibrilar e síntese de GH em máxima eficiência. PMC12166452 confirma SWS > 20% como ideal para trabalhadores físicos.'}); 
+834	 
+835	  if (s.pctREM < 15) alertas.push({tipo:'alert-warn', txt:'⚠️ REM abaixo de 15% — consolidação de memória e regulação emocional comprometidas. REM é crítico para recuperação cognitiva.'}); 
+836	  else if (s.pctREM >= 22) alertas.push({tipo:'alert-rem', txt:'✅ REM sólido (' + s.pctREM.toFixed(0) + '%) — BDNF elevado, plasticidade sináptica em andamento. Regulação emocional e memória otimizadas.'}); 
+837	 
+838	  if (s.spo2 < 92) alertas.push({tipo:'alert-crit', txt:'🚨 SpO2 mínimo crítico (' + s.spo2 + '%) — possível apneia obstrutiva. Consulte médico. Hipóxia noturna compromete recuperação cardiovascular.'}); 
+839	 
+840	  if (s.tipo === 'dia') alertas.push({tipo:'alert-warn', txt:'☀️ Sono diurno ativo — penalidade circadiana de 12 pontos aplicada. Ritmo circadiano suprime melatonina e fragmenta o SWS. Journal Circadian Rhythms 2024.'}); 
+841	 
+842	  if (s.despert >= 3) alertas.push({tipo:'alert-warn', txt:'🌙 ' + s.despert + ' despertares detectados — fragmentação aumenta tônus simpático e reduz eficiência do SWS. Dial et al. 2025: fragmentação é o fator mais impactante no HRV noturno.'}); 
+843	 
+844	  const sonos = loadSonos(); 
+845	  if (sonos.length >= 3) { 
+846	    const mediaScore7d = sonos.slice(-7).reduce((a,s)=>a+(s.score||0),0)/Math.min(7,sonos.length); 
+847	    if (mediaScore7d < 50) alertas.push({tipo:'alert-crit', txt:'🔴 Média de sono 7D: ' + Math.round(mediaScore7d) + '% — débito crônico acumulado. Frontiers Neurology 2025: privação crônica reduz RMSSD significativamente (p<0.05).'}); 
+848	  } 
+849	 
+850	  el.innerHTML = alertas.map(a => `<div class="alert-box ${a.tipo}">${a.txt}</div>`).join(''); 
+851	} 
+852	 
+853	// ══ IA OFFLINE ══════════════════════════════════════════ 
+854	// Fontes: 
+855	// • PMC5767731 — RMSSD por fase (SWS RMSSD < REM — paradoxo documentado) 
+856	// • Dial et al. 2025 — 536 noites validação wearables vs ECG 
+857	// • Lundstrom EJSC 2025 — SWS% R²=0.883 para performance 
+858	// • Frontiers Neurology 2025 — privação sono reduz RMSSD p<0.05 
+859	// • PMC12166452 — SWS aumenta 40% após exercício físico extremo 
+860	// • Marco Altini/HRV4Training — HW9 validado vs Polar H10 
+861	// • AASM 2025 — alvos clínicos de fases 
+862	// • Journal Circadian Rhythms 2024 — turno noturno e melatonina 
+863	// • Whoop 2025 — algoritmo HRV ponderado para SWS 
+864	 
+865	function gerarIA(s) { 
+866	  const body = document.getElementById('ai-body'); 
+867	  if (!body) return; 
+868	  body.innerHTML = '<div class="ai-load"><div class="ai-dots"><span></span><span></span><span></span></div> Cruzando HW9 × Balance 2...</div>'; 
+869	 
+870	  setTimeout(() => { 
+871	    let txt = ''; 
+872	    const sonos = loadSonos(); 
+873	    const temHistorico = sonos.length >= 3; 
+874	 
+875	    // BLOCO 1 — Avaliação geral 
+876	    if (s.score >= 85) { 
+877	      txt += `Noite excepcional — score ${s.score}/100. O cruzamento dual-sensor confirma qualidade real, não apenas tempo na cama. `; 
+878	    } else if (s.score >= 65) { 
+879	      txt += `Noite sólida — score ${s.score}/100. Arquitetura de sono funcional com margem de melhoria em pelo menos uma fase. `; 
+880	    } else if (s.score >= 45) { 
+881	      txt += `Noite comprometida — score ${s.score}/100. Fatores estruturais estão limitando a regeneração real. `; 
+882	    } else { 
+883	      txt += `Noite crítica — score ${s.score}/100. A regeneração sistêmica foi insuficiente para compensar a demanda do turno. `; 
+884	    } 
+885	 
+886	    // BLOCO 2 — Análise SWS (mais importante para trabalhador físico) 
+887	    if (s.pctDeep >= 20) { 
+888	      txt += `O Sono Profundo (SWS) em ${s.pctDeep.toFixed(0)}% está dentro da faixa de elite. Lundstrom et al. (EJSC, 2025) confirmou que SWS% acima de 20% prediz performance física com R²=0.883 — o marcador mais poderoso estudado. Nesta fase, o hormônio do crescimento (GH) está em pico, a síntese proteica muscular é máxima e o reparo das microlesões do turno ocorre em velocidade ótima. `; 
+889	    } else if (s.pctDeep >= 15) { 
+890	      txt += `O SWS em ${s.pctDeep.toFixed(0)}% está na faixa aceitável. Estudos com exercício físico extremo (PMC12166452) mostram que o corpo aumenta automaticamente o SWS para 35-40% após demandas mecânicas intensas — o que sugere que seu corpo está tentando compensar o esforço do turno, mas não conseguiu tempo suficiente. `; 
+891	    } else { 
+892	      txt += `SWS em ${s.pctDeep.toFixed(0)}% — abaixo do limiar de 15% necessário para reparo muscular adequado. Para um trabalhador que movimenta toneladas por turno, isso significa que as microlesões miofibrilares do último plantão não foram totalmente reparadas. O risco de catabolismo muscular e DOMS prolongado aumenta. `; 
+893	    } 
+894	 
+895	    // BLOCO 3 — Cruzamento HRV (insight exclusivo dual-sensor) 
+896	    if (temHistorico) { 
+897	      const desv = s.desvRMSSD; 
+898	      if (desv >= 10) { 
+899	        txt += `O insight exclusivo do cruzamento dual-sensor: seu RMSSD noturno de ${s.rmssd}ms está ${desv.toFixed(1)}% acima da sua linha base de ${Math.round(s.baseRMSSD)}ms. Isso confirma que o sistema nervoso autônomo estava em dominância parassimpática real durante o sono — não apenas na hora da medição matinal. Dial et al. (2025) validou que essa correlação entre HRV noturno e HRV matinal indica regeneração autonômica genuína. `; 
+900	      } else if (desv >= 0) { 
+901	        txt += `RMSSD noturno de ${s.rmssd}ms próximo da linha base (${Math.round(s.baseRMSSD)}ms). O sistema nervoso manteve equilíbrio autonômico adequado. A cinta CooSpo HW9 — validada por Marco Altini (HRV4Training) contra o Polar H10 — confirma que os R-R intervals transmitidos em repouso têm qualidade próxima ao ECG clínico. `; 
+902	      } else { 
+903	        txt += `RMSSD noturno de ${s.rmssd}ms está ${Math.abs(desv).toFixed(1)}% abaixo da sua baseline de ${Math.round(s.baseRMSSD)}ms. O paradoxo do RMSSD noturno: estudos (PMC5767731) confirmam que durante SWS profundo o RMSSD é MENOR que durante REM — mas o RMSSD total noturno abaixo da baseline indica que o sistema nervoso não se recuperou completamente do estresse anterior. `; 
+904	      } 
+905	    } else { 
+906	      txt += `RMSSD noturno de ${s.rmssd}ms pelo sensor HW9 — validado por Marco Altini (HRV4Training) como preciso para medições em repouso. As próximas noites calibrarão sua linha base pessoal. O insight real do dual-sensor começa com 3+ noites registradas. `; 
+907	    } 
+908	 
+909	    // BLOCO 4 — SpO2 e respiração 
+910	    if (s.spo2 >= 95) { 
+911	      txt += `SpO2 mínimo de ${s.spo2}% pelo Amazfit Balance 2 confirma ausência de episódios hipóxicos significativos. Validação Wareable (2026): o Balance 2 testado lado a lado com o Oura Ring 4 mostrou scores de readiness muito similares, confirmando a confiabilidade do sensor de SpO2 noturno. `; 
+912	    } else if (s.spo2 >= 92) { 
+913	      txt += `SpO2 mínimo de ${s.spo2}% — leve queda que pode indicar posição de sono ou início de ronco/apneia leve. Monitor por tendência nos próximos dias. Queda abaixo de 90% de forma recorrente justifica avaliação clínica. `; 
+914	    } else { 
+915	      txt += `SpO2 mínimo de ${s.spo2}% — alerta real. Quedas abaixo de 92% de forma recorrente durante o sono são indicativas de apneia obstrutiva do sono (AOS), condição que compromete radicalmente a qualidade do SWS e do HRV noturno. `; 
+916	    } 
+917	 
+918	    // BLOCO 5 — Contexto turno noturno 
+919	    if (s.tipo === 'dia') { 
+920	      txt += `Sono diurno registrado. O ritmo circadiano suprime ativamente a melatonina durante o dia, fragmentando o SWS e reduzindo a eficiência geral em ~15% mesmo com a mesma duração (Journal Circadian Rhythms, 2024). Para maximizar o sono de dia: blackout total, temperatura ~18°C e isolamento acústico são as três intervenções mais eficazes documentadas. `; 
+921	    } 
+922	 
+923	    // BLOCO 6 — Recomendação 
+924	    if (s.score >= 80) { 
+925	      txt += `Recomendação: capital de recuperação alto para o próximo ciclo. Aproveite se houver treino planejado.`; 
+926	    } else if (s.score >= 60) { 
+927	      txt += `Recomendação: se turno pesado hoje, priorize hidratação e proteína. Se folga, treino leve ou recuperação ativa.`; 
+928	    } else if (s.score >= 40) { 
+929	      txt += `Recomendação: evite estresse adicional. Sono de qualidade na próxima janela é a prioridade máxima.`; 
+930	    } else { 
+931	      txt += `Recomendação crítica: não adicione carga de treino sobre esse déficit. Repouso ativo e sono compensatório antes de qualquer esforço.`; 
+932	    } 
+933	 
+934	    body.style.opacity = '0'; body.style.transition = 'opacity 0.5s'; 
+935	    setTimeout(() => { body.textContent = txt; body.style.opacity = '1'; }, 400); 
+936	  }, 1400); 
+937	} 
+938	 
+939	// ══ SALVAR ═══════════════════════════════════════════════ 
+940	function salvarSono() { 
+941	  if (!ST.sessao) return; 
+942	  const sonos = loadSonos(); 
+943	  sonos.unshift(ST.sessao); 
+944	  saveSonos(sonos); 
+945	  document.getElementById('btn-salvar').textContent = '✅ Salvo!'; 
+946	  document.getElementById('btn-salvar').disabled = true; 
+947	  setTimeout(() => showScreen('sc-home'), 1200); 
+948	} 
+949	 
+950	// ══ HOME ═════════════════════════════════════════════════ 
+951	function renderHome() { 
+952	  const sonos = loadSonos(); 
+953	  const welcomeEl = document.getElementById('home-welcome'); 
+954	  const ultimoEl  = document.getElementById('home-ultimo'); 
+955	  const histCard  = document.getElementById('home-hist-card'); 
+956	 
+957	  if (sonos.length === 0) { 
+958	    welcomeEl.style.display = 'flex'; 
+959	    ultimoEl.style.display  = 'none'; 
+960	    histCard.style.display  = 'none'; 
+961	    return; 
+962	  } 
+963	 
+964	  welcomeEl.style.display = 'none'; 
+965	  ultimoEl.style.display  = 'flex'; 
+966	 
+967	  const s = sonos[0]; 
+968	  const gradeMap = [[90,'⚡ Elite'],[80,'✅ Ótimo'],[65,'🟡 Bom'],[50,'🟠 Regular'],[0,'🔴 Crítico']]; 
+969	  const grade = gradeMap.find(([t])=>s.score>=t)?.[1]||'🔴'; 
+970	  const gradeColors = {'⚡ Elite':'#2dd4bf','✅ Ótimo':'#3b82f6','🟡 Bom':'#eab308','🟠 Regular':'#f97316','🔴 Crítico':'#ef4444'}; 
+971	  const cor = gradeColors[grade]||'#a1a1aa'; 
+972	 
+973	  document.getElementById('home-stats-grid').innerHTML = ` 
+974	    <div class="sh-item"><div class="sh-val" style="color:${cor}">${s.score}</div><div class="sh-lbl">Score</div></div> 
+975	    <div class="sh-item"><div class="sh-val" style="color:#93c5fd">${fmtMin(s.totalMin)}</div><div class="sh-lbl">Duração</div></div> 
+976	    <div class="sh-item"><div class="sh-val" style="color:#1d4ed8">${s.pctDeep.toFixed(0)}%</div><div class="sh-lbl">Profundo</div></div> 
+977	    <div class="sh-item"><div class="sh-val" style="color:#6d28d9">${s.pctREM.toFixed(0)}%</div><div class="sh-lbl">REM</div></div> 
+978	  `; 
+979	 
+980	  // Mini hipnograma 
+981	  const miniHipo = document.getElementById('home-mini-hipo'); 
+982	  const t = s.totalMin; 
+983	  miniHipo.innerHTML = ` 
+984	    <div style="width:${t>0?(s.deepMin/t*100):0}%;background:#1d4ed8;height:100%;border-radius:2px;"></div> 
+985	    <div style="width:${t>0?(s.remMin/t*100):0}%;background:#6d28d9;height:100%;border-radius:2px;"></div> 
+986	    <div style="width:${t>0?(s.leveMin/t*100):0}%;background:#64748b;height:100%;border-radius:2px;"></div> 
+987	  `; 
+988	 
+989	  // Histórico mini 
+990	  if (sonos.length > 1) { 
+991	    histCard.style.display = 'flex'; 
+992	    document.getElementById('home-hist-lista').innerHTML = sonos.slice(0,3).map(s => { 
+993	      const d = new Date(s.data); 
+994	      const day = String(d.getDate()).padStart(2,'0'); 
+995	      const mon = d.toLocaleDateString('pt-BR',{month:'short'}).toUpperCase(); 
+996	      const cor2 = s.score >= 80 ? '#2dd4bf' : s.score >= 60 ? '#3b82f6' : s.score >= 40 ? '#eab308' : '#ef4444'; 
+997	      const t2 = s.totalMin; 
+998	      return `<div class="hist-item"> 
+999	        <div class="hi-date"><div class="hi-d">${day}</div><div class="hi-m">${mon}</div></div> 
+1000	        <div class="hi-bar"> 
+1001	          <div class="hi-hipo"> 
+1002	            <div style="width:${t2>0?(s.deepMin/t2*100):0}%;background:#1d4ed8;"></div> 
+1003	            <div style="width:${t2>0?(s.remMin/t2*100):0}%;background:#6d28d9;"></div> 
+1004	            <div style="width:${t2>0?(s.leveMin/t2*100):0}%;background:#64748b;"></div> 
+1005	          </div> 
+1006	          <div class="hi-meta">${fmtMin(s.totalMin)} · RMSSD ${s.rmssd}ms · SpO2 ${s.spo2}%</div> 
+1007	        </div> 
+1008	        <div class="hi-right"> 
+1009	          <div class="hi-score" style="color:${cor2}">${s.score}</div> 
+1010	          <div class="hi-grade" style="color:${cor2}">${s.tipo==='dia'?'☀️':'🌙'}</div> 
+1011	        </div> 
+1012	      </div>`; 
+1013	    }).join(''); 
+1014	  } else { 
+1015	    histCard.style.display = 'none'; 
+1016	  } 
+1017	} 
+1018	 
+1019	// ══ HISTÓRICO COMPLETO ════════════════════════════════════ 
+1020	function renderHistorico() { 
+1021	  const sonos = loadSonos(); 
+1022	  const el = document.getElementById('hist-lista'); 
+1023	  if (!sonos.length) { 
+1024	    el.innerHTML = '<div class="hist-empty">Nenhuma noite registrada ainda.<br>Complete seu primeiro registro!</div>'; 
+1025	    return; 
+1026	  } 
+1027	  el.innerHTML = sonos.map((s, i) => { 
+1028	    const d = new Date(s.data); 
+1029	    const day = String(d.getDate()).padStart(2,'0'); 
+1030	    const mon = d.toLocaleDateString('pt-BR',{month:'short'}).toUpperCase(); 
+1031	    const time = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); 
+1032	    const cor = s.score >= 80 ? '#2dd4bf' : s.score >= 60 ? '#3b82f6' : s.score >= 40 ? '#eab308' : '#ef4444'; 
+1033	    const t = s.totalMin; 
+1034	    return `<div class="hist-item"> 
+1035	      <div class="hi-date"><div class="hi-d">${day}</div><div class="hi-m">${mon}</div></div> 
+1036	      <div class="hi-bar"> 
+1037	        <div class="hi-hipo"> 
+1038	          <div style="width:${t>0?(s.deepMin/t*100):0}%;background:#1d4ed8;height:100%;border-radius:2px;"></div> 
+1039	          <div style="width:${t>0?(s.remMin/t*100):0}%;background:#6d28d9;height:100%;border-radius:2px;"></div> 
+1040	          <div style="width:${t>0?(s.leveMin/t*100):0}%;background:#64748b;height:100%;border-radius:2px;"></div> 
+1041	        </div> 
+1042	        <div class="hi-meta">${time} · ${fmtMin(s.totalMin)} · Score ${s.score} · ${s.tipo==='dia'?'Dia':'Noite'}</div> 
+1043	      </div> 
+1044	      <div class="hi-right"> 
+1045	        <div class="hi-score" style="color:${cor}">${s.score}</div> 
+1046	        <button class="del-btn" onclick="deletarSono(${i})">DEL</button> 
+1047	      </div> 
+1048	    </div>`; 
+1049	  }).join(''); 
+1050	} 
+1051	 
+1052	function deletarSono(i) { 
+1053	  if (!confirm('Apagar este registro?')) return; 
+1054	  const sonos = loadSonos(); sonos.splice(i,1); saveSonos(sonos); 
+1055	  renderHistorico(); 
+1056	} 
+1057	 
+1058	// ══ SERVICE WORKER ════════════════════════════════════════ 
+1059	if ('serviceWorker' in navigator) { 
+1060	  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{})); 
+1061	} 
+1062	 
+1063	// ══ INIT ══════════════════════════════════════════════════ 
+1064	window.addEventListener('load', () => { 
+1065	  setTimeout(() => { 
+1066	    const sp = document.getElementById('splash'); 
+1067	    if (sp) { sp.classList.add('hide'); setTimeout(() => { try{sp.remove();}catch(e){} }, 1000); } 
+1068	  }, 2400); 
+1069	 
+1070	  document.getElementById('hdr-date').textContent = 
+1071	    new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase(); 
+1072	 
+1073	  initBG(); 
+1074	  renderHome(); 
+1075	  showScreen('sc-home'); 
+1076	  calcLeve(); 
+1077	}); 
+1078	</script> 
+1079	</body> 
+1080	</html> 
+1081	 
