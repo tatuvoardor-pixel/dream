@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#09090b">
-<link href="https://fonts.googleapis.com/css2?family=Lilita One&family=Roboto+Mono:wght@400;700&family=Oswald:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Roboto+Mono:wght@400;700&family=Oswald:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#09090b; --s1:#111114; --s2:#18181c; --s3:#242428; --bd:#36363e;
@@ -27,7 +27,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
 .hdate{font-family:'Roboto Mono',monospace;font-size:0.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--t2);}
 
 .scroll{flex:1;padding:16px 16px calc(env(safe-area-inset-bottom, 0px) + 40px);display:flex;flex-direction:column;gap:14px;}
-.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;width:100%;overflow:hidden;}
 .lbl{font-family:'Roboto Mono',monospace;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);font-weight:700;}
 
 .ring-wrap{position:relative;width:180px;height:180px;margin:0 auto;}
@@ -37,13 +37,13 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
 .ring-label{font-family:'Oswald',sans-serif;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);}
 .ring-grade{font-family:'Roboto Mono',monospace;font-size:0.75rem;color:var(--deep);font-weight:700;margin-top:2px;}
 
-/* Linha de input corrigida com proporção travada */
-.inp-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);}
-.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.65rem;text-transform:uppercase;color:var(--tx);font-weight:700;flex:1;white-space:nowrap;}
-.inp-pair{display:flex;align-items:center;gap:4px;flex-shrink:0;}
-.inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1.15rem;padding:4px;outline:none;text-align:center;width:54px;}
+/* Grid fixo para travar tudo dentro do card sem vazar */
+.inp-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);width:100%;}
+.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.65rem;text-transform:uppercase;color:var(--tx);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.inp-pair{display:flex;align-items:center;gap:4px;}
+.inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1.15rem;padding:4px;outline:none;text-align:center;width:48px;}
 .inp-val:focus{border-color:var(--deep);}
-.inp-unit{font-family:'Oswald',sans-serif;font-size:0.75rem;color:var(--t2);width:14px;text-align:center;}
+.inp-unit{font-family:'Oswald',sans-serif;font-size:0.75rem;color:var(--t2);width:12px;text-align:center;}
 
 .btn-primary{width:100%;padding:16px;background:var(--deep);color:#fff;border-radius:10px;font-family:'Lilita One',cursive;font-size:1.15rem;letter-spacing:1px;text-align:center;}
 .btn-secondary{width:100%;padding:14px;background:transparent;color:var(--t2);border:1px solid var(--bd);border-radius:10px;font-family:'Oswald',sans-serif;font-size:0.95rem;letter-spacing:1px;text-transform:uppercase;text-align:center;}
@@ -142,7 +142,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
         <div class="lbl">Inserir Dados das Fases</div>
         
         <div class="inp-row">
-          <span class="inp-lbl" style="color:#94a3b8">Sono Leve 🔵</span>
+          <span class="inp-lbl" style="color:#94a3b8">Leve 🔵</span>
           <div class="inp-pair">
             <input type="number" class="inp-val" id="in-leve-h" value="4" min="0" max="24">
             <span class="inp-unit">H</span>
@@ -152,7 +152,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
         </div>
 
         <div class="inp-row">
-          <span class="inp-lbl" style="color:#60a5fa">Sono Profundo 🟦</span>
+          <span class="inp-lbl" style="color:#60a5fa">SWS (Profundo) 🟦</span>
           <div class="inp-pair">
             <input type="number" class="inp-val" id="in-deep-h" value="1" min="0" max="12">
             <span class="inp-unit">H</span>
@@ -162,7 +162,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
         </div>
 
         <div class="inp-row">
-          <span class="inp-lbl" style="color:#c084fc">Sono REM 🟣</span>
+          <span class="inp-lbl" style="color:#c084fc">REM 🟣</span>
           <div class="inp-pair">
             <input type="number" class="inp-val" id="in-rem-h" value="1" min="0" max="12">
             <span class="inp-unit">H</span>
@@ -181,11 +181,11 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
 
       <div class="card">
         <div class="lbl">Biometria e Sensores</div>
-        <div class="inp-row"><span class="inp-lbl" style="color:#c4b5fd">RMSSD Média (ms)</span><input type="number" class="inp-val" id="in-rmssd" value="55" style="width:64px;"></div>
-        <div class="inp-row"><span class="inp-lbl" style="color:#93c5fd">SpO2 Mínima (%)</span><input type="number" class="inp-val" id="in-spo2" value="95" style="width:64px;"></div>
-        <div class="inp-row"><span class="inp-lbl">FC Mínima Noturna</span><input type="number" class="inp-val" id="in-fc-noite" value="52" style="width:64px;"></div>
-        <div class="inp-row"><span class="inp-lbl">Freq. Respiratória (rpm)</span><input type="number" class="inp-val" id="in-resp" value="14" style="width:64px;"></div>
-        <div class="inp-row"><span class="inp-lbl">Despertares (Vigília)</span><input type="number" class="inp-val" id="in-despertares" value="1" style="width:64px;"></div>
+        <div class="inp-row"><span class="inp-lbl" style="color:#c4b5fd">RMSSD Média (ms)</span><div class="inp-pair"><input type="number" class="inp-val" id="in-rmssd" value="55" style="width:64px;"></div></div>
+        <div class="inp-row"><span class="inp-lbl" style="color:#93c5fd">SpO2 Mínima (%)</span><div class="inp-pair"><input type="number" class="inp-val" id="in-spo2" value="95" style="width:64px;"></div></div>
+        <div class="inp-row"><span class="inp-lbl">FC Mínima Noturna</span><div class="inp-pair"><input type="number" class="inp-val" id="in-fc-noite" value="52" style="width:64px;"></div></div>
+        <div class="inp-row"><span class="inp-lbl">Freq. Respiratória</span><div class="inp-pair"><input type="number" class="inp-val" id="in-resp" value="14" style="width:64px;"></div></div>
+        <div class="inp-row"><span class="inp-lbl">Despertares</span><div class="inp-pair"><input type="number" class="inp-val" id="in-despertares" value="1" style="width:64px;"></div></div>
       </div>
 
       <button class="btn-primary" onclick="analisarSono()">🔬 Executar Análise</button>
@@ -397,120 +397,4 @@ function analisarSono() {
   let crossHTML = '';
   if (rmssd < 40 && d.deepMin < 60) {
     crossHTML += `<div class="alert-box alert-crit">🛑 <b>Alerta de Fadiga:</b> Profundo e RMSSD baixos. O corpo não relaxou completamente. Evite treinos pesados hoje.</div>`;
-  } else if (rmssd >= 50 && pctDeep >= 15) {
-    crossHTML += `<div class="alert-box alert-deep">✅ <b>Recuperação Excelente:</b> Sincronia perfeita das fases com o coração. Corpo totalmente restaurado.</div>`;
-  }
-  document.getElementById('sensor-cross').innerHTML = crossHTML;
-
-  let alertasHTML = '';
-  if (spo2 < 94) alertasHTML += `<div class="alert-box alert-warn">⚠️ Atenção: Nível de SpO2 atingiu ${spo2}% durante o descanso.</div>`;
-  document.getElementById('alertas-container').innerHTML = alertasHTML;
-
-  showScreen('sc-relatorio');
-  setTimeout(() => drawRing(score), 50);
-}
-
-function salvarSono() {
-  if (!ST.sessao) return;
-  const sonos = loadSonos();
-  sonos.unshift(ST.sessao);
-  saveSonos(sonos);
-  ST.sessao = null;
-  showScreen('sc-home');
-}
-
-function deletarSono(id, e) {
-  if(e) e.stopPropagation();
-  let sonos = loadSonos();
-  sonos = sonos.filter(s => s.id !== id);
-  saveSonos(sonos);
-  renderHome();
-}
-
-function renderHome() {
-  const sonos = loadSonos();
-  const welcome = document.getElementById('home-welcome');
-  const ultimoCard = document.getElementById('home-ultimo');
-  const histCard = document.getElementById('home-hist-card');
-
-  if (sonos.length === 0) {
-    welcome.style.display = 'block';
-    ultimoCard.style.display = 'none';
-    histCard.style.display = 'none';
-    return;
-  }
-
-  welcome.style.display = 'none';
-  ultimoCard.style.display = 'flex';
-  histCard.style.display = 'flex';
-
-  const u = sonos[0];
-  const cor = u.score < 50 ? '#ef4444' : u.score < 75 ? '#eab308' : '#2dd4bf';
-  
-  document.getElementById('home-stats-grid').innerHTML = `
-    <div class="sh-item"><span class="sh-val" style="color:${cor}">${u.score}</span><span class="sh-lbl">Score (${u.grade})</span></div>
-    <div class="sh-item"><span class="sh-val" style="color:var(--acc)">${fmtMin(u.totalMin)}</span><span class="sh-lbl">Duração</span></div>
-    <div class="sh-item"><span class="sh-val" style="color:#c4b5fd">${u.rmssd} ms</span><span class="sh-lbl">RMSSD</span></div>
-    <div class="sh-item"><span class="sh-val">${u.fcNoite} bpm</span><span class="sh-lbl">FC Mínima</span></div>
-  `;
-
-  document.getElementById('home-mini-hipo').innerHTML = `
-    <div style="background:var(--deep); width:${(u.deepMin/u.totalMin)*100}%"></div>
-    <div style="background:var(--rem); width:${(u.remMin/u.totalMin)*100}%"></div>
-    <div style="background:var(--light); width:${(u.leveMin/u.totalMin)*100}%"></div>
-  `;
-
-  const listaHome = document.getElementById('home-hist-lista');
-  listaHome.innerHTML = '';
-  
-  sonos.slice(0, 5).forEach(s => {
-    const sCor = s.score < 50 ? '#ef4444' : s.score < 75 ? '#eab308' : '#2dd4bf';
-    const partes = s.data.split('/');
-    const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
-    const mesStr = meses[parseInt(partes[1], 10) - 1] || 'SONO';
-
-    const item = document.createElement('div');
-    item.className = 'hist-item';
-    item.onclick = () => {
-      ST.sessao = s;
-      showScreen('sc-relatorio');
-      document.getElementById('btn-salvar').style.display = 'none';
-    };
-    item.innerHTML = `
-      <div class="hi-date"><span class="hi-d">${partes[0]}</span><span class="hi-m">${mesStr}</span></div>
-      <div class="hi-info">
-        <div class="hi-meta">${s.tipo === 'dia' ? '☀️ Diurno' : '🌙 Noturno'} • ${fmtMin(s.totalMin)}</div>
-        <div class="hi-preview">
-          <div style="background:var(--deep); width:${(s.deepMin/s.totalMin)*100}%"></div>
-          <div style="background:var(--rem); width:${(s.remMin/s.totalMin)*100}%"></div>
-          <div style="background:var(--light); width:${(s.leveMin/s.totalMin)*100}%"></div>
-        </div>
-      </div>
-      <div class="hi-right">
-        <span class="hi-score" style="color:${sCor}">${s.score}</span>
-        <button class="del-btn" onclick="deletarSono(${s.id}, event)">Apagar</button>
-      </div>
-    `;
-    listaHome.appendChild(item);
-  });
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const d = new Date();
-  document.getElementById('hdr-date').textContent = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
-  renderHome();
-
-  const inputs = document.querySelectorAll('.inp-val');
-  inputs.forEach(input => {
-    input.addEventListener('input', calcularSomaRealTime);
-  });
-});
-
-document.addEventListener('click', (e) => {
-  if (e.target && e.target.matches && e.target.matches('button[onclick*="sc-registrar"]')) {
-    document.getElementById('btn-salvar').style.display = 'block';
-  }
-});
-</script>
-</body>
-</html>
+  } else if (rmssd >= 50
