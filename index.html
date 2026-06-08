@@ -97,8 +97,8 @@ select{-webkit-appearance:none;appearance:none;}
 .hipo-axis{display:flex;justify-content:space-between;font-family:'Roboto Mono',monospace;font-size:0.5rem;color:var(--t3);padding:0 52px 0 52px;}
 
 /* ── INPUTS ── */
-.inp-row{display:flex;align-items:center;gap:6px;background:var(--s2);border-radius:8px;padding:9px 10px;border:1px solid var(--bd);}
-.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:1px;text-transform:uppercase;color:var(--t2);flex:1;min-width:0;}
+.inp-row{display:flex;align-items:center;justify-content:space-between;gap:6px;background:var(--s2);border-radius:8px;padding:9px 10px;border:1px solid var(--bd);}
+.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:0;text-transform:uppercase;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%;}
 .inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1rem;padding:4px 6px;outline:none;text-align:center;width:52px;}
 .inp-val:focus{border-color:var(--deep);}
 .inp-unit{font-family:'Oswald',sans-serif;font-size:0.72rem;color:var(--t3);letter-spacing:1px;}
@@ -260,29 +260,29 @@ select{-webkit-appearance:none;appearance:none;}
       <div class="card">
         <div class="lbl">Tempo Total de Sono</div>
         <div class="inp-row">
-          <span class="inp-lbl" style="color:var(--light)">Sono Leve 🔵</span>
+          <span class="inp-lbl" style="color:var(--light)">Leve 🔵</span>
           <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-leve-h" value="4" min="0" max="24" style="color:var(--light)">
+            <input type="number" class="inp-val" id="in-leve-h" oninput="atualizarTotal()" value="4" min="0" max="24" style="color:var(--light)">
             <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-leve-m" value="10" min="0" max="59" style="color:var(--light)">
+            <input type="number" class="inp-val" id="in-leve-m" oninput="atualizarTotal()" value="10" min="0" max="59" style="color:var(--light)">
             <span class="inp-unit">M</span>
           </div>
         </div>
         <div class="inp-row">
-          <span class="inp-lbl">Profundo (SWS) 🟦</span>
+          <span class="inp-lbl">SWS 🟦</span>
           <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-deep-h" value="1" min="0" max="12" style="color:var(--deep)">
+            <input type="number" class="inp-val" id="in-deep-h" oninput="atualizarTotal()" value="1" min="0" max="12" style="color:var(--deep)">
             <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-deep-m" value="20" min="0" max="59" style="color:var(--deep)">
+            <input type="number" class="inp-val" id="in-deep-m" oninput="atualizarTotal()" value="20" min="0" max="59" style="color:var(--deep)">
             <span class="inp-unit">M</span>
           </div>
         </div>
         <div class="inp-row">
-          <span class="inp-lbl">REM (Cognitivo) 🟣</span>
+          <span class="inp-lbl">REM 🟣</span>
           <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-rem-h" value="1" min="0" max="12" style="color:var(--rem)">
+            <input type="number" class="inp-val" id="in-rem-h" oninput="atualizarTotal()" value="1" min="0" max="12" style="color:var(--rem)">
             <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-rem-m" value="30" min="0" max="59" style="color:var(--rem)">
+            <input type="number" class="inp-val" id="in-rem-m" oninput="atualizarTotal()" value="30" min="0" max="59" style="color:var(--rem)">
             <span class="inp-unit">M</span>
           </div>
         </div>
@@ -298,25 +298,25 @@ select{-webkit-appearance:none;appearance:none;}
         <div class="sensor-row" style="margin-bottom:4px;">
         </div>
         <div class="inp-row">
-          <span class="inp-lbl" style="color:#c4b5fd">RMSSD Noturno (ms)</span>
+          <span class="inp-lbl" style="color:#c4b5fd">RMSSD (ms)</span>
           <input type="number" class="inp-val" id="in-rmssd" value="55" min="0" style="color:#c4b5fd;width:72px;">
         </div>
         <div class="sensor-row" style="margin-top:6px;margin-bottom:4px;">
         </div>
         <div class="inp-row">
-          <span class="inp-lbl" style="color:#93c5fd">SpO2 Mínimo (%)</span>
+          <span class="inp-lbl" style="color:#93c5fd">SpO2 (%)</span>
           <input type="number" class="inp-val" id="in-spo2" value="95" min="80" max="100" style="color:#93c5fd;width:72px;">
         </div>
         <div class="inp-row">
-          <span class="inp-lbl">FC Média Noturna (bpm)</span>
+          <span class="inp-lbl">FC Noturna</span>
           <input type="number" class="inp-val" id="in-fc-noite" value="52" min="30" max="100" style="width:72px;">
         </div>
         <div class="inp-row">
-          <span class="inp-lbl">Freq. Respiratória (rpm)</span>
+          <span class="inp-lbl">Resp. (rpm)</span>
           <input type="number" class="inp-val" id="in-resp" value="14" min="8" max="30" style="width:72px;">
         </div>
         <div class="inp-row">
-          <span class="inp-lbl">Despertares Noturnos</span>
+          <span class="inp-lbl">Despertares</span>
           <input type="number" class="inp-val" id="in-despertares" value="1" min="0" max="20" style="width:72px;">
         </div>
       </div>
@@ -564,7 +564,7 @@ function showScreen(id) {
   try { document.querySelector('.scroll').scrollTop = 0; } catch(e) {}
   if (id === 'sc-home') renderHome();
   if (id === 'sc-historico') renderHistorico();
-  if (id === 'sc-registrar') calcLeve();
+  if (id === 'sc-registrar') atualizarTotal();
 }
 
 // ══ TIPO DE SONO ══════════════════════════════════════════
@@ -574,20 +574,18 @@ function setTipo(t) {
   document.getElementById('btn-noite').className = t === 'noite' ? 'tipo-btn ativo-noite' : 'tipo-btn';
 }
 
-// ══ CALC LEVE ════════════════════════════════════════════
-function calcLeve() {
-  const totalMin = (parseInt(document.getElementById('in-leve-h').value)||0)*60 + (parseInt(document.getElementById('in-leve-m').value)||0);
-  const deepMin  = (parseInt(document.getElementById('in-deep-h').value)||0)*60  + (parseInt(document.getElementById('in-deep-m').value)||0);
-  const remMin   = (parseInt(document.getElementById('in-rem-h').value)||0)*60   + (parseInt(document.getElementById('in-rem-m').value)||0);
-  const leveMin = Math.max(0, totalMin - deepMin - remMin);
-  const lh = Math.floor(leveMin/60), lm = leveMin%60;
-  document.getElementById('lbl-total').textContent = `${lh}h ${String(lm).padStart(2,'0')}m`;
+// ══ ATUALIZAR TOTAL CALCULADO ═══════════════════════════
+function atualizarTotal() {
+  const leveMin2  = (parseInt(document.getElementById('in-leve-h').value)||0)*60 + (parseInt(document.getElementById('in-leve-m').value)||0);
+  const deepMin2  = (parseInt(document.getElementById('in-deep-h').value)||0)*60 + (parseInt(document.getElementById('in-deep-m').value)||0);
+  const remMin2   = (parseInt(document.getElementById('in-rem-h').value)||0)*60  + (parseInt(document.getElementById('in-rem-m').value)||0);
+  const totalMin2 = leveMin2 + deepMin2 + remMin2;
+  const lh = Math.floor(totalMin2/60), lm = totalMin2%60;
+  const el = document.getElementById('lbl-total');
+  if (el) el.textContent = lh + 'h ' + String(lm).padStart(2,'0') + 'm';
 }
 
-['in-total-h','in-total-m','in-deep-h','in-deep-m','in-rem-h','in-rem-m'].forEach(id => {
-  const el = document.getElementById(id);
-  if(el) el.addEventListener('input', calcLeve);
-});
+
 
 // ══ FORMATAR TEMPO ════════════════════════════════════════
 function fmtMin(min) {
@@ -608,10 +606,10 @@ function fmtMin(min) {
 // Perfil: 37 anos · 63kg músculo · turno pesado noturno
 
 function analisarSono() {
-  const totalMin  = (parseInt(document.getElementById('in-leve-h').value)||0)*60 + (parseInt(document.getElementById('in-leve-m').value)||0);
+  const leveMin   = (parseInt(document.getElementById('in-leve-h').value)||0)*60 + (parseInt(document.getElementById('in-leve-m').value)||0);
   const deepMin   = (parseInt(document.getElementById('in-deep-h').value)||0)*60  + (parseInt(document.getElementById('in-deep-m').value)||0);
   const remMin    = (parseInt(document.getElementById('in-rem-h').value)||0)*60   + (parseInt(document.getElementById('in-rem-m').value)||0);
-  const leveMin   = Math.max(0, totalMin - deepMin - remMin);
+  const totalMin  = leveMin + deepMin + remMin;
   const rmssd     = parseInt(document.getElementById('in-rmssd').value) || 50;
   const spo2      = parseInt(document.getElementById('in-spo2').value) || 95;
   const fcNoite   = parseInt(document.getElementById('in-fc-noite').value) || 55;
@@ -1037,10 +1035,12 @@ function deletarSono(i) {
 
 // ══ SERVICE WORKER ════════════════════════════════════════
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+  window.addEventListener('load', () => { setTimeout(atualizarTotal, 100); });
+window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
 
 // ══ INIT ══════════════════════════════════════════════════
+window.addEventListener('load', () => { setTimeout(atualizarTotal, 100); });
 window.addEventListener('load', () => {
   setTimeout(() => {
     const sp = document.getElementById('splash');
@@ -1053,7 +1053,7 @@ window.addEventListener('load', () => {
   initBG();
   renderHome();
   showScreen('sc-home');
-  calcLeve();
+  atualizarTotal();
 });
 </script>
 </body>
