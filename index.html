@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>MAX.CORE SLEEP</title>
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#09090b">
@@ -141,7 +142,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
         <div class="lbl">Inserir Dados das Fases</div>
         
         <div class="inp-row">
-          <span class="inp-lbl" style="color:#94a3b8">Leve 🔵</span>
+          <span class="inp-lbl" style="color:#94a3b8">NREM (Leve) 🔵</span>
           <div class="inp-pair">
             <input type="number" class="inp-val" id="in-leve-h" value="4" min="0" max="24">
             <span class="inp-unit">H</span>
@@ -213,9 +214,9 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
         <div class="lbl">Distribuição Temporal</div>
         <div class="hipo-container">
           <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--wake)">Acordado</span><div class="hipo-bar-wrap" id="hipo-wake"></div></div>
-          <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--light)">Leve</span><div class="hipo-bar-wrap" id="hipo-light"></div></div>
+          <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--light)">NREM</span><div class="hipo-bar-wrap" id="hipo-light"></div></div>
           <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--rem)">REM</span><div class="hipo-bar-wrap" id="hipo-rem"></div></div>
-          <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--deep)">Profundo</span><div class="hipo-bar-wrap" id="hipo-deep"></div></div>
+          <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--deep)">SWS</span><div class="hipo-bar-wrap" id="hipo-deep"></div></div>
         </div>
       </div>
 
@@ -223,7 +224,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
         <div class="lbl">Proporção das Fases</div>
         <div class="phase-bars">
           <div class="phase-row">
-            <div class="phase-dot" style="background:var(--deep)"></div><span class="phase-name">Profundo</span>
+            <div class="phase-dot" style="background:var(--deep)"></div><span class="phase-name">SWS</span>
             <div class="phase-bar-wrap"><div class="phase-bar" id="bar-deep" style="background:var(--deep);width:0%"></div></div>
             <span class="phase-pct" id="pct-deep">0%</span>
           </div>
@@ -233,7 +234,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
             <span class="phase-pct" id="pct-rem">0%</span>
           </div>
           <div class="phase-row">
-            <div class="phase-dot" style="background:var(--light)"></div><span class="phase-name">Leve</span>
+            <div class="phase-dot" style="background:var(--light)"></div><span class="phase-name">NREM</span>
             <div class="phase-bar-wrap"><div class="phase-bar" id="bar-light" style="background:var(--light);width:0%"></div></div>
             <span class="phase-pct" id="pct-light">0%</span>
           </div>
