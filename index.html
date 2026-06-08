@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#09090b">
-<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Roboto+Mono:wght@400;700&family=Oswald:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lilita One&family=Roboto+Mono:wght@400;700&family=Oswald:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#09090b; --s1:#111114; --s2:#18181c; --s3:#242428; --bd:#36363e;
@@ -37,12 +37,13 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
 .ring-label{font-family:'Oswald',sans-serif;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);}
 .ring-grade{font-family:'Roboto Mono',monospace;font-size:0.75rem;color:var(--deep);font-weight:700;margin-top:2px;}
 
-.inp-row{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);}
-.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.65rem;text-transform:uppercase;color:var(--tx);font-weight:700;}
-.inp-pair{display:flex;align-items:center;gap:4px;}
-.inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1.15rem;padding:4px;outline:none;text-align:center;width:52px;}
+/* Linha de input corrigida com proporção travada */
+.inp-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);}
+.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.65rem;text-transform:uppercase;color:var(--tx);font-weight:700;flex:1;white-space:nowrap;}
+.inp-pair{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1.15rem;padding:4px;outline:none;text-align:center;width:54px;}
 .inp-val:focus{border-color:var(--deep);}
-.inp-unit{font-family:'Oswald',sans-serif;font-size:0.75rem;color:var(--t2);width:12px;text-align:center;}
+.inp-unit{font-family:'Oswald',sans-serif;font-size:0.75rem;color:var(--t2);width:14px;text-align:center;}
 
 .btn-primary{width:100%;padding:16px;background:var(--deep);color:#fff;border-radius:10px;font-family:'Lilita One',cursive;font-size:1.15rem;letter-spacing:1px;text-align:center;}
 .btn-secondary{width:100%;padding:14px;background:transparent;color:var(--t2);border:1px solid var(--bd);border-radius:10px;font-family:'Oswald',sans-serif;font-size:0.95rem;letter-spacing:1px;text-transform:uppercase;text-align:center;}
@@ -191,7 +192,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
       <button class="btn-secondary" onclick="showScreen('sc-home')">← Cancelar</button>
     </div>
 
-    <div id="sc-relatorio" style="none;flex-direction:column;gap:12px;">
+    <div id="sc-relatorio" style="display:none;flex-direction:column;gap:12px;">
       <div class="card">
         <div class="lbl" id="rep-data-txt">Dados Computados</div>
         <div class="ring-wrap">
@@ -284,7 +285,6 @@ function getValoresBrutos() {
   return { leveMin, deepMin, remMin, totalMin: leveMin + deepMin + remMin };
 }
 
-// ESTA FUNÇÃO SOMA EM TEMPO REAL NO CELULAR
 function calcularSomaRealTime() {
   const d = getValoresBrutos();
   const el = document.getElementById('lbl-total');
@@ -500,7 +500,6 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('hdr-date').textContent = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
   renderHome();
 
-  // Escuta qualquer mudança de digitação em tempo real no celular
   const inputs = document.querySelectorAll('.inp-val');
   inputs.forEach(input => {
     input.addEventListener('input', calcularSomaRealTime);
