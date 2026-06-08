@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>MAX.CORE SLEEP</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#09090b">
 <script>
@@ -21,7 +21,7 @@
     <circle cx="410" cy="170" r="5"  fill="#bfdbfe"/>
   </svg>`;
   const iUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ico);
-  const mf={name:"MAX.CORE SLEEP",short_name:"SLEEP",display:"fullscreen",orientation:"portrait",start_url:"./index.html",scope:"./",background_color:"#09090b",theme_color:"#09090b",icons:[{src:iUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
+  const mf={name:"MAX.CORE SLEEP",short_name:"SLEEP",display:"standalone",orientation:"portrait",start_url:"./index.html",scope:"./",background_color:"#09090b",theme_color:"#09090b",icons:[{src:iUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
   const ml=document.createElement('link');ml.rel='manifest';ml.href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(mf));document.head.appendChild(ml);
   const il=document.createElement('link');il.rel='apple-touch-icon';il.href=iUrl;document.head.appendChild(il);
 })();
@@ -38,7 +38,7 @@
   --acc:#2dd4bf;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;height:100%;background:var(--bg);color:var(--tx);overflow:hidden;position:fixed;top:0;left:0;font-family:'Inter',sans-serif;}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--tx);overflow:hidden;font-family:'Inter',sans-serif;}
 button{border:none;background:none;padding:0;font-family:inherit;color:inherit;cursor:pointer;outline:none;}
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 input[type=number]{-webkit-appearance:none;appearance:none;}
@@ -56,14 +56,14 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
 .sp-sub{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:4px;text-transform:uppercase;color:var(--t3);animation:spUp 1s 0.4s ease forwards;opacity:0;}
 @keyframes spUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 
-.app{display:flex;flex-direction:column;width:100vw;height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);position:relative;z-index:10;}
+.app{display:flex;flex-direction:column;width:100vw;height:100vh;height:-webkit-fill-available;position:relative;z-index:10;}
 
-.hdr{padding:11px 14px 9px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bd);}
+.hdr{padding:calc(env(safe-area-inset-top, 0px) + 12px) 14px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bd);background:var(--bg);position:relative;z-index:20;}
 .hlogo{display:flex;align-items:center;gap:8px;}
 .hname{font-family:'Lilita One',cursive;font-size:1.15rem;letter-spacing:2px;color:var(--deep);}
 .hdate{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);}
 
-.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px 32px;display:flex;flex-direction:column;gap:10px;}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px calc(env(safe-area-inset-bottom, 0px) + 32px);display:flex;flex-direction:column;gap:10px;}
 .hidden{display:none!important;}
 
 .card{background:var(--s1);border:1px solid rgba(255,255,255,0.06);box-shadow:0 10px 28px rgba(0,0,0,0.65);border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:11px;}
@@ -223,27 +223,27 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
         <div class="inp-row">
           <span class="inp-lbl" style="color:var(--light)">Leve 🔵</span>
           <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-leve-h" oninput="atualizarTotal()" value="4" min="0" max="24" style="color:var(--light)">
+            <input type="number" class="inp-val" id="in-leve-h" oninput="atualizarTotal()" onchange="atualizarTotal()" value="4" min="0" max="24" style="color:var(--light)">
             <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-leve-m" oninput="atualizarTotal()" value="10" min="0" max="59" style="color:var(--light)">
+            <input type="number" class="inp-val" id="in-leve-m" oninput="atualizarTotal()" onchange="atualizarTotal()" value="10" min="0" max="59" style="color:var(--light)">
             <span class="inp-unit">M</span>
           </div>
         </div>
         <div class="inp-row">
           <span class="inp-lbl">Profundo 🟦</span>
           <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-deep-h" oninput="atualizarTotal()" value="1" min="0" max="12" style="color:var(--deep)">
+            <input type="number" class="inp-val" id="in-deep-h" oninput="atualizarTotal()" onchange="atualizarTotal()" value="1" min="0" max="12" style="color:var(--deep)">
             <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-deep-m" oninput="atualizarTotal()" value="20" min="0" max="59" style="color:var(--deep)">
+            <input type="number" class="inp-val" id="in-deep-m" oninput="atualizarTotal()" onchange="atualizarTotal()" value="20" min="0" max="59" style="color:var(--deep)">
             <span class="inp-unit">M</span>
           </div>
         </div>
         <div class="inp-row">
           <span class="inp-lbl">REM 🟣</span>
           <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-rem-h" oninput="atualizarTotal()" value="1" min="0" max="12" style="color:var(--rem)">
+            <input type="number" class="inp-val" id="in-rem-h" oninput="atualizarTotal()" onchange="atualizarTotal()" value="1" min="0" max="12" style="color:var(--rem)">
             <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-rem-m" oninput="atualizarTotal()" value="30" min="0" max="59" style="color:var(--rem)">
+            <input type="number" class="inp-val" id="in-rem-m" oninput="atualizarTotal()" onchange="atualizarTotal()" value="30" min="0" max="59" style="color:var(--rem)">
             <span class="inp-unit">M</span>
           </div>
         </div>
@@ -364,13 +364,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
       <div id="alertas-container" style="display:flex;flex-direction:column;gap:6px;"></div>
 
       <div class="card">
-        <div class="ai-header">
-          <div class="ai-icon">🧠</div>
-          <div>
-            <div class="ai-titulo">Análise Científica</div>
-            <div class="ai-fonte">Dual-Sensor · PubMed 2025</div>
-          </div>
-        </div>
+        <div class="lbl">Análise Científica</div>
         <div class="ai-body" id="ai-body">
           <div class="ai-load"><div class="ai-dots"><span></span><span></span><span></span></div> Cruzando sensores...</div>
         </div>
@@ -416,45 +410,21 @@ function initBG() {
     { freq: 0.028, amp: 12, y: 0.45, color: '#6d28d9', alpha: 0.05, width: 1.2, phase: 1.2 },
     { freq: 0.018, amp: 22, y: 0.68, color: '#1d4ed8', alpha: 0.04, width: 1.0, phase: 2.4 },
     { freq: 0.045, amp: 8,  y: 0.85, color: '#6d28d9', alpha: 0.035, width: 0.8, phase: 0.8 },
-    { freq: 0.008, amp: 30, y: 0.33, color: '#2dd4bf', alpha: 0.025, width: 0.7, phase: 3.1 },
   ];
-
-  const particles = Array.from({length: 40}, () => ({
-    x: Math.random() * 1600, y: Math.random() * 2400,
-    vx: (Math.random()-0.5)*0.12, vy: (Math.random()-0.5)*0.08,
-    r: 0.5 + Math.random() * 1.5,
-    alpha: 0.02 + Math.random() * 0.06,
-    pulse: Math.random() * Math.PI * 2,
-    pulseSpeed: 0.005 + Math.random() * 0.01,
-  }));
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
     t += 0.006;
-
     waves.forEach(w => {
       ctx.beginPath();
       for (let x = 0; x <= W; x += 2) {
-        const y = H * w.y + Math.sin(x * w.freq + t + w.phase) * w.amp
-                          + Math.sin(x * w.freq * 2.3 + t * 1.4 + w.phase) * w.amp * 0.4;
+        const y = H * w.y + Math.sin(x * w.freq + t + w.phase) * w.amp;
         x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }
       ctx.strokeStyle = w.color + Math.floor(w.alpha * 255).toString(16).padStart(2,'0');
       ctx.lineWidth = w.width;
       ctx.stroke();
     });
-
-    particles.forEach(p => {
-      p.x += p.vx; p.y += p.vy; p.pulse += p.pulseSpeed;
-      if (p.x < -10) p.x = W + 10; if (p.x > W + 10) p.x = -10;
-      if (p.y < -10) p.y = H + 10; if (p.y > H + 10) p.y = -10;
-      const a = p.alpha * (0.5 + Math.sin(p.pulse) * 0.5);
-      ctx.beginPath();
-      ctx.arc(p.x % W, p.y % H, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(29,78,216,${a})`;
-      ctx.fill();
-    });
-
     requestAnimationFrame(draw);
   }
   draw();
@@ -624,7 +594,7 @@ function analisarSono() {
     }
 
     if (rmssd < 50) {
-      aiText += `O RMSSD de ${rmssd}ms corrobora um estado de fadiga residual acumulada. Recomenda-se cautela no volume de trabalho físico nas próximas 24 horas para evitar sobrecarga do sistema nervoso central.`;
+      aiText += `O RMSSD de ${rmssd}ms corrobora um estado de fadiga residual acumulada. Recomenda-se cautela no volume de trabalho físico nas próximas 24 horas.`;
     } else {
       aiText += `A modulação autonômica parassimpática robusta (${rmssd}ms) demonstra excelente resiliência cardiovascular, indicando prontidão fisiológica sistêmica.`;
     }
