@@ -34,7 +34,7 @@ button{border:none;background:none;padding:0;font-family:inherit;color:inherit;c
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 input[type=number]{-webkit-appearance:none;appearance:none;}
 
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+#bg-canvas{position:fixed;inset:0;z-index:-1;pointer-events:none;}
 .app{display:flex;flex-direction:column;width:100vw;height:100vh;position:relative;z-index:10;}
 .hdr{padding:calc(env(safe-area-inset-top, 0px) + 14px) 14px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bd);background:var(--bg);position:relative;z-index:20;}
 .hlogo{display:flex;align-items:center;gap:8px;}
@@ -42,7 +42,6 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
 .hdate{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);}
 
 .scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px calc(env(safe-area-inset-bottom, 0px) + 32px);display:flex;flex-direction:column;gap:10px;}
-.hidden{display:none!important;}
 
 .card{background:var(--s1);border:1px solid rgba(255,255,255,0.06);box-shadow:0 10px 28px rgba(0,0,0,0.65);border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:11px;}
 .lbl{font-family:'Roboto Mono',monospace;font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--t3);}
@@ -110,7 +109,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
 .hist-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--s2);border-radius:8px;border:1px solid var(--bd);}
 .hi-date{display:flex;flex-direction:column;gap:1px;flex-shrink:0;width:28px;}
 .hi-d{font-family:'Oswald',sans-serif;font-size:1.05rem;line-height:1;}
-.hi-m{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--t3);}
+.hi-m{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--t3);text-transform:uppercase;}
 .hi-bar{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0;}
 .hi-hipo{display:flex;height:8px;border-radius:3px;overflow:hidden;gap:1px;}
 .hi-meta{font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t2);}
@@ -134,7 +133,6 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
 
   <div class="scroll">
 
-    <!-- ═══ HOME ═══ -->
     <div id="sc-home" style="display:flex;flex-direction:column;gap:10px;">
       <div class="card" id="home-ultimo" style="display:none;">
         <div class="lbl">Último Sono Analisado</div>
@@ -156,8 +154,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
       <button class="btn-primary" onclick="showScreen('sc-registrar')">+ Registrar Nova Noite</button>
     </div>
 
-    <!-- ═══ REGISTRAR ═══ -->
-    <div id="sc-registrar" class="hidden" style="display:flex;flex-direction:column;gap:10px;">
+    <div id="sc-registrar" style="display:none;flex-direction:column;gap:10px;">
       <div class="card">
         <div class="lbl">Período</div>
         <div class="tipo-row">
@@ -199,7 +196,6 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
           </div>
         </div>
 
-        <!-- Feedback Matemático de Segurança para Mobile -->
         <div style="background:#09090b;border-radius:8px;padding:12px;border:1px solid var(--bd);display:flex;flex-direction:column;gap:4px;">
           <div style="font-family:'Roboto Mono',monospace;font-size:0.55rem;color:var(--t3);display:flex;justify-content:space-between;">
             <span>SOMA ATUAL DO SONO:</span>
@@ -224,8 +220,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
       <button class="btn-secondary" onclick="showScreen('sc-home')">← Cancelar</button>
     </div>
 
-    <!-- ═══ RELATÓRIO ═══ -->
-    <div id="sc-relatorio" class="hidden" style="display:flex;flex-direction:column;gap:10px;">
+    <div id="sc-relatorio" style="display:none;flex-direction:column;gap:10px;">
       <div class="card">
         <div class="lbl" id="rep-data-txt"></div>
         <div class="ring-wrap">
@@ -398,7 +393,6 @@ function fmtMin(min) {
 }
 
 function analisarSono() {
-  // Forçar fechamento de teclados virtuais para evitar travamento de inputs no mobile
   document.querySelectorAll('input').forEach(i => i.blur());
 
   setTimeout(() => {
@@ -535,8 +529,20 @@ function renderHome() {
 
   const listaHome = document.getElementById('home-hist-lista');
   listaHome.innerHTML = '';
+  
   sonos.slice(0, 4).forEach(s => {
     const sCor = s.score < 50 ? '#ef4444' : s.score < 75 ? '#eab308' : '#2dd4bf';
+    
+    let dia = '??';
+    let mesStr = 'SONO';
+    if (s.data && typeof s.data === 'string' && s.data.includes('/')) {
+      const partes = s.data.split('/');
+      dia = partes[0];
+      const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+      const idx = parseInt(partes[1], 10) - 1;
+      if (idx >= 0 && idx < 12) mesStr = meses[idx];
+    }
+
     const item = document.createElement('div');
     item.className = 'hist-item';
     item.style.marginBottom = '6px';
@@ -546,7 +552,7 @@ function renderHome() {
       document.getElementById('btn-salvar').style.display = 'none';
     };
     item.innerHTML = `
-      <div class="hi-date"><span class="hi-d">${s.data.split('/')[0]}</span><span class="hi-m">MAI</span></div>
+      <div class="hi-date"><span class="hi-d">${dia}</span><span class="hi-m">${mesStr}</span></div>
       <div class="hi-bar">
         <div class="hi-meta">${s.tipo === 'dia' ? '☀️ Diurno' : '🌙 Noturno'} • ${fmtMin(s.totalMin)}</div>
         <div class="hi-hipo">
@@ -570,7 +576,6 @@ window.addEventListener('DOMContentLoaded', () => {
   initBG();
   renderHome();
 
-  // Escuta total e agressiva de inputs para evitar o delay/bug de teclados Android e iOS
   const inputs = document.querySelectorAll('.inp-val');
   inputs.forEach(input => {
     ['input', 'change', 'keyup', 'blur'].forEach(ev => {
