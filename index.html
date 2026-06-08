@@ -37,7 +37,6 @@ input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
 .ring-label{font-family:'Oswald',sans-serif;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);}
 .ring-grade{font-family:'Roboto Mono',monospace;font-size:0.75rem;color:var(--deep);font-weight:700;margin-top:2px;}
 
-/* Grid fixo para travar tudo dentro do card sem vazar */
 .inp-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);width:100%;}
 .inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.65rem;text-transform:uppercase;color:var(--tx);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .inp-pair{display:flex;align-items:center;gap:4px;}
@@ -333,6 +332,47 @@ function fmtMin(min) {
   return `${Math.floor(min/60)}h ${String(min%60).padStart(2,'0')}m`;
 }
 
+function exibirRelatorio(s, deHistorico = false) {
+  document.getElementById('rep-data-txt').textContent = `Dados Computados: ${s.data} (${s.tipo.toUpperCase()})`;
+  document.getElementById('rep-score').textContent = s.score;
+  document.getElementById('rep-grade').textContent = s.grade;
+  document.getElementById('rs-total').textContent = fmtMin(s.totalMin);
+  document.getElementById('rs-efic').textContent = (s.eficiencia || 0) + '%';
+  document.getElementById('rs-hrv-efi').textContent = (s.hrvEfi || 0) + '%';
+
+  document.getElementById('bar-deep').style.width = s.pctDeep + '%';
+  document.getElementById('pct-deep').textContent = s.pctDeep + '%';
+  document.getElementById('bar-rem').style.width = s.pctRem + '%';
+  document.getElementById('pct-rem').textContent = s.pctRem + '%';
+  document.getElementById('bar-light').style.width = s.pctLeve + '%';
+  document.getElementById('pct-light').textContent = s.pctLeve + '%';
+
+  const wakeMin = (s.despertares || 0) * 4; 
+  const tHipo = s.totalMin + wakeMin;
+  
+  document.getElementById('hipo-wake').innerHTML = `<div class="hipo-segment" style="width:${(wakeMin/tHipo)*100}%; background:var(--wake);"></div>`;
+  document.getElementById('hipo-light').innerHTML = `<div class="hipo-segment" style="width:${(s.leveMin/tHipo)*100}%; background:var(--light);"></div>`;
+  document.getElementById('hipo-rem').innerHTML = `<div class="hipo-segment" style="width:${(s.remMin/tHipo)*100}%; background:var(--rem);"></div>`;
+  document.getElementById('hipo-deep').innerHTML = `<div class="hipo-segment" style="width:${(s.deepMin/tHipo)*100}%; background:var(--deep);"></div>`;
+
+  let crossHTML = '';
+  if (s.rmssd < 40 && s.deepMin < 60) {
+    crossHTML += `<div class="alert-box alert-crit">🛑 <b>Alerta de Fadiga:</b> SWS e RMSSD baixos. O corpo não relaxou completamente. Evite treinos pesados hoje.</div>`;
+  } else if (s.rmssd >= 50 && s.pctDeep >= 15) {
+    crossHTML += `<div class="alert-box alert-deep">✅ <b>Recuperação Excelente:</b> Sincronia perfeita das fases com o coração. Corpo totalmente restaurado.</div>`;
+  }
+  document.getElementById('sensor-cross').innerHTML = crossHTML;
+
+  let alertasHTML = '';
+  if (s.spo2 < 94) alertasHTML += `<div class="alert-box alert-warn">⚠️ Atenção: Nível de SpO2 atingiu ${s.spo2}% durante o descanso.</div>`;
+  document.getElementById('alertas-container').innerHTML = alertasHTML;
+
+  document.getElementById('btn-salvar').style.display = deHistorico ? 'none' : 'block';
+  
+  showScreen('sc-relatorio');
+  setTimeout(() => drawRing(s.score), 50);
+}
+
 function analisarSono() {
   const d = getValoresBrutos();
   if (d.totalMin <= 0) {
@@ -372,29 +412,109 @@ function analisarSono() {
     pctLeve, pctDeep, pctRem, rmssd, spo2, fcNoite, resp, despertares, eficiencia, hrvEfi
   };
 
-  document.getElementById('rep-data-txt').textContent = `Dados Computados: ${ST.sessao.data} (${ST.tipo.toUpperCase()})`;
-  document.getElementById('rep-score').textContent = score;
-  document.getElementById('rep-grade').textContent = grade;
-  document.getElementById('rs-total').textContent = fmtMin(d.totalMin);
-  document.getElementById('rs-efic').textContent = eficiencia + '%';
-  document.getElementById('rs-hrv-efi').textContent = hrvEfi + '%';
+  exibirRelatorio(ST.sessao, false);
+}
 
-  document.getElementById('bar-deep').style.width = pctDeep + '%';
-  document.getElementById('pct-deep').textContent = pctDeep + '%';
-  document.getElementById('bar-rem').style.width = pctRem + '%';
-  document.getElementById('pct-rem').textContent = pctRem + '%';
-  document.getElementById('bar-light').style.width = pctLeve + '%';
-  document.getElementById('pct-light').textContent = pctLeve + '%';
+function salvarSono() {
+  if (!ST.sessao) return;
+  const sonos = loadSonos();
+  sonos.unshift(ST.sessao);
+  saveSonos(sonos);
+  ST.sessao = null;
+  showScreen('sc-home');
+}
 
-  const wakeMin = despertares * 4; 
-  const tHipo = d.totalMin + wakeMin;
+function deletarSono(id, e) {
+  if(e) e.stopPropagation();
+  let sonos = loadSonos();
+  sonos = sonos.filter(s => s.id !== id);
+  saveSonos(sonos);
+  renderHome();
+}
+
+function renderHome() {
+  const sonos = loadSonos();
+  const welcome = document.getElementById('home-welcome');
+  const ultimoCard = document.getElementById('home-ultimo');
+  const histCard = document.getElementById('home-hist-card');
+
+  if (sonos.length === 0) {
+    welcome.style.display = 'block';
+    ultimoCard.style.display = 'none';
+    histCard.style.display = 'none';
+    return;
+  }
+
+  welcome.style.display = 'none';
+  ultimoCard.style.display = 'flex';
+  histCard.style.display = 'flex';
+
+  const u = sonos[0];
+  const cor = u.score < 50 ? '#ef4444' : u.score < 75 ? '#eab308' : '#2dd4bf';
   
-  document.getElementById('hipo-wake').innerHTML = `<div class="hipo-segment" style="width:${(wakeMin/tHipo)*100}%; background:var(--wake);"></div>`;
-  document.getElementById('hipo-light').innerHTML = `<div class="hipo-segment" style="width:${(d.leveMin/tHipo)*100}%; background:var(--light);"></div>`;
-  document.getElementById('hipo-rem').innerHTML = `<div class="hipo-segment" style="width:${(d.remMin/tHipo)*100}%; background:var(--rem);"></div>`;
-  document.getElementById('hipo-deep').innerHTML = `<div class="hipo-segment" style="width:${(d.deepMin/tHipo)*100}%; background:var(--deep);"></div>`;
+  document.getElementById('home-stats-grid').innerHTML = `
+    <div class="sh-item"><span class="sh-val" style="color:${cor}">${u.score}</span><span class="sh-lbl">Score (${u.grade})</span></div>
+    <div class="sh-item"><span class="sh-val" style="color:var(--acc)">${fmtMin(u.totalMin)}</span><span class="sh-lbl">Duração</span></div>
+    <div class="sh-item"><span class="sh-val" style="color:#c4b5fd">${u.rmssd} ms</span><span class="sh-lbl">RMSSD</span></div>
+    <div class="sh-item"><span class="sh-val">${u.fcNoite} bpm</span><span class="sh-lbl">FC Mínima</span></div>
+  `;
 
-  let crossHTML = '';
-  if (rmssd < 40 && d.deepMin < 60) {
-    crossHTML += `<div class="alert-box alert-crit">🛑 <b>Alerta de Fadiga:</b> Profundo e RMSSD baixos. O corpo não relaxou completamente. Evite treinos pesados hoje.</div>`;
-  } else if (rmssd >= 50
+  document.getElementById('home-mini-hipo').innerHTML = `
+    <div style="background:var(--deep); width:${(u.deepMin/u.totalMin)*100}%"></div>
+    <div style="background:var(--rem); width:${(u.remMin/u.totalMin)*100}%"></div>
+    <div style="background:var(--light); width:${(u.leveMin/u.totalMin)*100}%"></div>
+  `;
+
+  const listaHome = document.getElementById('home-hist-lista');
+  listaHome.innerHTML = '';
+  
+  sonos.slice(0, 5).forEach(s => {
+    const sCor = s.score < 50 ? '#ef4444' : s.score < 75 ? '#eab308' : '#2dd4bf';
+    const partes = s.data.split('/');
+    const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+    const mesStr = meses[parseInt(partes[1], 10) - 1] || 'SONO';
+
+    const item = document.createElement('div');
+    item.className = 'hist-item';
+    item.onclick = () => {
+      ST.sessao = s;
+      exibirRelatorio(s, true);
+    };
+    item.innerHTML = `
+      <div class="hi-date"><span class="hi-d">${partes[0]}</span><span class="hi-m">${mesStr}</span></div>
+      <div class="hi-info">
+        <div class="hi-meta">${s.tipo === 'dia' ? '☀️ Diurno' : '🌙 Noturno'} • ${fmtMin(s.totalMin)}</div>
+        <div class="hi-preview">
+          <div style="background:var(--deep); width:${(s.deepMin/s.totalMin)*100}%"></div>
+          <div style="background:var(--rem); width:${(s.remMin/s.totalMin)*100}%"></div>
+          <div style="background:var(--light); width:${(s.leveMin/s.totalMin)*100}%"></div>
+        </div>
+      </div>
+      <div class="hi-right">
+        <span class="hi-score" style="color:${sCor}">${s.score}</span>
+        <button class="del-btn" onclick="deletarSono(${s.id}, event)">Apagar</button>
+      </div>
+    `;
+    listaHome.appendChild(item);
+  });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const d = new Date();
+  document.getElementById('hdr-date').textContent = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
+  renderHome();
+
+  const inputs = document.querySelectorAll('.inp-val');
+  inputs.forEach(input => {
+    input.addEventListener('input', calcularSomaRealTime);
+  });
+});
+
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.matches && e.target.matches('button[onclick*="sc-registrar"]')) {
+    document.getElementById('btn-salvar').style.display = 'block';
+  }
+});
+</script>
+</body>
+</html>
