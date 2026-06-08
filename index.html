@@ -6,143 +6,117 @@
 <title>MAX.CORE SLEEP</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#09090b">
-<script>
-(function(){
-  const url = window.location.href.split('#')[0];
-  const ico=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#09090b"/><circle cx="230" cy="256" r="130" fill="#3b82f6"/><circle cx="190" cy="220" r="115" fill="#09090b"/><circle cx="360" cy="140" r="12" fill="#93c5fd"/><circle cx="400" cy="220" r="8" fill="#60a5fa"/><circle cx="370" cy="300" r="6" fill="#93c5fd"/></svg>`;
-  const iUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ico);
-  const mf={name:"MAX.CORE SLEEP",short_name:"SLEEP",display:"standalone",orientation:"portrait",start_url:url,scope:"./",background_color:"#09090b",theme_color:"#09090b",icons:[{src:iUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
-  const ml=document.createElement('link');ml.rel='manifest';ml.href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(mf));document.head.appendChild(ml);
-  const il=document.createElement('link');il.rel='apple-touch-icon';il.href=iUrl;document.head.appendChild(il);
-})();
-</script>
-<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Roboto+Mono:wght@400;500;700&family=Oswald:wght@400;500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Roboto+Mono:wght@400;700&family=Oswald:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#09090b; --s1:#111114; --s2:#18181c; --s3:#242428; --bd:#36363e;
-  --tx:#f4f4f5; --t2:#a1a1aa; --t3:#62626e;
+  --tx:#f4f4f5; --t2:#a1a1aa; --t3:#71717a;
   --deep:#1d4ed8; --deep-g:#1d4ed812; --deep-m:#1d4ed845;
   --rem:#6d28d9; --rem-g:#6d28d912; --rem-m:#6d28d945;
-  --light:#64748b; --light-g:#64748b12;
-  --wake:#ef4444; --acc:#2dd4bf;
+  --light:#64748b; --wake:#ef4444; --acc:#2dd4bf;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;height:100%;background:var(--bg);color:var(--tx);overflow:hidden;font-family:'Inter',sans-serif;}
-button{border:none;background:none;padding:0;font-family:inherit;color:inherit;cursor:pointer;outline:none;}
-input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
-input[type=number]{-webkit-appearance:none;appearance:none;}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;overflow-x:hidden;}
+button{border:none;background:none;font-family:inherit;color:inherit;cursor:pointer;}
+input[type=number]{-webkit-appearance:none;appearance:none;margin:0;}
 
-#bg-canvas{position:fixed;inset:0;z-index:-1;pointer-events:none;}
-.app{display:flex;flex-direction:column;width:100vw;height:100vh;position:relative;z-index:10;}
-.hdr{padding:calc(env(safe-area-inset-top, 0px) + 14px) 14px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bd);background:var(--bg);position:relative;z-index:20;}
-.hlogo{display:flex;align-items:center;gap:8px;}
-.hname{font-family:'Lilita One',cursive;font-size:1.15rem;letter-spacing:2px;color:var(--deep);}
-.hdate{font-family:'Roboto Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);}
+.app{display:flex;flex-direction:column;min-height:100vh;width:100%;max-width:480px;margin:0 auto;position:relative;}
+.hdr{padding:calc(env(safe-area-inset-top, 0px) + 16px) 16px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);background:var(--bg);}
+.hname{font-family:'Lilita One',cursive;font-size:1.25rem;letter-spacing:1.5px;color:var(--deep);}
+.hdate{font-family:'Roboto Mono',monospace;font-size:0.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--t2);}
 
-.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px calc(env(safe-area-inset-bottom, 0px) + 32px);display:flex;flex-direction:column;gap:10px;}
+.scroll{flex:1;padding:16px 16px calc(env(safe-area-inset-bottom, 0px) + 40px);display:flex;flex-direction:column;gap:14px;}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.lbl{font-family:'Roboto Mono',monospace;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);font-weight:700;}
 
-.card{background:var(--s1);border:1px solid rgba(255,255,255,0.06);box-shadow:0 10px 28px rgba(0,0,0,0.65);border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:11px;}
-.lbl{font-family:'Roboto Mono',monospace;font-size:0.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--t3);}
+.ring-wrap{position:relative;width:180px;height:180px;margin:0 auto;}
+#ring-canvas-main{width:100%;height:100%;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-score{font-family:'Lilita One',cursive;font-size:2.8rem;line-height:1;}
+.ring-label{font-family:'Oswald',sans-serif;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);}
+.ring-grade{font-family:'Roboto Mono',monospace;font-size:0.75rem;color:var(--deep);font-weight:700;margin-top:2px;}
 
-.ring-wrap{position:relative;width:min(50vw,190px);height:min(50vw,190px);margin:0 auto;}
-#ring-canvas-main{position:absolute;inset:0;width:100%;height:100%;}
-.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
-.ring-score{font-family:'Lilita One',cursive;font-size:2.5rem;color:var(--tx);line-height:1;}
-.ring-label{font-family:'Oswald',sans-serif;font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:var(--t3);}
-.ring-grade{font-family:'Roboto Mono',monospace;font-size:0.7rem;color:var(--deep);margin-top:2px;text-align:center;font-weight:700;}
-
-.inp-row{display:flex;align-items:center;justify-content:space-between;gap:6px;background:var(--s2);border-radius:8px;padding:9px 10px;border:1px solid var(--bd);}
-.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.58rem;text-transform:uppercase;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%;}
-.inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1.1rem;padding:4px 6px;outline:none;text-align:center;width:56px;}
+.inp-row{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);}
+.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.65rem;text-transform:uppercase;color:var(--tx);font-weight:700;}
+.inp-pair{display:flex;align-items:center;gap:4px;}
+.inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1.15rem;padding:4px;outline:none;text-align:center;width:52px;}
 .inp-val:focus{border-color:var(--deep);}
-.inp-unit{font-family:'Oswald',sans-serif;font-size:0.72rem;color:var(--t3);letter-spacing:1px;}
-.inp-pair{display:flex;align-items:center;gap:3px;flex-shrink:0;}
+.inp-unit{font-family:'Oswald',sans-serif;font-size:0.75rem;color:var(--t2);width:12px;text-align:center;}
 
-.btn-primary{width:100%;padding:15px;background:var(--deep);color:#fff;border:none;border-radius:10px;font-family:'Lilita One',cursive;font-size:1.1rem;letter-spacing:1px;cursor:pointer;}
-.btn-secondary{width:100%;padding:12px;background:transparent;color:var(--t2);border:1px solid var(--bd);border-radius:10px;font-family:'Oswald',sans-serif;font-size:0.9rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.btn-primary{width:100%;padding:16px;background:var(--deep);color:#fff;border-radius:10px;font-family:'Lilita One',cursive;font-size:1.15rem;letter-spacing:1px;text-align:center;}
+.btn-secondary{width:100%;padding:14px;background:transparent;color:var(--t2);border:1px solid var(--bd);border-radius:10px;font-family:'Oswald',sans-serif;font-size:0.95rem;letter-spacing:1px;text-transform:uppercase;text-align:center;}
 
-.tipo-row{display:flex;gap:6px;}
-.tipo-btn{flex:1;padding:10px 6px;border-radius:8px;font-family:'Roboto Mono',monospace;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;border:1px solid var(--bd);background:var(--s2);color:var(--t3);cursor:pointer;text-align:center;}
-.tipo-btn.ativo-dia{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.4);color:#f87171;}
-.tipo-btn.ativo-noite{background:var(--deep-g);border-color:var(--deep-m);color:var(--deep);}
+.tipo-row{display:flex;gap:8px;}
+.tipo-btn{flex:1;padding:12px;border-radius:8px;font-family:'Roboto Mono',monospace;font-size:0.7rem;font-weight:700;text-transform:uppercase;border:1px solid var(--bd);background:var(--s2);color:var(--t2);text-align:center;}
+.tipo-btn.ativo-dia{background:rgba(239,68,68,0.15);border-color:var(--wake);color:#f87171;}
+.tipo-btn.ativo-noite{background:var(--deep-g);border-color:var(--deep);color:#93c5fd;}
 
-.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
-.stat-item{background:var(--s2);border-radius:8px;padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--bd);}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.stat-item{background:var(--s2);border-radius:8px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--bd);}
 .stat-val{font-family:'Roboto Mono',monospace;font-size:0.95rem;font-weight:700;}
-.stat-lbl{font-family:'Oswald',sans-serif;font-size:0.52rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3);text-align:center;}
+.stat-lbl{font-family:'Oswald',sans-serif;font-size:0.55rem;letter-spacing:1px;text-transform:uppercase;color:var(--t2);}
 
-.hipo-container{width:100%;background:var(--s2);border-radius:8px;padding:12px;border:1px solid var(--bd);}
-.hipo-stages{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
+.hipo-container{width:100%;background:var(--s2);border-radius:8px;padding:12px;border:1px solid var(--bd);display:flex;flex-direction:column;gap:6px;}
 .hipo-row{display:flex;align-items:center;gap:8px;}
-.hipo-stage-lbl{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--t3);width:48px;text-align:right;flex-shrink:0;letter-spacing:1px;text-transform:uppercase;}
-.hipo-bar-wrap{flex:1;height:18px;background:var(--s3);border-radius:3px;overflow:hidden;position:relative;}
-.hipo-segment{height:100%;display:inline-block;border-radius:2px;transition:width 0.5s ease;}
-.hipo-axis{display:flex;justify-content:space-between;font-family:'Roboto Mono',monospace;font-size:0.5rem;color:var(--t3);padding:0 4px;}
+.hipo-stage-lbl{font-family:'Roboto Mono',monospace;font-size:0.55rem;color:var(--t2);width:54px;text-align:right;text-transform:uppercase;}
+.hipo-bar-wrap{flex:1;height:16px;background:var(--s3);border-radius:4px;overflow:hidden;}
+.hipo-segment{height:100%;display:block;}
 
-.phase-bars{display:flex;flex-direction:column;gap:6px;}
+.phase-bars{display:flex;flex-direction:column;gap:8px;}
 .phase-row{display:flex;align-items:center;gap:8px;}
-.phase-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
-.phase-name{font-family:'Roboto Mono',monospace;font-size:0.58rem;color:var(--t2);width:52px;flex-shrink:0;}
+.phase-dot{width:8px;height:8px;border-radius:50%;}
+.phase-name{font-family:'Roboto Mono',monospace;font-size:0.6rem;color:var(--tx);width:54px;}
 .phase-bar-wrap{flex:1;height:8px;background:var(--s3);border-radius:4px;overflow:hidden;}
-.phase-bar{height:100%;border-radius:4px;transition:width 0.5s ease;}
-.phase-pct{font-family:'Roboto Mono',monospace;font-size:0.58rem;color:var(--t3);width:30px;text-align:right;flex-shrink:0;}
+.phase-bar{height:100%;border-radius:4px;}
+.phase-pct{font-family:'Roboto Mono',monospace;font-size:0.6rem;color:var(--t2);width:32px;text-align:right;}
 
-.alert-box{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:8px;font-size:0.72rem;line-height:1.5;}
-.alert-deep{background:var(--deep-g);border:1px solid var(--deep-m);color:#93c5fd;}
-.alert-warn{background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);color:#fde047;}
-.alert-crit{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;}
+.alert-box{padding:12px;border-radius:8px;font-size:0.75rem;line-height:1.4;}
+.alert-deep{background:var(--deep-g);border:1px solid var(--deep);color:#93c5fd;}
+.alert-warn{background:rgba(234,179,8,0.1);border:1px solid #eab308;color:#fde047;}
+.alert-crit{background:rgba(239,68,68,0.1);border:1px solid var(--wake);color:#fca5a5;}
 
-#custom-toast{
-  position:fixed;bottom:24px;left:14px;right:14px;background:#ef4444;color:#fff;
-  padding:14px;border-radius:8px;font-size:0.8rem;font-weight:500;z-index:9999;
-  box-shadow:0 12px 32px rgba(0,0,0,0.5);display:none;animation:toastUp 0.3s ease;
-}
-@keyframes toastUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+#custom-toast{position:fixed;bottom:20px;left:20px;right:20px;background:#ef4444;color:#fff;padding:12px;border-radius:8px;font-size:0.8rem;z-index:999;display:none;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.5);}
 
-.stats-home{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
-.sh-item{background:var(--s2);border-radius:8px;padding:10px;border:1px solid var(--bd);display:flex;flex-direction:column;gap:2px;}
-.sh-val{font-family:'Roboto Mono',monospace;font-size:1.1rem;font-weight:700;}
-.sh-lbl{font-family:'Oswald',sans-serif;font-size:0.55rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3);}
+.stats-home{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sh-item{background:var(--s2);border-radius:8px;padding:12px;border:1px solid var(--bd);display:flex;flex-direction:column;}
+.sh-val{font-family:'Roboto Mono',monospace;font-size:1.15rem;font-weight:700;}
+.sh-lbl{font-family:'Oswald',sans-serif;font-size:0.6rem;letter-spacing:1px;text-transform:uppercase;color:var(--t2);}
 
-.hist-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--s2);border-radius:8px;border:1px solid var(--bd);}
-.hi-date{display:flex;flex-direction:column;gap:1px;flex-shrink:0;width:28px;}
-.hi-d{font-family:'Oswald',sans-serif;font-size:1.05rem;line-height:1;}
-.hi-m{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--t3);text-transform:uppercase;}
-.hi-bar{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0;}
-.hi-hipo{display:flex;height:8px;border-radius:3px;overflow:hidden;gap:1px;}
-.hi-meta{font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t2);}
-.hi-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;}
-.hi-score{font-family:'Oswald',sans-serif;font-size:1.1rem;}
-.del-btn{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--wake);background:rgba(239,68,68,0.1);padding:3px 6px;border-radius:3px;border:1px solid rgba(239,68,68,0.3);}
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--s2);border-radius:8px;border:1px solid var(--bd);margin-bottom:8px;}
+.hi-date{display:flex;flex-direction:column;width:32px;text-align:center;}
+.hi-d{font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:700;line-height:1;}
+.hi-m{font-family:'Roboto Mono',monospace;font-size:0.55rem;color:var(--t2);text-transform:uppercase;}
+.hi-info{flex:1;margin-left:12px;display:flex;flex-direction:column;gap:2px;}
+.hi-meta{font-family:'Roboto Mono',monospace;font-size:0.6rem;color:var(--tx);}
+.hi-preview{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--s3);max-width:140px;}
+.hi-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.hi-score{font-family:'Oswald',sans-serif;font-size:1.15rem;font-weight:700;}
+.del-btn{font-family:'Roboto Mono',monospace;font-size:0.55rem;color:var(--wake);background:rgba(239,68,68,0.1);padding:2px 6px;border-radius:4px;border:1px solid rgba(239,68,68,0.3);}
 </style>
 </head>
 <body>
 
-<canvas id="bg-canvas"></canvas>
 <div id="custom-toast"></div>
 
-<div class="app" id="main-app">
+<div class="app">
   <div class="hdr">
-    <div class="hlogo">
-      <span class="hname">MAX.CORE SLEEP</span>
-    </div>
-    <span class="hdate" id="hdr-date"></span>
+    <span class="hname">MAX.CORE SLEEP</span>
+    <span class="hdate" id="hdr-date">--</span>
   </div>
 
   <div class="scroll">
 
-    <div id="sc-home" style="display:flex;flex-direction:column;gap:10px;">
+    <div id="sc-home" style="display:flex;flex-direction:column;gap:12px;">
       <div class="card" id="home-ultimo" style="display:none;">
         <div class="lbl">Último Sono Analisado</div>
         <div class="stats-home" id="home-stats-grid"></div>
-        <div id="home-mini-hipo" style="height:16px;background:var(--s2);border-radius:4px;overflow:hidden;display:flex;gap:1px;"></div>
+        <div id="home-mini-hipo" style="height:12px;background:var(--s2);border-radius:4px;overflow:hidden;display:flex;"></div>
       </div>
 
-      <div class="card" id="home-welcome">
-        <div style="text-align:center;padding:16px 0;color:var(--t3);font-size:0.8rem;text-transform:uppercase;font-family:'Oswald';letter-spacing:1px;">
-          Nenhum registro encontrado.<br>Toque abaixo para começar.
+      <div class="card" id="home-welcome" style="display:block;">
+        <div style="text-align:center;padding:20px 0;color:var(--t2);font-size:0.85rem;text-transform:uppercase;font-family:'Oswald';letter-spacing:1px;">
+          Nenhum registro encontrado.<br>Toque abaixo para iniciar.
         </div>
       </div>
 
@@ -154,7 +128,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
       <button class="btn-primary" onclick="showScreen('sc-registrar')">+ Registrar Nova Noite</button>
     </div>
 
-    <div id="sc-registrar" style="display:none;flex-direction:column;gap:10px;">
+    <div id="sc-registrar" style="display:none;flex-direction:column;gap:12px;">
       <div class="card">
         <div class="lbl">Período</div>
         <div class="tipo-row">
@@ -167,52 +141,49 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
         <div class="lbl">Inserir Dados das Fases</div>
         
         <div class="inp-row">
-          <span class="inp-lbl" style="color:var(--light)">Sono Leve 🔵</span>
+          <span class="inp-lbl" style="color:#94a3b8">Sono Leve 🔵</span>
           <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-leve-h" value="4" min="0" max="24" style="color:var(--light)">
+            <input type="number" class="inp-val" id="in-leve-h" value="4" min="0" max="24">
             <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-leve-m" value="10" min="0" max="59" style="color:var(--light)">
+            <input type="number" class="inp-val" id="in-leve-m" value="10" min="0" max="59">
             <span class="inp-unit">M</span>
           </div>
         </div>
 
         <div class="inp-row">
-          <span class="inp-lbl" style="color:var(--deep)">Sono Profundo 🟦</span>
+          <span class="inp-lbl" style="color:#60a5fa">Sono Profundo 🟦</span>
           <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-deep-h" value="1" min="0" max="12" style="color:var(--deep)">
+            <input type="number" class="inp-val" id="in-deep-h" value="1" min="0" max="12">
             <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-deep-m" value="20" min="0" max="59" style="color:var(--deep)">
+            <input type="number" class="inp-val" id="in-deep-m" value="20" min="0" max="59">
             <span class="inp-unit">M</span>
           </div>
         </div>
 
         <div class="inp-row">
-          <span class="inp-lbl" style="color:var(--rem)">Sono REM 🟣</span>
+          <span class="inp-lbl" style="color:#c084fc">Sono REM 🟣</span>
           <div class="inp-pair">
-            <input type="number" class="inp-val" id="in-rem-h" value="1" min="0" max="12" style="color:var(--rem)">
+            <input type="number" class="inp-val" id="in-rem-h" value="1" min="0" max="12">
             <span class="inp-unit">H</span>
-            <input type="number" class="inp-val" id="in-rem-m" value="30" min="0" max="59" style="color:var(--rem)">
+            <input type="number" class="inp-val" id="in-rem-m" value="30" min="0" max="59">
             <span class="inp-unit">M</span>
           </div>
         </div>
 
-        <div style="background:#09090b;border-radius:8px;padding:12px;border:1px solid var(--bd);display:flex;flex-direction:column;gap:4px;">
-          <div style="font-family:'Roboto Mono',monospace;font-size:0.55rem;color:var(--t3);display:flex;justify-content:space-between;">
-            <span>SOMA ATUAL DO SONO:</span>
-            <span id="lbl-total" style="color:var(--acc);font-weight:bold;">--</span>
-          </div>
-          <div id="math-breakdown" style="font-family:'Roboto Mono',monospace;font-size:0.5rem;color:var(--t3);border-top:1px dashed #222;padding-top:4px;margin-top:2px;">
-            Leve: 0m | Profundo: 0m | REM: 0m
+        <div style="background:#000;border-radius:8px;padding:12px;border:1px solid var(--bd);display:flex;flex-direction:column;gap:4px;">
+          <div style="font-family:'Roboto Mono',monospace;font-size:0.65rem;color:var(--t2);display:flex;justify-content:space-between;">
+            <span>SOMA DO SONO ATUAL:</span>
+            <span id="lbl-total" style="color:var(--acc);font-weight:bold;">0h 00m</span>
           </div>
         </div>
       </div>
 
       <div class="card">
         <div class="lbl">Biometria e Sensores</div>
-        <div class="inp-row"><span class="inp-lbl" style="color:#c4b5fd">RMSSD Média (ms)</span><input type="number" class="inp-val" id="in-rmssd" value="55" style="color:#c4b5fd;width:64px;"></div>
-        <div class="inp-row"><span class="inp-lbl" style="color:#93c5fd">SpO2 Mínima (%)</span><input type="number" class="inp-val" id="in-spo2" value="95" style="color:#93c5fd;width:64px;"></div>
+        <div class="inp-row"><span class="inp-lbl" style="color:#c4b5fd">RMSSD Média (ms)</span><input type="number" class="inp-val" id="in-rmssd" value="55" style="width:64px;"></div>
+        <div class="inp-row"><span class="inp-lbl" style="color:#93c5fd">SpO2 Mínima (%)</span><input type="number" class="inp-val" id="in-spo2" value="95" style="width:64px;"></div>
         <div class="inp-row"><span class="inp-lbl">FC Mínima Noturna</span><input type="number" class="inp-val" id="in-fc-noite" value="52" style="width:64px;"></div>
-        <div class="inp-row"><span class="inp-lbl">Feq. Respiratória (rpm)</span><input type="number" class="inp-val" id="in-resp" value="14" style="width:64px;"></div>
+        <div class="inp-row"><span class="inp-lbl">Freq. Respiratória (rpm)</span><input type="number" class="inp-val" id="in-resp" value="14" style="width:64px;"></div>
         <div class="inp-row"><span class="inp-lbl">Despertares (Vigília)</span><input type="number" class="inp-val" id="in-despertares" value="1" style="width:64px;"></div>
       </div>
 
@@ -220,9 +191,9 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
       <button class="btn-secondary" onclick="showScreen('sc-home')">← Cancelar</button>
     </div>
 
-    <div id="sc-relatorio" style="display:none;flex-direction:column;gap:10px;">
+    <div id="sc-relatorio" style="none;flex-direction:column;gap:12px;">
       <div class="card">
-        <div class="lbl" id="rep-data-txt"></div>
+        <div class="lbl" id="rep-data-txt">Dados Computados</div>
         <div class="ring-wrap">
           <canvas id="ring-canvas-main"></canvas>
           <div class="ring-center">
@@ -234,46 +205,43 @@ input[type=number]{-webkit-appearance:none;appearance:none;}
         <div class="stats-grid">
           <div class="stat-item"><div class="stat-val" id="rs-total" style="color:var(--acc)">--</div><div class="stat-lbl">Tempo Total</div></div>
           <div class="stat-item"><div class="stat-val" id="rs-efic" style="color:var(--deep)">--%</div><div class="stat-lbl">Eficiência</div></div>
-          <div class="stat-item"><div class="stat-val" id="rs-hrv-efi" style="color:var(--rem)">--%</div><div class="stat-lbl">Coerência HRV</div></div>
+          <div class="stat-item"><div class="stat-val" id="rs-hrv-efi" style="color:var(--rem)">--%</div><div class="stat-lbl">Coerência</div></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="lbl">Distribuição Temporal Basal</div>
+        <div class="lbl">Distribuição Temporal</div>
         <div class="hipo-container">
-          <div class="hipo-stages">
-            <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--wake)">Acordado</span><div class="hipo-bar-wrap" id="hipo-wake"></div></div>
-            <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--light)">Leve</span><div class="hipo-bar-wrap" id="hipo-light"></div></div>
-            <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--rem)">REM</span><div class="hipo-bar-wrap" id="hipo-rem"></div></div>
-            <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--deep)">Profundo</span><div class="hipo-bar-wrap" id="hipo-deep"></div></div>
-          </div>
-          <div class="hipo-axis" id="hipo-axis-labels"></div>
+          <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--wake)">Acordado</span><div class="hipo-bar-wrap" id="hipo-wake"></div></div>
+          <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--light)">Leve</span><div class="hipo-bar-wrap" id="hipo-light"></div></div>
+          <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--rem)">REM</span><div class="hipo-bar-wrap" id="hipo-rem"></div></div>
+          <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--deep)">Profundo</span><div class="hipo-bar-wrap" id="hipo-deep"></div></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="lbl">Proporção Científica das Fases</div>
+        <div class="lbl">Proporção das Fases</div>
         <div class="phase-bars">
           <div class="phase-row">
             <div class="phase-dot" style="background:var(--deep)"></div><span class="phase-name">Profundo</span>
             <div class="phase-bar-wrap"><div class="phase-bar" id="bar-deep" style="background:var(--deep);width:0%"></div></div>
-            <span class="phase-pct" id="pct-deep" style="color:var(--deep)">0%</span>
+            <span class="phase-pct" id="pct-deep">0%</span>
           </div>
           <div class="phase-row">
             <div class="phase-dot" style="background:var(--rem)"></div><span class="phase-name">REM</span>
             <div class="phase-bar-wrap"><div class="phase-bar" id="bar-rem" style="background:var(--rem);width:0%"></div></div>
-            <span class="phase-pct" id="pct-rem" style="color:var(--rem)">0%</span>
+            <span class="phase-pct" id="pct-rem">0%</span>
           </div>
           <div class="phase-row">
             <div class="phase-dot" style="background:var(--light)"></div><span class="phase-name">Leve</span>
             <div class="phase-bar-wrap"><div class="phase-bar" id="bar-light" style="background:var(--light);width:0%"></div></div>
-            <span class="phase-pct" id="pct-light" style="color:var(--light)">0%</span>
+            <span class="phase-pct" id="pct-light">0%</span>
           </div>
         </div>
       </div>
 
-      <div id="sensor-cross" style="display:flex;flex-direction:column;gap:6px;"></div>
-      <div id="alertas-container" style="display:flex;flex-direction:column;gap:6px;"></div>
+      <div id="sensor-cross" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div id="alertas-container" style="display:flex;flex-direction:column;gap:8px;"></div>
 
       <button class="btn-primary" id="btn-salvar" onclick="salvarSono()">💾 Gravar no Histórico</button>
       <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar Principal</button>
@@ -290,37 +258,15 @@ function showToast(msg) {
   if(!t) return;
   t.innerHTML = msg;
   t.style.display = 'block';
-  setTimeout(() => { t.style.display = 'none'; }, 4000);
+  setTimeout(() => { t.style.display = 'none'; }, 3500);
 }
 
 function loadSonos() {
-  try { const s = localStorage.getItem('sleep_v1'); return s ? JSON.parse(s) : []; }
+  try { const s = localStorage.getItem('max_sleep_v2'); return s ? JSON.parse(s) : []; }
   catch(e) { return []; }
 }
 function saveSonos(arr) {
-  try { localStorage.setItem('sleep_v1', JSON.stringify(arr.slice(0, 90))); } catch(e){}
-}
-
-function initBG() {
-  const canvas = document.getElementById('bg-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W, H, t = 0;
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  resize(); window.addEventListener('resize', resize);
-  function draw() {
-    ctx.clearRect(0, 0, W, H); t += 0.004;
-    [{f:0.01,a:15,y:0.3,c:'#1d4ed808'},{f:0.02,a:10,y:0.6,c:'#6d28d905'}].forEach(w => {
-      ctx.beginPath();
-      for (let x = 0; x <= W; x += 4) {
-        let y = H * w.y + Math.sin(x * w.f + t) * w.a;
-        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = w.c; ctx.lineWidth = 2; ctx.stroke();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
+  try { localStorage.setItem('max_sleep_v2', JSON.stringify(arr)); } catch(e){}
 }
 
 function getValoresBrutos() {
@@ -331,39 +277,34 @@ function getValoresBrutos() {
   const rh = Math.abs(parseInt(document.getElementById('in-rem-h').value)) || 0;
   const rm = Math.abs(parseInt(document.getElementById('in-rem-m').value)) || 0;
 
-  const leveMin = (lh * 60) + (lm % 60);
-  const deepMin = (dh * 60) + (dm % 60);
-  const remMin  = (rh * 60) + (rm % 60);
+  const leveMin = (lh * 60) + lm;
+  const deepMin = (dh * 60) + dm;
+  const remMin  = (rh * 60) + rm;
 
   return { leveMin, deepMin, remMin, totalMin: leveMin + deepMin + remMin };
 }
 
-function forcedRecalculate() {
+// ESTA FUNÇÃO SOMA EM TEMPO REAL NO CELULAR
+function calcularSomaRealTime() {
   const d = getValoresBrutos();
   const el = document.getElementById('lbl-total');
-  const breakEl = document.getElementById('math-breakdown');
-  
   if (el) {
     const h = Math.floor(d.totalMin / 60);
     const m = d.totalMin % 60;
     el.textContent = `${h}h ${String(m).padStart(2, '0')}m`;
-  }
-  if (breakEl) {
-    breakEl.textContent = `🔵 Leve: ${d.leveMin}m | 🟦 Profundo: ${d.deepMin}m | 🟣 REM: ${d.remMin}m`;
   }
 }
 
 function drawRing(score) {
   const canvas = document.getElementById('ring-canvas-main');
   if (!canvas) return;
-  const sz = canvas.closest('.ring-wrap').offsetWidth || 180;
-  canvas.width = sz; canvas.height = sz;
+  canvas.width = 180; canvas.height = 180;
   const ctx = canvas.getContext('2d');
-  const cx = sz/2, cy = sz/2, r = sz/2 - 12;
+  const cx = 90, cy = 90, r = 75;
   const pct = Math.min(Math.max(score, 0), 100) / 100;
   const cor = score < 50 ? '#ef4444' : score < 75 ? '#eab308' : '#2dd4bf';
 
-  ctx.clearRect(0, 0, sz, sz);
+  ctx.clearRect(0, 0, 180, 180);
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
   ctx.strokeStyle = '#18181c'; ctx.lineWidth = 10; ctx.stroke();
   
@@ -374,12 +315,12 @@ function drawRing(score) {
 }
 
 function showScreen(id) {
-  ['sc-home','sc-registrar','sc-relatorio'].forEach(s => {
-    const el = document.getElementById(s);
-    if(el) el.style.display = (s === id) ? 'flex' : 'none';
-  });
+  document.getElementById('sc-home').style.display = (id === 'sc-home') ? 'flex' : 'none';
+  document.getElementById('sc-registrar').style.display = (id === 'sc-registrar') ? 'flex' : 'none';
+  document.getElementById('sc-relatorio').style.display = (id === 'sc-relatorio') ? 'flex' : 'none';
+  
   if (id === 'sc-home') renderHome();
-  if (id === 'sc-registrar') forcedRecalculate();
+  if (id === 'sc-registrar') calcularSomaRealTime();
 }
 
 function setTipo(t) {
@@ -393,88 +334,80 @@ function fmtMin(min) {
 }
 
 function analisarSono() {
-  document.querySelectorAll('input').forEach(i => i.blur());
+  const d = getValoresBrutos();
+  if (d.totalMin <= 0) {
+    showToast("A soma total do sono não pode ser zero.");
+    return;
+  }
 
-  setTimeout(() => {
-    const d = getValoresBrutos();
+  const rmssd = Math.abs(parseInt(document.getElementById('in-rmssd').value)) || 0;
+  const spo2 = Math.abs(parseInt(document.getElementById('in-spo2').value)) || 0;
+  const fcNoite = Math.abs(parseInt(document.getElementById('in-fc-noite').value)) || 0;
+  const resp = Math.abs(parseInt(document.getElementById('in-resp').value)) || 0;
+  const despertares = Math.abs(parseInt(document.getElementById('in-despertares').value)) || 0;
 
-    if (d.totalMin <= 0) {
-      showToast("<b>Erro de Entrada:</b> A soma total do sono não pode ser igual a zero.");
-      return;
-    }
+  const pctDeep = Math.round((d.deepMin / d.totalMin) * 100) || 0;
+  const pctRem = Math.round((d.remMin / d.totalMin) * 100) || 0;
+  const pctLeve = Math.round((d.leveMin / d.totalMin) * 100) || 0;
 
-    const rmssd = Math.abs(parseInt(document.getElementById('in-rmssd').value)) || 0;
-    const spo2 = Math.abs(parseInt(document.getElementById('in-spo2').value)) || 0;
-    const fcNoite = Math.abs(parseInt(document.getElementById('in-fc-noite').value)) || 0;
-    const resp = Math.abs(parseInt(document.getElementById('in-resp').value)) || 0;
-    const despertares = Math.abs(parseInt(document.getElementById('in-despertares').value)) || 0;
+  const eficiencia = Math.max(40, Math.min(100, Math.round(100 - (despertares * 5))));
+  const hrvEfi = Math.min(100, Math.round((rmssd / 60) * 100));
 
-    const pctDeep = Math.round((d.deepMin / d.totalMin) * 100) || 0;
-    const pctRem = Math.round((d.remMin / d.totalMin) * 100) || 0;
-    const pctLeve = Math.round((d.leveMin / d.totalMin) * 100) || 0;
+  let score = 0;
+  score += Math.min(40, (d.totalMin / 480) * 40);
+  score += (pctDeep >= 15 && pctDeep <= 25) ? 20 : Math.max(0, 20 - Math.abs(pctDeep - 20));
+  score += (pctRem >= 20 && pctRem <= 25) ? 20 : Math.max(0, 20 - Math.abs(pctRem - 22));
+  score += Math.min(10, (rmssd / 50) * 10);
+  score += (spo2 >= 95) ? 10 : Math.max(0, 10 - (95 - spo2) * 2);
+  score = Math.max(10, Math.min(100, Math.round(score)));
 
-    const eficiencia = Math.max(40, Math.min(100, Math.round(100 - (despertares * 5) - (ST.tipo === 'dia' ? 10 : 0))));
-    const hrvEfi = Math.min(100, Math.round((rmssd / 60) * 100));
+  let grade = "REGULAR";
+  if (score >= 85) grade = "EXCELENTE";
+  else if (score >= 70) grade = "BOM";
 
-    let score = 0;
-    score += Math.min(40, (d.totalMin / 480) * 40);
-    score += (pctDeep >= 15 && pctDeep <= 25) ? 20 : Math.max(0, 20 - Math.abs(pctDeep - 20));
-    score += (pctRem >= 20 && pctRem <= 25) ? 20 : Math.max(0, 20 - Math.abs(pctRem - 22));
-    score += Math.min(10, (rmssd / 50) * 10);
-    score += (spo2 >= 95) ? 10 : Math.max(0, 10 - (95 - spo2) * 2);
-    score = Math.max(10, Math.min(100, Math.round(score)));
+  ST.sessao = {
+    id: Date.now(),
+    data: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+    tipo: ST.tipo, score, grade, totalMin: d.totalMin, leveMin: d.leveMin, deepMin: d.deepMin, remMin: d.remMin,
+    pctLeve, pctDeep, pctRem, rmssd, spo2, fcNoite, resp, despertares, eficiencia, hrvEfi
+  };
 
-    let grade = "COMPROMETIDO";
-    if (score >= 85) grade = "EXCELENTE";
-    else if (score >= 70) grade = "BOM/ESTÁVEL";
-    else if (score >= 50) grade = "REGULAR";
+  document.getElementById('rep-data-txt').textContent = `Dados Computados: ${ST.sessao.data} (${ST.tipo.toUpperCase()})`;
+  document.getElementById('rep-score').textContent = score;
+  document.getElementById('rep-grade').textContent = grade;
+  document.getElementById('rs-total').textContent = fmtMin(d.totalMin);
+  document.getElementById('rs-efic').textContent = eficiencia + '%';
+  document.getElementById('rs-hrv-efi').textContent = hrvEfi + '%';
 
-    ST.sessao = {
-      id: Date.now(),
-      data: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-      tipo: ST.tipo, score, grade, totalMin: d.totalMin, leveMin: d.leveMin, deepMin: d.deepMin, remMin: d.remMin,
-      pctLeve, pctDeep, pctRem, rmssd, spo2, fcNoite, resp, despertares, eficiencia, hrvEfi
-    };
+  document.getElementById('bar-deep').style.width = pctDeep + '%';
+  document.getElementById('pct-deep').textContent = pctDeep + '%';
+  document.getElementById('bar-rem').style.width = pctRem + '%';
+  document.getElementById('pct-rem').textContent = pctRem + '%';
+  document.getElementById('bar-light').style.width = pctLeve + '%';
+  document.getElementById('pct-light').textContent = pctLeve + '%';
 
-    document.getElementById('rep-data-txt').textContent = `Dados Computados: ${ST.sessao.data} (${ST.tipo.toUpperCase()})`;
-    document.getElementById('rep-score').textContent = score;
-    document.getElementById('rep-grade').textContent = grade;
-    document.getElementById('rs-total').textContent = fmtMin(d.totalMin);
-    document.getElementById('rs-efic').textContent = eficiencia + '%';
-    document.getElementById('rs-hrv-efi').textContent = hrvEfi + '%';
+  const wakeMin = despertares * 4; 
+  const tHipo = d.totalMin + wakeMin;
+  
+  document.getElementById('hipo-wake').innerHTML = `<div class="hipo-segment" style="width:${(wakeMin/tHipo)*100}%; background:var(--wake);"></div>`;
+  document.getElementById('hipo-light').innerHTML = `<div class="hipo-segment" style="width:${(d.leveMin/tHipo)*100}%; background:var(--light);"></div>`;
+  document.getElementById('hipo-rem').innerHTML = `<div class="hipo-segment" style="width:${(d.remMin/tHipo)*100}%; background:var(--rem);"></div>`;
+  document.getElementById('hipo-deep').innerHTML = `<div class="hipo-segment" style="width:${(d.deepMin/tHipo)*100}%; background:var(--deep);"></div>`;
 
-    document.getElementById('bar-deep').style.width = pctDeep + '%';
-    document.getElementById('pct-deep').textContent = pctDeep + '%';
-    document.getElementById('bar-rem').style.width = pctRem + '%';
-    document.getElementById('pct-rem').textContent = pctRem + '%';
-    document.getElementById('bar-light').style.width = pctLeve + '%';
-    document.getElementById('pct-light').textContent = pctLeve + '%';
+  let crossHTML = '';
+  if (rmssd < 40 && d.deepMin < 60) {
+    crossHTML += `<div class="alert-box alert-crit">🛑 <b>Alerta de Fadiga:</b> Profundo e RMSSD baixos. O corpo não relaxou completamente. Evite treinos pesados hoje.</div>`;
+  } else if (rmssd >= 50 && pctDeep >= 15) {
+    crossHTML += `<div class="alert-box alert-deep">✅ <b>Recuperação Excelente:</b> Sincronia perfeita das fases com o coração. Corpo totalmente restaurado.</div>`;
+  }
+  document.getElementById('sensor-cross').innerHTML = crossHTML;
 
-    const wakeMin = despertares * 4; 
-    const tHipo = d.totalMin + wakeMin;
-    const renderSeg = (m, c) => `<div class="hipo-segment" style="width:${(m/tHipo)*100}%; background:${c};"></div>`;
-    
-    document.getElementById('hipo-wake').innerHTML = renderSeg(wakeMin, 'var(--wake)');
-    document.getElementById('hipo-light').innerHTML = renderSeg(d.leveMin, 'var(--light)');
-    document.getElementById('hipo-rem').innerHTML = renderSeg(d.remMin, 'var(--rem)');
-    document.getElementById('hipo-deep').innerHTML = renderSeg(d.deepMin, 'var(--deep)');
-    document.getElementById('hipo-axis-labels').innerHTML = `<span>Início</span><span>Total Ajustado: ${fmtMin(tHipo)}</span>`;
+  let alertasHTML = '';
+  if (spo2 < 94) alertasHTML += `<div class="alert-box alert-warn">⚠️ Atenção: Nível de SpO2 atingiu ${spo2}% durante o descanso.</div>`;
+  document.getElementById('alertas-container').innerHTML = alertasHTML;
 
-    let crossHTML = '';
-    if (rmssd < 40 && d.deepMin < 60) {
-      crossHTML += `<div class="alert-box alert-crit">🛑 <b>Falta de Sincronia Simpática:</b> Profundo baixo e RMSSD baixo detectados. O corpo não desativou o modo de alerta. Evite treinos exaustivos ou cargas extremas hoje.</div>`;
-    } else if (rmssd >= 50 && pctDeep >= 15) {
-      crossHTML += `<div class="alert-box alert-deep">✅ <b>Recuperação Atômica:</b> Ondas lentas em sincronia com o tônus parassimpático. Resiliência muscular e mental restaurada.</div>`;
-    }
-    document.getElementById('sensor-cross').innerHTML = crossHTML;
-
-    let alertasHTML = '';
-    if (spo2 < 94) alertasHTML += `<div class="alert-box alert-warn">⚠️ SpO2 caiu para ${spo2}% durante o monitoramento.</div>`;
-    document.getElementById('alertas-container').innerHTML = alertasHTML;
-
-    showScreen('sc-relatorio');
-    setTimeout(() => drawRing(score), 60);
-  }, 150);
+  showScreen('sc-relatorio');
+  setTimeout(() => drawRing(score), 50);
 }
 
 function salvarSono() {
@@ -516,7 +449,7 @@ function renderHome() {
   
   document.getElementById('home-stats-grid').innerHTML = `
     <div class="sh-item"><span class="sh-val" style="color:${cor}">${u.score}</span><span class="sh-lbl">Score (${u.grade})</span></div>
-    <div class="sh-item"><span class="sh-val" style="color:var(--acc)">${fmtMin(u.totalMin)}</span><span class="sh-lbl">Duração Bruta</span></div>
+    <div class="sh-item"><span class="sh-val" style="color:var(--acc)">${fmtMin(u.totalMin)}</span><span class="sh-lbl">Duração</span></div>
     <div class="sh-item"><span class="sh-val" style="color:#c4b5fd">${u.rmssd} ms</span><span class="sh-lbl">RMSSD</span></div>
     <div class="sh-item"><span class="sh-val">${u.fcNoite} bpm</span><span class="sh-lbl">FC Mínima</span></div>
   `;
@@ -530,32 +463,24 @@ function renderHome() {
   const listaHome = document.getElementById('home-hist-lista');
   listaHome.innerHTML = '';
   
-  sonos.slice(0, 4).forEach(s => {
+  sonos.slice(0, 5).forEach(s => {
     const sCor = s.score < 50 ? '#ef4444' : s.score < 75 ? '#eab308' : '#2dd4bf';
-    
-    let dia = '??';
-    let mesStr = 'SONO';
-    if (s.data && typeof s.data === 'string' && s.data.includes('/')) {
-      const partes = s.data.split('/');
-      dia = partes[0];
-      const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
-      const idx = parseInt(partes[1], 10) - 1;
-      if (idx >= 0 && idx < 12) mesStr = meses[idx];
-    }
+    const partes = s.data.split('/');
+    const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+    const mesStr = meses[parseInt(partes[1], 10) - 1] || 'SONO';
 
     const item = document.createElement('div');
     item.className = 'hist-item';
-    item.style.marginBottom = '6px';
     item.onclick = () => {
       ST.sessao = s;
       showScreen('sc-relatorio');
       document.getElementById('btn-salvar').style.display = 'none';
     };
     item.innerHTML = `
-      <div class="hi-date"><span class="hi-d">${dia}</span><span class="hi-m">${mesStr}</span></div>
-      <div class="hi-bar">
+      <div class="hi-date"><span class="hi-d">${partes[0]}</span><span class="hi-m">${mesStr}</span></div>
+      <div class="hi-info">
         <div class="hi-meta">${s.tipo === 'dia' ? '☀️ Diurno' : '🌙 Noturno'} • ${fmtMin(s.totalMin)}</div>
-        <div class="hi-hipo">
+        <div class="hi-preview">
           <div style="background:var(--deep); width:${(s.deepMin/s.totalMin)*100}%"></div>
           <div style="background:var(--rem); width:${(s.remMin/s.totalMin)*100}%"></div>
           <div style="background:var(--light); width:${(s.leveMin/s.totalMin)*100}%"></div>
@@ -573,14 +498,12 @@ function renderHome() {
 window.addEventListener('DOMContentLoaded', () => {
   const d = new Date();
   document.getElementById('hdr-date').textContent = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
-  initBG();
   renderHome();
 
+  // Escuta qualquer mudança de digitação em tempo real no celular
   const inputs = document.querySelectorAll('.inp-val');
   inputs.forEach(input => {
-    ['input', 'change', 'keyup', 'blur'].forEach(ev => {
-      input.addEventListener(ev, forcedRecalculate);
-    });
+    input.addEventListener('input', calcularSomaRealTime);
   });
 });
 
