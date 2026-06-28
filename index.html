@@ -178,7 +178,7 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
         <line x1="68" y1="25" x2="120" y2="25" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
       </svg>
       <span class="hname">MAX.CORE SLEEP</span>
-      <span class="bridge-chip" id="bridge-chip">v2.2</span>
+      <span class="bridge-chip" id="bridge-chip">v2.3</span>
     </div>
     <span class="hdate" id="hdr-date"></span>
   </div>
@@ -274,6 +274,10 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
         <div class="inp-row">
           <span class="inp-lbl">Despertares</span>
           <input type="number" class="inp-val" id="in-despertares" value="1" min="0" max="20" style="width:72px;">
+        </div>
+        <div class="inp-row">
+          <span class="inp-lbl" style="color:#fbbf24">Estresse</span>
+          <input type="number" class="inp-val" id="in-estresse" value="" min="0" max="100" placeholder="0-99" style="color:#fbbf24;width:72px;">
         </div>
       </div>
       <button class="btn-primary" onclick="analisarSono()">Analisar Sono</button>
@@ -507,6 +511,7 @@ function analisarSono() {
   var fcNoite  = g('in-fc-noite') || 55;
   var resp     = gf('in-resp') || 14;
   var despert  = g('in-despertares');
+  var estresse = g('in-estresse'); // 0 = não preenchido
   var tipo     = ST.tipo;
 
   if(totalMin < 30){alert('Insira um tempo de sono válido.');return;}
@@ -569,7 +574,7 @@ function analisarSono() {
     pctDeep:Math.round(pctDeep*10)/10,
     pctREM:Math.round(pctREM*10)/10,
     pctLeve:Math.round(pctLeve*10)/10,
-    rmssd, spo2, fcNoite, resp, despert,
+    rmssd, spo2, fcNoite, resp, despert, estresse,
     score,
     scoreBase:Math.round(scoreBase),
     scoreSWS:Math.round(scoreSWS),
@@ -789,6 +794,7 @@ function salvarSono() {
       rhr: s.fcNoite,
       rpm: s.resp,
       spo2: s.spo2,
+      estresse: s.estresse || 0,
       tipoSono: s.tipo
     });
   }
