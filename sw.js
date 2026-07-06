@@ -1,5 +1,5 @@
-/* SLEEP Service Worker v2.3 */
-const CACHE='sleep-v2.3';
+/* SLEEP Service Worker v2.4 */
+const CACHE='sleep-v2.4';
 const FILES=['./','./index.html','./bio-bridge.js'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
