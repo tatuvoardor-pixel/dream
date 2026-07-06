@@ -280,6 +280,24 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
           <input type="number" class="inp-val" id="in-estresse" value="" min="0" max="100" placeholder="0-99" style="color:#fbbf24;width:72px;">
         </div>
       </div>
+
+      <!-- COCHILO -->
+      <div class="card" style="border-color:rgba(99,102,241,0.3)">
+        <div class="lbl" style="color:#818cf8">😴 COCHILO (OPCIONAL)</div>
+        <div style="font-size:0.65rem;color:var(--t3);margin-bottom:8px;">Se dormiu um cochilo separado do sono principal</div>
+        <div class="inp-row">
+          <span class="inp-lbl" style="color:#818cf8">Duração</span>
+          <input type="number" class="inp-val" id="in-cochilo-min" value="" min="0" max="180" placeholder="min" style="color:#818cf8;width:72px;">
+        </div>
+        <div class="inp-row" style="margin-top:6px;">
+          <span class="inp-lbl" style="color:#818cf8">Qualidade</span>
+          <select id="in-cochilo-tipo" style="background:var(--s2);border:1px solid var(--bd);color:#818cf8;font-family:inherit;font-size:0.85rem;padding:6px 10px;border-radius:8px;outline:none;">
+            <option value="leve">Leve (acordei meio atordoado)</option>
+            <option value="bom">Bom (acordei descansado)</option>
+            <option value="profundo">Profundo (acordei pesado)</option>
+          </select>
+        </div>
+      </div>
       <button class="btn-primary" onclick="analisarSono()">Analisar Sono</button>
       <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button>
     </div>
@@ -784,6 +802,9 @@ function salvarSono() {
   if(typeof BioBridge !== 'undefined') {
     // Estimar tempo acordado baseado em despertares (4min cada, máx 10% do total)
     var tempoAcordado = Math.min(s.despert * 4, Math.round(s.totalMin * 0.1));
+  var cocholoMin = parseInt(document.getElementById('in-cochilo-min').value) || 0;
+  var cocholoTipo = document.getElementById('in-cochilo-tipo').value;
+
     enviou = BioBridge.push('sleep', {
       leveMin: s.leveMin,
       profMin: s.deepMin,
@@ -795,6 +816,8 @@ function salvarSono() {
       rpm: s.resp,
       spo2: s.spo2,
       estresse: s.estresse || 0,
+      cocholoMin: cocholoMin,
+      cocholoTipo: cocholoTipo,
       tipoSono: s.tipo
     });
   }
