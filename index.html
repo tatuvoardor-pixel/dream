@@ -1,8 +1,5 @@
 <!DOCTYPE html>
-<!-- MAX.CORE SLEEP — Versão 2.2 (BioBridge integrado) -->
-<!-- v2.2: integração com BioMetrics via bio-bridge.js
-     Ao salvar uma noite, dispara automaticamente pro hub.
--->
+<!-- MAX.CORE SLEEP — Versão 2.3 (temp + hrv fix) -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -21,8 +18,6 @@
     '<circle cx="360" cy="140" r="12" fill="#93c5fd"/>'+
     '<circle cx="400" cy="220" r="8" fill="#60a5fa"/>'+
     '<circle cx="370" cy="300" r="6" fill="#93c5fd"/>'+
-    '<circle cx="340" cy="130" r="5" fill="#60a5fa"/>'+
-    '<circle cx="410" cy="170" r="5" fill="#bfdbfe"/>'+
     '</svg>';
   var iUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ico);
   var mf={name:"MAX.CORE SLEEP",short_name:"SLEEP",display:"fullscreen",orientation:"portrait",start_url:"./",background_color:"#09090b",theme_color:"#09090b",icons:[{src:iUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
@@ -72,9 +67,8 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
 .hipo-row{display:flex;align-items:center;gap:8px;}
 .hipo-stage-lbl{font-family:'Roboto Mono',monospace;font-size:0.52rem;color:var(--t3);width:44px;text-align:right;flex-shrink:0;text-transform:uppercase;}
 .hipo-bar-wrap{flex:1;height:18px;background:var(--s3);border-radius:3px;overflow:hidden;position:relative;}
-.hipo-axis{display:flex;justify-content:space-between;font-family:'Roboto Mono',monospace;font-size:0.5rem;color:var(--t3);padding:0 52px;}
 .inp-row{display:flex;align-items:center;justify-content:space-between;gap:6px;background:var(--s2);border-radius:8px;padding:9px 10px;border:1px solid var(--bd);}
-.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.58rem;text-transform:uppercase;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%;}
+.inp-lbl{font-family:'Roboto Mono',monospace;font-size:0.58rem;text-transform:uppercase;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%;}
 .inp-val{background:var(--s1);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:'Lilita One',cursive;font-size:1rem;padding:4px 6px;outline:none;text-align:center;width:52px;}
 .inp-val:focus{border-color:var(--deep);}
 .inp-pair{display:flex;align-items:center;gap:3px;flex-shrink:0;}
@@ -82,10 +76,9 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
 .btn-primary{width:100%;padding:15px;background:var(--deep);color:#fff;border:none;border-radius:10px;font-family:'Lilita One',cursive;font-size:1.1rem;cursor:pointer;transition:opacity 0.15s;}
 .btn-primary:active{opacity:0.8;}
 .btn-primary.salvo{background:var(--acc);color:#000;}
-.btn-secondary{width:100%;padding:12px;background:transparent;color:var(--t2);border:1px solid var(--bd);border-radius:10px;font-family:'Oswald',sans-serif;font-size:0.9rem;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
-.btn-secondary:active{background:var(--s2);}
+.btn-secondary{width:100%;padding:12px;background:transparent;color:var(--t2);border:1px solid var(--bd);border-radius:10px;font-family:'Oswald',sans-serif;font-size:0.9rem;text-transform:uppercase;cursor:pointer;}
 .tipo-row{display:flex;gap:6px;}
-.tipo-btn{flex:1;padding:10px 6px;border-radius:8px;font-family:'Roboto Mono',monospace;font-size:0.65rem;font-weight:700;text-transform:uppercase;border:1px solid var(--bd);background:var(--s2);color:var(--t3);cursor:pointer;transition:all 0.15s;text-align:center;}
+.tipo-btn{flex:1;padding:10px 6px;border-radius:8px;font-family:'Roboto Mono',monospace;font-size:0.65rem;font-weight:700;text-transform:uppercase;border:1px solid var(--bd);background:var(--s2);color:var(--t3);cursor:pointer;text-align:center;}
 .tipo-btn.ativo-dia{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.4);color:#f87171;}
 .tipo-btn.ativo-noite{background:var(--deep-g);border-color:var(--deep-m);color:var(--deep);}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
@@ -131,34 +124,15 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
 .sh-item{background:var(--s2);border-radius:8px;padding:10px;border:1px solid var(--bd);display:flex;flex-direction:column;gap:2px;}
 .sh-val{font-family:'Roboto Mono',monospace;font-size:1.1rem;font-weight:700;}
 .sh-lbl{font-family:'Oswald',sans-serif;font-size:0.55rem;text-transform:uppercase;color:var(--t3);}
-
-/* BIOBRIDGE STATUS — chip discreto no header */
-.bridge-chip{
-  font-family:'Roboto Mono',monospace;font-size:0.5rem;
-  padding:3px 7px;border-radius:8px;text-transform:uppercase;
-  background:var(--s2);border:1px solid var(--bd);color:var(--t3);
-  margin-left:8px;
-}
+.bridge-chip{font-family:'Roboto Mono',monospace;font-size:0.5rem;padding:3px 7px;border-radius:8px;text-transform:uppercase;background:var(--s2);border:1px solid var(--bd);color:var(--t3);margin-left:8px;}
 .bridge-chip.ok{border-color:rgba(45,212,191,0.4);color:var(--acc);}
-.bridge-flash{
-  position:fixed;top:env(safe-area-inset-top,12px);left:50%;
-  transform:translateX(-50%) translateY(-30px);
-  background:var(--s1);border:1px solid var(--acc);
-  color:var(--acc);font-family:'Roboto Mono',monospace;
-  font-size:0.62rem;letter-spacing:0;text-transform:uppercase;
-  padding:8px 14px;border-radius:18px;z-index:200;
-  opacity:0;transition:opacity 0.3s,transform 0.3s;pointer-events:none;
-  white-space:nowrap;
-}
+.bridge-flash{position:fixed;top:env(safe-area-inset-top,12px);left:50%;transform:translateX(-50%) translateY(-30px);background:var(--s1);border:1px solid var(--acc);color:var(--acc);font-family:'Roboto Mono',monospace;font-size:0.62rem;letter-spacing:0;text-transform:uppercase;padding:8px 14px;border-radius:18px;z-index:200;opacity:0;transition:opacity 0.3s,transform 0.3s;pointer-events:none;white-space:nowrap;}
 .bridge-flash.show{opacity:1;transform:translateX(-50%) translateY(8px);}
 </style>
 </head>
 <body>
-
 <canvas id="bg-canvas"></canvas>
-
 <div id="bridge-flash" class="bridge-flash">⟳ Sync</div>
-
 <div id="splash">
   <svg class="sp-waves" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg">
     <line x1="0" y1="25" x2="20" y2="25" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
@@ -279,6 +253,11 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
           <span class="inp-lbl" style="color:#fbbf24">Estresse</span>
           <input type="number" class="inp-val" id="in-estresse" value="" min="0" max="100" placeholder="0-99" style="color:#fbbf24;width:72px;">
         </div>
+        <!-- TEMPERATURA CORPORAL — novo campo v2.3 -->
+        <div class="inp-row" style="border-color:rgba(249,115,22,0.3);">
+          <span class="inp-lbl" style="color:#fb923c">🌡️ Temp. Corporal (°C)</span>
+          <input type="number" class="inp-val" id="in-temp" value="36.5" min="34" max="42" step="0.1" placeholder="36.5" style="color:#fb923c;width:72px;">
+        </div>
       </div>
 
       <!-- COCHILO -->
@@ -320,7 +299,6 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
           <div class="stat-item"><div class="stat-val" id="rs-hrv" style="color:var(--rem)">--</div><div class="stat-lbl">Mod. HRV</div></div>
         </div>
       </div>
-
       <div class="card">
         <div class="lbl">Distribuição de Estágios</div>
         <div class="hipo-container">
@@ -330,57 +308,32 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
             <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--rem)">REM</span><div class="hipo-bar-wrap" id="hipo-rem"></div></div>
             <div class="hipo-row"><span class="hipo-stage-lbl" style="color:var(--deep)">Profundo</span><div class="hipo-bar-wrap" id="hipo-deep"></div></div>
           </div>
-          <div style="font-family:'Roboto Mono',monospace;font-size:0.48rem;color:var(--t3);text-align:center;margin-top:4px;">proporcional ao total — não representa linha do tempo</div>
+          <div style="font-family:'Roboto Mono',monospace;font-size:0.48rem;color:var(--t3);text-align:center;margin-top:4px;">proporcional ao total</div>
         </div>
       </div>
-
       <div class="card">
         <div class="lbl">Arquitetura do Sono</div>
         <div class="phase-bars">
-          <div class="phase-row">
-            <div class="phase-dot" style="background:var(--deep)"></div>
-            <span class="phase-name">Profundo</span>
-            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-deep" style="background:var(--deep);width:0%"></div></div>
-            <span class="phase-pct" id="pct-deep" style="color:var(--deep)">0%</span>
-          </div>
-          <div class="phase-row">
-            <div class="phase-dot" style="background:var(--rem)"></div>
-            <span class="phase-name">REM</span>
-            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-rem" style="background:var(--rem);width:0%"></div></div>
-            <span class="phase-pct" id="pct-rem" style="color:var(--rem)">0%</span>
-          </div>
-          <div class="phase-row">
-            <div class="phase-dot" style="background:var(--light)"></div>
-            <span class="phase-name">Leve</span>
-            <div class="phase-bar-wrap"><div class="phase-bar" id="bar-light" style="background:var(--light);width:0%"></div></div>
-            <span class="phase-pct" id="pct-light" style="color:var(--light)">0%</span>
-          </div>
+          <div class="phase-row"><div class="phase-dot" style="background:var(--deep)"></div><span class="phase-name">Profundo</span><div class="phase-bar-wrap"><div class="phase-bar" id="bar-deep" style="background:var(--deep);width:0%"></div></div><span class="phase-pct" id="pct-deep" style="color:var(--deep)">0%</span></div>
+          <div class="phase-row"><div class="phase-dot" style="background:var(--rem)"></div><span class="phase-name">REM</span><div class="phase-bar-wrap"><div class="phase-bar" id="bar-rem" style="background:var(--rem);width:0%"></div></div><span class="phase-pct" id="pct-rem" style="color:var(--rem)">0%</span></div>
+          <div class="phase-row"><div class="phase-dot" style="background:var(--light)"></div><span class="phase-name">Leve</span><div class="phase-bar-wrap"><div class="phase-bar" id="bar-light" style="background:var(--light);width:0%"></div></div><span class="phase-pct" id="pct-light" style="color:var(--light)">0%</span></div>
         </div>
-        <div style="margin-top:6px;">
-          <div style="font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t3);">Alvos: Profundo 15-25% · REM 20-25% (AASM 2025)</div>
-        </div>
+        <div style="margin-top:6px;"><div style="font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t3);">Alvos: Profundo 15-25% · REM 20-25% (AASM 2025)</div></div>
       </div>
-
       <div class="card">
         <div class="lbl">Cruzamento Dual-Sensor</div>
         <div style="display:flex;flex-direction:column;gap:6px;" id="sensor-cross"></div>
       </div>
-
       <div id="alertas-container" style="display:flex;flex-direction:column;gap:6px;"></div>
-
       <div class="card">
         <div class="ai-header">
           <div class="ai-icon">🧠</div>
-          <div>
-            <div class="ai-titulo">Análise Científica</div>
-            <div class="ai-fonte">Dual-Sensor · PubMed 2025</div>
-          </div>
+          <div><div class="ai-titulo">Análise Científica</div><div class="ai-fonte">Dual-Sensor · PubMed 2025</div></div>
         </div>
         <div class="ai-body" id="ai-body">
           <div class="ai-load"><div class="ai-dots"><span></span><span></span><span></span></div> Cruzando sensores...</div>
         </div>
       </div>
-
       <button class="btn-primary" id="btn-salvar" onclick="salvarSono()">💾 Salvar + Enviar pro BioMetrics</button>
       <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button>
     </div>
@@ -397,239 +350,142 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
   </div>
 </div>
 
-<!-- BioBridge: conecta com BioMetrics -->
 <script src="bio-bridge.js"></script>
-
 <script>
 var ST = { tipo: 'noite', sessao: null };
 
-function loadSonos() {
-  try { var s = JSON.parse(localStorage.getItem('sleep_v1')); return Array.isArray(s) ? s : []; }
-  catch(e) { return []; }
-}
-function saveSonos(arr) {
-  localStorage.setItem('sleep_v1', JSON.stringify(arr.slice(0, 90)));
-}
+function loadSonos(){try{var s=JSON.parse(localStorage.getItem('sleep_v1'));return Array.isArray(s)?s:[];}catch(e){return[];}}
+function saveSonos(arr){localStorage.setItem('sleep_v1',JSON.stringify(arr.slice(0,90)));}
 
-function initBG() {
-  var canvas = document.getElementById('bg-canvas'); if (!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var W, H, t = 0;
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  resize(); window.addEventListener('resize', resize);
-  var waves = [
+function initBG(){
+  var canvas=document.getElementById('bg-canvas');if(!canvas)return;
+  var ctx=canvas.getContext('2d');var W,H,t=0;
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  var waves=[
     {freq:0.012,amp:18,y:0.22,color:'#1d4ed8',alpha:0.06,width:1.5,phase:0},
     {freq:0.028,amp:12,y:0.45,color:'#6d28d9',alpha:0.05,width:1.2,phase:1.2},
     {freq:0.018,amp:22,y:0.68,color:'#1d4ed8',alpha:0.04,width:1.0,phase:2.4},
     {freq:0.045,amp:8, y:0.85,color:'#6d28d9',alpha:0.035,width:0.8,phase:0.8},
     {freq:0.008,amp:30,y:0.33,color:'#2dd4bf',alpha:0.025,width:0.7,phase:3.1},
   ];
-  var particles = [];
-  for (var i=0;i<40;i++) particles.push({
-    x:Math.random()*1600, y:Math.random()*2400,
-    vx:(Math.random()-0.5)*0.12, vy:(Math.random()-0.5)*0.08,
-    r:0.5+Math.random()*1.5, alpha:0.02+Math.random()*0.06,
-    pulse:Math.random()*Math.PI*2, pulseSpeed:0.005+Math.random()*0.01,
-  });
-
-  var animId = null;
-
-  function draw() {
-    ctx.clearRect(0,0,W,H); t+=0.006;
-    waves.forEach(function(w) {
-      ctx.beginPath();
-      for (var x=0;x<=W;x+=2) {
-        var y=H*w.y+Math.sin(x*w.freq+t+w.phase)*w.amp+Math.sin(x*w.freq*2.3+t*1.4+w.phase)*w.amp*0.4;
-        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-      }
-      ctx.strokeStyle=w.color+Math.floor(w.alpha*255).toString(16).padStart(2,'0');
-      ctx.lineWidth=w.width; ctx.stroke();
-    });
-    particles.forEach(function(p) {
-      p.x+=p.vx; p.y+=p.vy; p.pulse+=p.pulseSpeed;
-      if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;
-      if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;
-      var a=p.alpha*(0.5+Math.sin(p.pulse)*0.5);
-      ctx.beginPath();ctx.arc(p.x%W,p.y%H,p.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(29,78,216,'+a+')';ctx.fill();
-    });
-    animId = requestAnimationFrame(draw);
+  var particles=[];
+  for(var i=0;i<40;i++)particles.push({x:Math.random()*1600,y:Math.random()*2400,vx:(Math.random()-0.5)*0.12,vy:(Math.random()-0.5)*0.08,r:0.5+Math.random()*1.5,alpha:0.02+Math.random()*0.06,pulse:Math.random()*Math.PI*2,pulseSpeed:0.005+Math.random()*0.01});
+  var animId=null;
+  function draw(){
+    ctx.clearRect(0,0,W,H);t+=0.006;
+    waves.forEach(function(w){ctx.beginPath();for(var x=0;x<=W;x+=2){var y=H*w.y+Math.sin(x*w.freq+t+w.phase)*w.amp+Math.sin(x*w.freq*2.3+t*1.4+w.phase)*w.amp*0.4;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.strokeStyle=w.color+Math.floor(w.alpha*255).toString(16).padStart(2,'0');ctx.lineWidth=w.width;ctx.stroke();});
+    particles.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.pulse+=p.pulseSpeed;if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;var a=p.alpha*(0.5+Math.sin(p.pulse)*0.5);ctx.beginPath();ctx.arc(p.x%W,p.y%H,p.r,0,Math.PI*2);ctx.fillStyle='rgba(29,78,216,'+a+')';ctx.fill();});
+    animId=requestAnimationFrame(draw);
   }
-
-  document.addEventListener('visibilitychange', function(){
-    if(document.hidden){
-      if(animId){ cancelAnimationFrame(animId); animId = null; }
-    } else {
-      if(!animId) draw();
-    }
-  });
-
+  document.addEventListener('visibilitychange',function(){if(document.hidden){if(animId){cancelAnimationFrame(animId);animId=null;}}else{if(!animId)draw();}});
   draw();
 }
 
-function drawRing(score) {
-  var canvas = document.getElementById('ring-canvas-main'); if (!canvas) return;
-  var wrap = canvas.closest('.ring-wrap');
-  var sz = wrap ? wrap.offsetWidth : 200;
-  canvas.width = sz; canvas.height = sz;
-  var ctx = canvas.getContext('2d');
-  var cx=sz/2, cy=sz/2, r=sz/2-16;
-  var pct = Math.min(Math.max(score,0),100)/100;
-  var cor = score<40?'#ef4444':score<65?'#eab308':score<85?'#3b82f6':'#2dd4bf';
+function drawRing(score){
+  var canvas=document.getElementById('ring-canvas-main');if(!canvas)return;
+  var wrap=canvas.closest('.ring-wrap');var sz=wrap?wrap.offsetWidth:200;
+  canvas.width=sz;canvas.height=sz;
+  var ctx=canvas.getContext('2d');var cx=sz/2,cy=sz/2,r=sz/2-16;
+  var pct=Math.min(Math.max(score,0),100)/100;
+  var cor=score<40?'#ef4444':score<65?'#eab308':score<85?'#3b82f6':'#2dd4bf';
   ctx.clearRect(0,0,sz,sz);
-  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
-  ctx.strokeStyle='#222228';ctx.lineWidth=14;ctx.stroke();
-  if(pct>0.01){
-    ctx.beginPath();ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*pct);
-    ctx.strokeStyle=cor;ctx.lineWidth=14;ctx.lineCap='round';ctx.stroke();
-  }
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#222228';ctx.lineWidth=14;ctx.stroke();
+  if(pct>0.01){ctx.beginPath();ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*pct);ctx.strokeStyle=cor;ctx.lineWidth=14;ctx.lineCap='round';ctx.stroke();}
 }
 
-function showScreen(id) {
-  ['sc-home','sc-registrar','sc-relatorio','sc-historico'].forEach(function(s) {
-    var el = document.getElementById(s); if (!el) return;
-    if (s===id){el.classList.remove('hidden');el.style.display='flex';el.style.flexDirection='column';}
-    else{el.classList.add('hidden');el.style.display='none';}
-  });
+function showScreen(id){
+  ['sc-home','sc-registrar','sc-relatorio','sc-historico'].forEach(function(s){var el=document.getElementById(s);if(!el)return;if(s===id){el.classList.remove('hidden');el.style.display='flex';el.style.flexDirection='column';}else{el.classList.add('hidden');el.style.display='none';}});
   try{document.querySelector('.scroll').scrollTop=0;}catch(e){}
   if(id==='sc-home')renderHome();
   if(id==='sc-historico')renderHistorico();
   if(id==='sc-registrar')atualizarTotal();
 }
 
-function setTipo(t) {
-  ST.tipo = t;
-  document.getElementById('btn-dia').className = t==='dia'?'tipo-btn ativo-dia':'tipo-btn';
-  document.getElementById('btn-noite').className = t==='noite'?'tipo-btn ativo-noite':'tipo-btn';
-}
+function setTipo(t){ST.tipo=t;document.getElementById('btn-dia').className=t==='dia'?'tipo-btn ativo-dia':'tipo-btn';document.getElementById('btn-noite').className=t==='noite'?'tipo-btn ativo-noite':'tipo-btn';}
 
-function atualizarTotal() {
-  try {
+function atualizarTotal(){
+  try{
     function g(id){return parseInt(document.getElementById(id)&&document.getElementById(id).value||'0')||0;}
-    var totalMin = (g('in-leve-h')*60+g('in-leve-m'))+(g('in-deep-h')*60+g('in-deep-m'))+(g('in-rem-h')*60+g('in-rem-m'));
-    var el = document.getElementById('lbl-total');
-    if(el) el.textContent = Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
-  } catch(e){}
+    var totalMin=(g('in-leve-h')*60+g('in-leve-m'))+(g('in-deep-h')*60+g('in-deep-m'))+(g('in-rem-h')*60+g('in-rem-m'));
+    var el=document.getElementById('lbl-total');
+    if(el)el.textContent=Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
+  }catch(e){}
 }
 
-function fmtMin(min) {
-  if(!min||min<=0) return '0h 00m';
-  return Math.floor(min/60)+'h '+String(min%60).padStart(2,'0')+'m';
-}
+function fmtMin(min){if(!min||min<=0)return'0h 00m';return Math.floor(min/60)+'h '+String(min%60).padStart(2,'0')+'m';}
 
-function analisarSono() {
+function analisarSono(){
   function g(id){return parseInt(document.getElementById(id)&&document.getElementById(id).value||'0')||0;}
   function gf(id){return parseFloat(document.getElementById(id)&&document.getElementById(id).value||'0')||0;}
-  var leveMin  = g('in-leve-h')*60 + g('in-leve-m');
-  var deepMin  = g('in-deep-h')*60  + g('in-deep-m');
-  var remMin   = g('in-rem-h')*60   + g('in-rem-m');
-  var totalMin = leveMin + deepMin + remMin;
-  var rmssd    = g('in-rmssd') || 50;
-  var spo2     = g('in-spo2') || 95;
-  var fcNoite  = g('in-fc-noite') || 55;
-  var resp     = gf('in-resp') || 14;
-  var despert  = g('in-despertares');
-  var estresse = g('in-estresse'); // 0 = não preenchido
-  var tipo     = ST.tipo;
-
-  if(totalMin < 30){alert('Insira um tempo de sono válido.');return;}
-
-  var pctDeep = totalMin>0?(deepMin/totalMin)*100:0;
-  var pctREM  = totalMin>0?(remMin/totalMin)*100:0;
-  var pctLeve = totalMin>0?(leveMin/totalMin)*100:0;
-
-  var scoreSWS = 0;
-  if(pctDeep>=25)       scoreSWS=100;
-  else if(pctDeep>=20)  scoreSWS=85+((pctDeep-20)/5)*15;
-  else if(pctDeep>=15)  scoreSWS=65+((pctDeep-15)/5)*20;
-  else if(pctDeep>=10)  scoreSWS=35+((pctDeep-10)/5)*30;
-  else                  scoreSWS=(pctDeep/10)*35;
-
-  var scoreREM = 0;
-  if(pctREM>=25)       scoreREM=100;
-  else if(pctREM>=20)  scoreREM=80+((pctREM-20)/5)*20;
-  else if(pctREM>=15)  scoreREM=55+((pctREM-15)/5)*25;
-  else if(pctREM>=10)  scoreREM=25+((pctREM-10)/5)*30;
-  else                 scoreREM=(pctREM/10)*25;
-
-  var scoreDur = 0;
-  if(totalMin>=480)       scoreDur=100;
-  else if(totalMin>=420)  scoreDur=80+((totalMin-420)/60)*20;
-  else if(totalMin>=360)  scoreDur=55+((totalMin-360)/60)*25;
-  else if(totalMin>=300)  scoreDur=30+((totalMin-300)/60)*25;
-  else                    scoreDur=(totalMin/300)*30;
-
-  var scoreBase = scoreSWS*0.55 + scoreREM*0.30 + scoreDur*0.15;
-
-  var sonos = loadSonos();
-  var baseRMSSD = 50;
-  if(sonos.length>=3) baseRMSSD=sonos.slice(0,7).reduce(function(a,s){return a+(s.rmssd||50);},0)/Math.min(7,sonos.length);
-  var desvRMSSD = baseRMSSD>0?((rmssd-baseRMSSD)/baseRMSSD)*100:0;
-  var modHRV = 0;
-  if(sonos.length>=3){
-    if(desvRMSSD>=10)       modHRV=10;
-    else if(desvRMSSD>=5)   modHRV=5;
-    else if(desvRMSSD>=-5)  modHRV=0;
-    else if(desvRMSSD>=-15) modHRV=-5;
-    else                    modHRV=-10;
-  }
-
-  var penalidades = 0;
-  if(tipo==='dia')      penalidades+=12;
-  if(despert>=5)        penalidades+=15;
-  else if(despert>=3)   penalidades+=8;
-  else if(despert>=2)   penalidades+=4;
-  if(resp>=20)          penalidades+=8;
-  else if(resp>=18)     penalidades+=4;
-  if(spo2<92)           penalidades+=15;
-  else if(spo2<94)      penalidades+=5;
-  if(fcNoite>65)        penalidades+=5;
-
-  var score = Math.round(Math.max(0,Math.min(100,scoreBase+modHRV-penalidades)));
-
-  var sessao = {
-    data:Date.now(), tipo, totalMin, deepMin, remMin, leveMin,
-    pctDeep:Math.round(pctDeep*10)/10,
-    pctREM:Math.round(pctREM*10)/10,
-    pctLeve:Math.round(pctLeve*10)/10,
-    rmssd, spo2, fcNoite, resp, despert, estresse,
-    score,
-    scoreBase:Math.round(scoreBase),
-    scoreSWS:Math.round(scoreSWS),
-    scoreREM:Math.round(scoreREM),
-    scoreDur:Math.round(scoreDur),
-    modHRV, baseRMSSD:Math.round(baseRMSSD),
-    penalidades, desvRMSSD:Math.round(desvRMSSD*10)/10
+  var leveMin=g('in-leve-h')*60+g('in-leve-m');
+  var deepMin=g('in-deep-h')*60+g('in-deep-m');
+  var remMin=g('in-rem-h')*60+g('in-rem-m');
+  var totalMin=leveMin+deepMin+remMin;
+  var rmssd=g('in-rmssd')||50;
+  var spo2=g('in-spo2')||95;
+  var fcNoite=g('in-fc-noite')||55;
+  var resp=gf('in-resp')||14;
+  var despert=g('in-despertares');
+  var estresse=g('in-estresse');
+  // NOVO: temperatura corporal
+  var temp=parseFloat(document.getElementById('in-temp').value)||36.5;
+  var tipo=ST.tipo;
+  if(totalMin<30){alert('Insira um tempo de sono válido.');return;}
+  var pctDeep=totalMin>0?(deepMin/totalMin)*100:0;
+  var pctREM=totalMin>0?(remMin/totalMin)*100:0;
+  var pctLeve=totalMin>0?(leveMin/totalMin)*100:0;
+  var scoreSWS=0;
+  if(pctDeep>=25)scoreSWS=100;else if(pctDeep>=20)scoreSWS=85+((pctDeep-20)/5)*15;else if(pctDeep>=15)scoreSWS=65+((pctDeep-15)/5)*20;else if(pctDeep>=10)scoreSWS=35+((pctDeep-10)/5)*30;else scoreSWS=(pctDeep/10)*35;
+  var scoreREM=0;
+  if(pctREM>=25)scoreREM=100;else if(pctREM>=20)scoreREM=80+((pctREM-20)/5)*20;else if(pctREM>=15)scoreREM=55+((pctREM-15)/5)*25;else if(pctREM>=10)scoreREM=25+((pctREM-10)/5)*30;else scoreREM=(pctREM/10)*25;
+  var scoreDur=0;
+  if(totalMin>=480)scoreDur=100;else if(totalMin>=420)scoreDur=80+((totalMin-420)/60)*20;else if(totalMin>=360)scoreDur=55+((totalMin-360)/60)*25;else if(totalMin>=300)scoreDur=30+((totalMin-300)/60)*25;else scoreDur=(totalMin/300)*30;
+  var scoreBase=scoreSWS*0.55+scoreREM*0.30+scoreDur*0.15;
+  var sonos=loadSonos();
+  var baseRMSSD=50;
+  if(sonos.length>=3)baseRMSSD=sonos.slice(0,7).reduce(function(a,s){return a+(s.rmssd||50);},0)/Math.min(7,sonos.length);
+  var desvRMSSD=baseRMSSD>0?((rmssd-baseRMSSD)/baseRMSSD)*100:0;
+  var modHRV=0;
+  if(sonos.length>=3){if(desvRMSSD>=10)modHRV=10;else if(desvRMSSD>=5)modHRV=5;else if(desvRMSSD>=-5)modHRV=0;else if(desvRMSSD>=-15)modHRV=-5;else modHRV=-10;}
+  var penalidades=0;
+  if(tipo==='dia')penalidades+=12;
+  if(despert>=5)penalidades+=15;else if(despert>=3)penalidades+=8;else if(despert>=2)penalidades+=4;
+  if(resp>=20)penalidades+=8;else if(resp>=18)penalidades+=4;
+  if(spo2<92)penalidades+=15;else if(spo2<94)penalidades+=5;
+  if(fcNoite>65)penalidades+=5;
+  // Penalidade temperatura no score do sono
+  if(temp>=38.5)penalidades+=15;else if(temp>=38.0)penalidades+=8;else if(temp>=37.3)penalidades+=4;
+  var score=Math.round(Math.max(0,Math.min(100,scoreBase+modHRV-penalidades)));
+  var sessao={
+    data:Date.now(),tipo,totalMin,deepMin,remMin,leveMin,
+    pctDeep:Math.round(pctDeep*10)/10,pctREM:Math.round(pctREM*10)/10,pctLeve:Math.round(pctLeve*10)/10,
+    rmssd,spo2,fcNoite,resp,despert,estresse,temp,
+    score,scoreBase:Math.round(scoreBase),scoreSWS:Math.round(scoreSWS),scoreREM:Math.round(scoreREM),scoreDur:Math.round(scoreDur),
+    modHRV,baseRMSSD:Math.round(baseRMSSD),penalidades,desvRMSSD:Math.round(desvRMSSD*10)/10
   };
-  ST.sessao = sessao;
+  ST.sessao=sessao;
   renderRelatorio(sessao);
   showScreen('sc-relatorio');
 }
 
-function renderRelatorio(s) {
-  var d = new Date(s.data);
-  document.getElementById('rep-data-txt').textContent =
-    d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
-
-  document.getElementById('rep-score').textContent = s.score;
-  var grades = [[90,'ELITE'],[80,'ÓTIMO'],[65,'BOM'],[50,'REGULAR'],[0,'CRÍTICO']];
-  var gradeEntry = grades.filter(function(t){return s.score>=t[0];})[0];
-  var grade = gradeEntry ? gradeEntry[1] : 'CRÍTICO';
-  var gColors = {ELITE:'#2dd4bf',ÓTIMO:'#3b82f6',BOM:'#eab308',REGULAR:'#f97316','CRÍTICO':'#ef4444'};
-  document.getElementById('rep-grade').textContent = grade;
-  document.getElementById('rep-grade').style.color = gColors[grade]||'#2dd4bf';
-
+function renderRelatorio(s){
+  var d=new Date(s.data);
+  document.getElementById('rep-data-txt').textContent=d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
+  document.getElementById('rep-score').textContent=s.score;
+  var grades=[[90,'ELITE'],[80,'ÓTIMO'],[65,'BOM'],[50,'REGULAR'],[0,'CRÍTICO']];
+  var gradeEntry=grades.filter(function(t){return s.score>=t[0];})[0];
+  var grade=gradeEntry?gradeEntry[1]:'CRÍTICO';
+  var gColors={ELITE:'#2dd4bf',ÓTIMO:'#3b82f6',BOM:'#eab308',REGULAR:'#f97316','CRÍTICO':'#ef4444'};
+  document.getElementById('rep-grade').textContent=grade;
+  document.getElementById('rep-grade').style.color=gColors[grade]||'#2dd4bf';
   setTimeout(function(){drawRing(s.score);},100);
-
-  document.getElementById('rs-total').textContent = fmtMin(s.totalMin);
-  document.getElementById('rs-base').textContent = s.scoreBase;
-
-  var modTxt = s.modHRV > 0 ? '+'+s.modHRV : ''+s.modHRV;
-  document.getElementById('rs-hrv').textContent = modTxt;
-  document.getElementById('rs-hrv').style.color = s.modHRV>0?'#2dd4bf':s.modHRV<0?'#ef4444':'#a1a1aa';
-
+  document.getElementById('rs-total').textContent=fmtMin(s.totalMin);
+  document.getElementById('rs-base').textContent=s.scoreBase;
+  var modTxt=s.modHRV>0?'+'+s.modHRV:''+s.modHRV;
+  document.getElementById('rs-hrv').textContent=modTxt;
+  document.getElementById('rs-hrv').style.color=s.modHRV>0?'#2dd4bf':s.modHRV<0?'#ef4444':'#a1a1aa';
   renderHipnograma(s);
-
   setTimeout(function(){
     document.getElementById('bar-deep').style.width=Math.min(s.pctDeep,100)+'%';
     document.getElementById('bar-rem').style.width=Math.min(s.pctREM,100)+'%';
@@ -638,332 +494,164 @@ function renderRelatorio(s) {
     document.getElementById('pct-rem').textContent=s.pctREM.toFixed(0)+'%';
     document.getElementById('pct-light').textContent=s.pctLeve.toFixed(0)+'%';
   },200);
-
-  renderSensorCross(s);
-  renderAlertas(s);
-  gerarIA(s);
-
-  var btnSalvar = document.getElementById('btn-salvar');
+  renderSensorCross(s);renderAlertas(s);gerarIA(s);
+  var btnSalvar=document.getElementById('btn-salvar');
   if(btnSalvar){btnSalvar.textContent='💾 Salvar + Enviar pro BioMetrics';btnSalvar.disabled=false;btnSalvar.classList.remove('salvo');}
 }
 
-function renderHipnograma(s) {
-  var totalMin = s.totalMin;
-  var wakeMin = Math.min(s.despert*4, totalMin*0.1);
-
+function renderHipnograma(s){
+  var totalMin=s.totalMin;var wakeMin=Math.min(s.despert*4,totalMin*0.1);
   setTimeout(function(){
-    var hw = document.getElementById('hipo-wake');
-    var hl = document.getElementById('hipo-light');
-    var hr = document.getElementById('hipo-rem');
-    var hd = document.getElementById('hipo-deep');
-    var pctWake = totalMin>0?(wakeMin/totalMin*100):0;
-    var pctLight = totalMin>0?(s.leveMin/totalMin*100):0;
-    var pctRem = totalMin>0?(s.remMin/totalMin*100):0;
-    var pctDeep = totalMin>0?(s.deepMin/totalMin*100):0;
-    if(hw) hw.innerHTML = '<div style="width:'+pctWake+'%;background:#ef4444;opacity:0.8;height:100%;border-radius:2px;transition:width 1s ease;"></div>';
-    if(hl) hl.innerHTML = '<div style="width:'+pctLight+'%;background:#64748b;opacity:0.7;height:100%;border-radius:2px;transition:width 1s ease;"></div>';
-    if(hr) hr.innerHTML = '<div style="width:'+pctRem+'%;background:#6d28d9;opacity:0.85;height:100%;border-radius:2px;transition:width 1s ease;"></div>';
-    if(hd) hd.innerHTML = '<div style="width:'+pctDeep+'%;background:#1d4ed8;opacity:0.9;height:100%;border-radius:2px;transition:width 1s ease;"></div>';
+    var hw=document.getElementById('hipo-wake'),hl=document.getElementById('hipo-light'),hr=document.getElementById('hipo-rem'),hd=document.getElementById('hipo-deep');
+    var pctWake=totalMin>0?(wakeMin/totalMin*100):0;
+    if(hw)hw.innerHTML='<div style="width:'+pctWake+'%;background:#ef4444;opacity:0.8;height:100%;border-radius:2px;transition:width 1s ease;"></div>';
+    if(hl)hl.innerHTML='<div style="width:'+(totalMin>0?(s.leveMin/totalMin*100):0)+'%;background:#64748b;opacity:0.7;height:100%;border-radius:2px;transition:width 1s ease;"></div>';
+    if(hr)hr.innerHTML='<div style="width:'+(totalMin>0?(s.remMin/totalMin*100):0)+'%;background:#6d28d9;opacity:0.85;height:100%;border-radius:2px;transition:width 1s ease;"></div>';
+    if(hd)hd.innerHTML='<div style="width:'+(totalMin>0?(s.deepMin/totalMin*100):0)+'%;background:#1d4ed8;opacity:0.9;height:100%;border-radius:2px;transition:width 1s ease;"></div>';
   },300);
 }
 
-function renderSensorCross(s) {
-  var el = document.getElementById('sensor-cross');
-  var baseRMSSD = s.baseRMSSD || 50;
-  var desv = s.desvRMSSD || 0;
-  var rows = [
-    {
-      lbl:'RMSSD NOTURNO',
-      val:s.rmssd+' ms',
-      color:s.rmssd>=baseRMSSD?'#2dd4bf':'#eab308',
-      sub:loadSonos().length>=3?('Base: '+Math.round(baseRMSSD)+'ms · Desvio: '+(desv>=0?'+':'')+desv+'%'):'Primeiras noites — calibrando baseline'
-    },
-    {
-      lbl:'SpO2 MÍNIMO',
-      val:s.spo2+'%',
-      color:s.spo2>=95?'#2dd4bf':s.spo2>=92?'#eab308':'#ef4444',
-      sub:s.spo2>=95?'Saturação ótima — sem episódios hipóxicos':s.spo2>=92?'Leve queda — monitorar tendência':'Alerta — possível apneia'
-    },
-    {
-      lbl:'FC NOTURNA',
-      val:s.fcNoite+' bpm',
-      color:s.fcNoite<=55?'#2dd4bf':s.fcNoite<=65?'#a1a1aa':'#eab308',
-      sub:s.fcNoite<=55?'Excelente — dominância parassimpática':s.fcNoite<=65?'Normal para turno noturno':'Levemente elevada — verificar estresse'
-    },
-    {
-      lbl:'FREQ. RESPIRATÓRIA',
-      val:s.resp+' rpm',
-      color:s.resp<=16?'#2dd4bf':s.resp<=20?'#eab308':'#ef4444',
-      sub:s.resp<=14?'Ótima — ressonância cardíaca em range':s.resp<=16?'Normal':'Elevada — indicativo de estresse ou infecção'
-    },
+function renderSensorCross(s){
+  var el=document.getElementById('sensor-cross');
+  var baseRMSSD=s.baseRMSSD||50;var desv=s.desvRMSSD||0;
+  var temp=s.temp||36.5;
+  var tempCor=temp>=38.5?'#ef4444':temp>=38.0?'#f97316':temp>=37.3?'#eab308':'#2dd4bf';
+  var tempSub=temp>=38.5?'Febre alta — impacto crítico no sono':temp>=38.0?'Febre baixa — sono comprometido':temp>=37.3?'Subfebril — leve impacto':'Normal — sem impacto térmico';
+  var rows=[
+    {lbl:'RMSSD NOTURNO',val:s.rmssd+' ms',color:s.rmssd>=baseRMSSD?'#2dd4bf':'#eab308',sub:loadSonos().length>=3?('Base: '+Math.round(baseRMSSD)+'ms · Desvio: '+(desv>=0?'+':'')+desv+'%'):'Primeiras noites — calibrando baseline'},
+    {lbl:'SpO2 MÍNIMO',val:s.spo2+'%',color:s.spo2>=95?'#2dd4bf':s.spo2>=92?'#eab308':'#ef4444',sub:s.spo2>=95?'Saturação ótima':s.spo2>=92?'Leve queda — monitorar':'Alerta — possível apneia'},
+    {lbl:'FC NOTURNA',val:s.fcNoite+' bpm',color:s.fcNoite<=55?'#2dd4bf':s.fcNoite<=65?'#a1a1aa':'#eab308',sub:s.fcNoite<=55?'Dominância parassimpática':s.fcNoite<=65?'Normal':'Levemente elevada'},
+    {lbl:'FREQ. RESPIRATÓRIA',val:s.resp+' rpm',color:s.resp<=16?'#2dd4bf':s.resp<=20?'#eab308':'#ef4444',sub:s.resp<=14?'Ótima':s.resp<=16?'Normal':'Elevada — estresse ou infecção'},
+    {lbl:'TEMPERATURA CORPORAL',val:temp.toFixed(1)+' °C',color:tempCor,sub:tempSub},
   ];
-  var html = '';
-  rows.forEach(function(r){
-    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px 10px;background:var(--s2);border-radius:7px;border:1px solid var(--bd);">';
-    html += '<div>';
-    html += '<div style="font-family:\'Roboto Mono\',monospace;font-size:0.6rem;text-transform:uppercase;color:var(--t3);">'+r.lbl+'</div>';
-    html += '<div style="font-family:\'Roboto Mono\',monospace;font-size:0.58rem;color:var(--t3);margin-top:2px;">'+r.sub+'</div>';
-    html += '</div>';
-    html += '<div style="font-family:\'Lilita One\',cursive;font-size:1.1rem;color:'+r.color+';flex-shrink:0;margin-left:10px;">'+r.val+'</div>';
-    html += '</div>';
-  });
-  el.innerHTML = html;
+  var html='';
+  rows.forEach(function(r){html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px 10px;background:var(--s2);border-radius:7px;border:1px solid var(--bd);"><div><div style="font-family:\'Roboto Mono\',monospace;font-size:0.6rem;text-transform:uppercase;color:var(--t3);">'+r.lbl+'</div><div style="font-family:\'Roboto Mono\',monospace;font-size:0.58rem;color:var(--t3);margin-top:2px;">'+r.sub+'</div></div><div style="font-family:\'Lilita One\',cursive;font-size:1.1rem;color:'+r.color+';flex-shrink:0;margin-left:10px;">'+r.val+'</div></div>';});
+  el.innerHTML=html;
 }
 
-function renderAlertas(s) {
-  var el = document.getElementById('alertas-container');
-  var alertas = [];
-
-  if(s.pctDeep<15)      alertas.push({t:'alert-crit',txt:'SWS abaixo de 15% — reparo muscular comprometido.'});
+function renderAlertas(s){
+  var el=document.getElementById('alertas-container');
+  var alertas=[];
+  if(s.pctDeep<15)alertas.push({t:'alert-crit',txt:'SWS abaixo de 15% — reparo muscular comprometido.'});
   else if(s.pctDeep>=20)alertas.push({t:'alert-deep',txt:'SWS '+s.pctDeep.toFixed(0)+'% — reparo miofibrilar e síntese de GH em máxima eficiência.'});
-
-  if(s.pctREM<15)       alertas.push({t:'alert-warn',txt:'REM abaixo de 15% — consolidação de memória e regulação emocional comprometidas.'});
-  else if(s.pctREM>=22) alertas.push({t:'alert-rem',txt:'REM sólido ('+s.pctREM.toFixed(0)+'%) — BDNF elevado, plasticidade sináptica ativa.'});
-
-  if(s.spo2<92)         alertas.push({t:'alert-crit',txt:'SpO2 crítico ('+s.spo2+'%) — possível apneia obstrutiva. Consulte médico.'});
-
-  if(s.tipo==='dia')    alertas.push({t:'alert-warn',txt:'Sono diurno — penalidade circadiana de 12 pontos. Ritmo circadiano suprime melatonina e fragmenta o SWS.'});
-
-  if(s.despert>=3)      alertas.push({t:'alert-warn',txt:s.despert+' despertares — fragmentação reduz eficiência do SWS.'});
-
-  var sonos = loadSonos();
-  if(sonos.length>=3){
-    var media7d = sonos.slice(0,7).reduce(function(a,x){return a+(x.score||0);},0)/Math.min(7,sonos.length);
-    if(media7d<50) alertas.push({t:'alert-crit',txt:'Média de sono 7D: '+Math.round(media7d)+'% — débito crônico acumulado.'});
-  }
-
-  if(s.modHRV<=-5)      alertas.push({t:'alert-warn',txt:'HRV noturno '+(s.desvRMSSD||0)+'% abaixo da baseline — SNA ainda em recuperação.'});
-  else if(s.modHRV>=5)  alertas.push({t:'alert-deep',txt:'HRV noturno '+(s.desvRMSSD||0)+'% acima da baseline — recuperação autonômica confirmada.'});
-
-  var html = '';
-  alertas.forEach(function(a){
-    html += '<div class="alert-box '+a.t+'">'+a.txt+'</div>';
-  });
-  el.innerHTML = html;
+  if(s.pctREM<15)alertas.push({t:'alert-warn',txt:'REM abaixo de 15% — consolidação de memória comprometida.'});
+  else if(s.pctREM>=22)alertas.push({t:'alert-rem',txt:'REM sólido ('+s.pctREM.toFixed(0)+'%) — BDNF elevado, plasticidade sináptica ativa.'});
+  if(s.spo2<92)alertas.push({t:'alert-crit',txt:'SpO2 crítico ('+s.spo2+'%) — possível apneia obstrutiva. Consulte médico.'});
+  if(s.tipo==='dia')alertas.push({t:'alert-warn',txt:'Sono diurno — penalidade circadiana de 12 pontos.'});
+  if(s.despert>=3)alertas.push({t:'alert-warn',txt:s.despert+' despertares — fragmentação reduz eficiência do SWS.'});
+  // NOVO: alertas de temperatura
+  if(s.temp>=38.5)alertas.push({t:'alert-crit',txt:'Febre alta ('+s.temp.toFixed(1)+'°C) — sono comprometido. BioMetrics notificado automaticamente.'});
+  else if(s.temp>=38.0)alertas.push({t:'alert-warn',txt:'Febre baixa ('+s.temp.toFixed(1)+'°C) — body em modo de combate. Priorize repouso.'});
+  else if(s.temp>=37.3)alertas.push({t:'alert-warn',txt:'Temperatura subfebril ('+s.temp.toFixed(1)+'°C) — monitorar evolução.'});
+  var sonos=loadSonos();
+  if(sonos.length>=3){var media7d=sonos.slice(0,7).reduce(function(a,x){return a+(x.score||0);},0)/Math.min(7,sonos.length);if(media7d<50)alertas.push({t:'alert-crit',txt:'Média de sono 7D: '+Math.round(media7d)+'% — débito crônico acumulado.'});}
+  if(s.modHRV<=-5)alertas.push({t:'alert-warn',txt:'HRV noturno '+(s.desvRMSSD||0)+'% abaixo da baseline — SNA em recuperação.'});
+  else if(s.modHRV>=5)alertas.push({t:'alert-deep',txt:'HRV noturno '+(s.desvRMSSD||0)+'% acima da baseline — recuperação autonômica confirmada.'});
+  var html='';alertas.forEach(function(a){html+='<div class="alert-box '+a.t+'">'+a.txt+'</div>';});
+  el.innerHTML=html;
 }
 
-function gerarIA(s) {
-  var body = document.getElementById('ai-body'); if(!body) return;
-  body.innerHTML = '<div class="ai-load"><div class="ai-dots"><span></span><span></span><span></span></div> Cruzando sensores...</div>';
-
+function gerarIA(s){
+  var body=document.getElementById('ai-body');if(!body)return;
+  body.innerHTML='<div class="ai-load"><div class="ai-dots"><span></span><span></span><span></span></div> Cruzando sensores...</div>';
   setTimeout(function(){
-    var txt = '';
-    if(s.score>=85)       txt += 'Score '+s.score+'/100 — Noite excelente. ';
-    else if(s.score>=70)  txt += 'Score '+s.score+'/100 — Noite sólida. ';
-    else if(s.score>=50)  txt += 'Score '+s.score+'/100 — Noite comprometida. ';
-    else                  txt += 'Score '+s.score+'/100 — Noite crítica. ';
-
-    if(s.pctDeep>=20)      txt += 'SWS '+s.pctDeep.toFixed(0)+'% dentro do alvo (20%) — reparo muscular máximo. ';
-    else if(s.pctDeep>=15) txt += 'SWS '+s.pctDeep.toFixed(0)+'% — dentro do aceitável (alvo 20%). ';
-    else                   txt += 'SWS '+s.pctDeep.toFixed(0)+'% abaixo de 15% — reparo muscular insuficiente. ';
-
-    if(s.pctREM>=20) txt += 'REM '+s.pctREM.toFixed(0)+'% no alvo. ';
-    else             txt += 'REM '+s.pctREM.toFixed(0)+'% abaixo do alvo (20%). ';
-
-    if(s.modHRV>0)        txt += 'HRV noturno '+s.rmssd+'ms acima da baseline (+'+s.desvRMSSD+'%) — SNA recuperado. ';
-    else if(s.modHRV===0) txt += 'HRV noturno '+s.rmssd+'ms — equilíbrio autonômico. ';
-    else                  txt += 'HRV noturno '+s.rmssd+'ms abaixo da baseline ('+s.desvRMSSD+'%) — SNA em recuperação. ';
-
-    if(s.spo2<95) txt += 'SpO2 '+s.spo2+'% — monitore tendência. Abaixo de 92% recorrente: avaliação clínica. ';
-    if(s.tipo==='dia') txt += 'Sono diurno: eficiência natural ~15% menor. ';
-
-    if(s.score>=85)      txt += '→ Capital máximo de recuperação. Treino pesado liberado.';
-    else if(s.score>=70) txt += '→ Hidratação e proteína. Treino moderado ok.';
-    else if(s.score>=50) txt += '→ Evite carga extra. Priorize próxima janela de sono.';
-    else                 txt += '→ Repouso ativo. Não adicione estresse sobre esse déficit.';
-
-    body.style.transition = 'opacity 0.4s';
-    body.style.opacity = '0';
-    setTimeout(function(){ body.textContent = txt; body.style.opacity = '1'; }, 500);
-  }, 1400);
+    var txt='';
+    if(s.score>=85)txt+='Score '+s.score+'/100 — Noite excelente. ';else if(s.score>=70)txt+='Score '+s.score+'/100 — Noite sólida. ';else if(s.score>=50)txt+='Score '+s.score+'/100 — Noite comprometida. ';else txt+='Score '+s.score+'/100 — Noite crítica. ';
+    if(s.pctDeep>=20)txt+='SWS '+s.pctDeep.toFixed(0)+'% dentro do alvo — reparo muscular máximo. ';else if(s.pctDeep>=15)txt+='SWS '+s.pctDeep.toFixed(0)+'% aceitável (alvo 20%). ';else txt+='SWS '+s.pctDeep.toFixed(0)+'% abaixo de 15% — reparo muscular insuficiente. ';
+    if(s.pctREM>=20)txt+='REM '+s.pctREM.toFixed(0)+'% no alvo. ';else txt+='REM '+s.pctREM.toFixed(0)+'% abaixo do alvo (20%). ';
+    if(s.modHRV>0)txt+='HRV '+s.rmssd+'ms acima da baseline (+'+s.desvRMSSD+'%) — SNA recuperado. ';else if(s.modHRV===0)txt+='HRV '+s.rmssd+'ms — equilíbrio autonômico. ';else txt+='HRV '+s.rmssd+'ms abaixo da baseline ('+s.desvRMSSD+'%) — SNA em recuperação. ';
+    if(s.temp>=38.0)txt+='Temperatura '+s.temp.toFixed(1)+'°C — resposta imunológica ativa. ';
+    if(s.spo2<95)txt+='SpO2 '+s.spo2+'% — monitore tendência. ';
+    if(s.tipo==='dia')txt+='Sono diurno: eficiência natural ~15% menor. ';
+    if(s.score>=85)txt+='→ Capital máximo de recuperação. Treino pesado liberado.';else if(s.score>=70)txt+='→ Hidratação e proteína. Treino moderado ok.';else if(s.score>=50)txt+='→ Evite carga extra. Priorize próxima janela de sono.';else txt+='→ Repouso ativo. Não adicione estresse sobre esse déficit.';
+    body.style.transition='opacity 0.4s';body.style.opacity='0';
+    setTimeout(function(){body.textContent=txt;body.style.opacity='1';},500);
+  },1400);
 }
 
-// ══ FLASH BRIDGE ═══════════════════════════════════════
-var flashTimer = null;
-function bridgeFlash(msg) {
-  var el = document.getElementById('bridge-flash');
-  if(!el) return;
-  el.textContent = '⟳ ' + msg;
-  el.classList.add('show');
-  if(flashTimer) clearTimeout(flashTimer);
-  flashTimer = setTimeout(function(){ el.classList.remove('show'); }, 2200);
-}
+var flashTimer=null;
+function bridgeFlash(msg){var el=document.getElementById('bridge-flash');if(!el)return;el.textContent='⟳ '+msg;el.classList.add('show');if(flashTimer)clearTimeout(flashTimer);flashTimer=setTimeout(function(){el.classList.remove('show');},2200);}
 
-// ══ SALVAR + ENVIAR PRO BIOMETRICS ═════════════════════
-function salvarSono() {
-  if(!ST.sessao) return;
-  var s = ST.sessao;
-  var sonos = loadSonos();
-  sonos.unshift(s);
-  saveSonos(sonos);
-
-  // ENVIA PRO BIOMETRICS via BioBridge
-  var enviou = false;
-  if(typeof BioBridge !== 'undefined') {
-    // Estimar tempo acordado baseado em despertares (4min cada, máx 10% do total)
-    var tempoAcordado = Math.min(s.despert * 4, Math.round(s.totalMin * 0.1));
-  var cocholoMin = parseInt(document.getElementById('in-cochilo-min').value) || 0;
-  var cocholoTipo = document.getElementById('in-cochilo-tipo').value;
-
-    enviou = BioBridge.push('sleep', {
-      leveMin: s.leveMin,
-      profMin: s.deepMin,
-      remMin: s.remMin,
-      despertares: s.despert,
-      tempoAcordado: tempoAcordado,
-      rmssd: s.rmssd,
-      rhr: s.fcNoite,
-      rpm: s.resp,
-      spo2: s.spo2,
-      estresse: s.estresse || 0,
-      cocholoMin: cocholoMin,
-      cocholoTipo: cocholoTipo,
-      tipoSono: s.tipo
+function salvarSono(){
+  if(!ST.sessao)return;
+  var s=ST.sessao;
+  var sonos=loadSonos();sonos.unshift(s);saveSonos(sonos);
+  var enviou=false;
+  if(typeof BioBridge!=='undefined'){
+    var tempoAcordado=Math.min(s.despert*4,Math.round(s.totalMin*0.1));
+    var cocholoMin=parseInt(document.getElementById('in-cochilo-min').value)||0;
+    var cocholoTipo=document.getElementById('in-cochilo-tipo').value;
+    enviou=BioBridge.push('sleep',{
+      leveMin:s.leveMin,profMin:s.deepMin,remMin:s.remMin,
+      despertares:s.despert,tempoAcordado:tempoAcordado,
+      // HRV: RMSSD é a métrica HRV que usamos — mapeia para in-hrv no BioMetrics
+      hrv:s.rmssd,
+      rmssd:s.rmssd,
+      rhr:s.fcNoite,rpm:s.resp,spo2:s.spo2,
+      estresse:s.estresse||0,
+      // NOVO: temperatura corporal
+      temp:s.temp||36.5,
+      cocholoMin:cocholoMin,cocholoTipo:cocholoTipo,
+      tipoSono:s.tipo
     });
   }
-
-  var btn = document.getElementById('btn-salvar');
-  if(btn){
-    if(enviou){
-      btn.textContent = '✓ Salvo + Enviado pro BioMetrics';
-      btn.classList.add('salvo');
-      bridgeFlash('Enviado pro BioMetrics');
-      atualizarBridgeChip(true);
-    } else {
-      btn.textContent = 'Salvo!';
-    }
-    btn.disabled = true;
-  }
+  var btn=document.getElementById('btn-salvar');
+  if(btn){if(enviou){btn.textContent='✓ Salvo + Enviado pro BioMetrics';btn.classList.add('salvo');bridgeFlash('Enviado pro BioMetrics');atualizarBridgeChip(true);}else{btn.textContent='Salvo!';}btn.disabled=true;}
   setTimeout(function(){showScreen('sc-home');},1800);
 }
 
-function atualizarBridgeChip(forceOk){
-  var chip = document.getElementById('bridge-chip');
-  if(!chip) return;
-  if(forceOk){
-    chip.classList.add('ok');
-    chip.textContent = '🔗 OK';
-    return;
-  }
-  if(typeof BioBridge !== 'undefined'){
-    chip.classList.add('ok');
-    chip.textContent = 'BRIDGE';
-  }
-}
+function atualizarBridgeChip(forceOk){var chip=document.getElementById('bridge-chip');if(!chip)return;if(forceOk){chip.classList.add('ok');chip.textContent='🔗 OK';return;}if(typeof BioBridge!=='undefined'){chip.classList.add('ok');chip.textContent='BRIDGE';}}
 
-function renderHome() {
-  var sonos = loadSonos();
-  var welcomeEl = document.getElementById('home-welcome');
-  var ultimoEl  = document.getElementById('home-ultimo');
-  var histCard  = document.getElementById('home-hist-card');
-
-  if(!sonos.length){
-    welcomeEl.style.display='flex';ultimoEl.style.display='none';histCard.style.display='none';return;
-  }
+function renderHome(){
+  var sonos=loadSonos();
+  var welcomeEl=document.getElementById('home-welcome'),ultimoEl=document.getElementById('home-ultimo'),histCard=document.getElementById('home-hist-card');
+  if(!sonos.length){welcomeEl.style.display='flex';ultimoEl.style.display='none';histCard.style.display='none';return;}
   welcomeEl.style.display='none';ultimoEl.style.display='flex';
-
-  var s = sonos[0];
-  var gColors = {ELITE:'#2dd4bf',ÓTIMO:'#3b82f6',BOM:'#eab308',REGULAR:'#f97316','CRÍTICO':'#ef4444'};
-  var grades = [[90,'ELITE'],[80,'ÓTIMO'],[65,'BOM'],[50,'REGULAR'],[0,'CRÍTICO']];
-  var gradeEntry = grades.filter(function(t){return s.score>=t[0];})[0];
-  var grade = gradeEntry?gradeEntry[1]:'CRÍTICO';
-  var cor = gColors[grade]||'#a1a1aa';
-
-  var statsHtml = '';
-  statsHtml += '<div class="sh-item"><div class="sh-val" style="color:'+cor+'">'+s.score+'</div><div class="sh-lbl">Score</div></div>';
-  statsHtml += '<div class="sh-item"><div class="sh-val" style="color:#93c5fd">'+fmtMin(s.totalMin)+'</div><div class="sh-lbl">Duração</div></div>';
-  statsHtml += '<div class="sh-item"><div class="sh-val" style="color:#1d4ed8">'+s.pctDeep.toFixed(0)+'%</div><div class="sh-lbl">Profundo</div></div>';
-  statsHtml += '<div class="sh-item"><div class="sh-val" style="color:#6d28d9">'+s.pctREM.toFixed(0)+'%</div><div class="sh-lbl">REM</div></div>';
-  document.getElementById('home-stats-grid').innerHTML = statsHtml;
-
-  var t = s.totalMin;
-  var miniHtml = '';
-  miniHtml += '<div style="width:'+(t>0?(s.deepMin/t*100):0)+'%;background:#1d4ed8;height:100%;border-radius:2px;"></div>';
-  miniHtml += '<div style="width:'+(t>0?(s.remMin/t*100):0)+'%;background:#6d28d9;height:100%;border-radius:2px;"></div>';
-  miniHtml += '<div style="width:'+(t>0?(s.leveMin/t*100):0)+'%;background:#64748b;height:100%;border-radius:2px;"></div>';
-  document.getElementById('home-mini-hipo').innerHTML = miniHtml;
-
+  var s=sonos[0];
+  var gColors={ELITE:'#2dd4bf',ÓTIMO:'#3b82f6',BOM:'#eab308',REGULAR:'#f97316','CRÍTICO':'#ef4444'};
+  var grades=[[90,'ELITE'],[80,'ÓTIMO'],[65,'BOM'],[50,'REGULAR'],[0,'CRÍTICO']];
+  var gradeEntry=grades.filter(function(t){return s.score>=t[0];})[0];
+  var grade=gradeEntry?gradeEntry[1]:'CRÍTICO';var cor=gColors[grade]||'#a1a1aa';
+  var statsHtml='';
+  statsHtml+='<div class="sh-item"><div class="sh-val" style="color:'+cor+'">'+s.score+'</div><div class="sh-lbl">Score</div></div>';
+  statsHtml+='<div class="sh-item"><div class="sh-val" style="color:#93c5fd">'+fmtMin(s.totalMin)+'</div><div class="sh-lbl">Duração</div></div>';
+  statsHtml+='<div class="sh-item"><div class="sh-val" style="color:#1d4ed8">'+s.pctDeep.toFixed(0)+'%</div><div class="sh-lbl">Profundo</div></div>';
+  statsHtml+='<div class="sh-item"><div class="sh-val" style="color:#6d28d9">'+s.pctREM.toFixed(0)+'%</div><div class="sh-lbl">REM</div></div>';
+  document.getElementById('home-stats-grid').innerHTML=statsHtml;
+  var t=s.totalMin;
+  document.getElementById('home-mini-hipo').innerHTML='<div style="width:'+(t>0?(s.deepMin/t*100):0)+'%;background:#1d4ed8;height:100%;border-radius:2px;"></div><div style="width:'+(t>0?(s.remMin/t*100):0)+'%;background:#6d28d9;height:100%;border-radius:2px;"></div><div style="width:'+(t>0?(s.leveMin/t*100):0)+'%;background:#64748b;height:100%;border-radius:2px;"></div>';
   if(sonos.length>1){
     histCard.style.display='flex';
-    var histHtml = '';
+    var histHtml='';
     sonos.slice(0,3).forEach(function(sn){
-      var d = new Date(sn.data);
-      var day = String(d.getDate()).padStart(2,'0');
-      var mon = d.toLocaleDateString('pt-BR',{month:'short'}).toUpperCase();
-      var cor2 = sn.score>=80?'#2dd4bf':sn.score>=60?'#3b82f6':sn.score>=40?'#eab308':'#ef4444';
-      var t2 = sn.totalMin;
-      histHtml += '<div class="hist-item">';
-      histHtml += '<div class="hi-date"><div class="hi-d">'+day+'</div><div class="hi-m">'+mon+'</div></div>';
-      histHtml += '<div class="hi-bar">';
-      histHtml += '<div class="hi-hipo">';
-      histHtml += '<div style="width:'+(t2>0?(sn.deepMin/t2*100):0)+'%;background:#1d4ed8;height:100%;border-radius:2px;"></div>';
-      histHtml += '<div style="width:'+(t2>0?(sn.remMin/t2*100):0)+'%;background:#6d28d9;height:100%;border-radius:2px;"></div>';
-      histHtml += '<div style="width:'+(t2>0?(sn.leveMin/t2*100):0)+'%;background:#64748b;height:100%;border-radius:2px;"></div>';
-      histHtml += '</div>';
-      histHtml += '<div class="hi-meta">'+fmtMin(sn.totalMin)+' · RMSSD '+sn.rmssd+'ms · SpO2 '+sn.spo2+'%</div>';
-      histHtml += '</div>';
-      histHtml += '<div class="hi-right"><div class="hi-score" style="color:'+cor2+'">'+sn.score+'</div>';
-      histHtml += '<div class="hi-grade">'+(sn.tipo==='dia'?'Dia':'Noite')+'</div></div>';
-      histHtml += '</div>';
+      var d=new Date(sn.data);var day=String(d.getDate()).padStart(2,'0');var mon=d.toLocaleDateString('pt-BR',{month:'short'}).toUpperCase();
+      var cor2=sn.score>=80?'#2dd4bf':sn.score>=60?'#3b82f6':sn.score>=40?'#eab308':'#ef4444';var t2=sn.totalMin;
+      histHtml+='<div class="hist-item"><div class="hi-date"><div class="hi-d">'+day+'</div><div class="hi-m">'+mon+'</div></div><div class="hi-bar"><div class="hi-hipo"><div style="width:'+(t2>0?(sn.deepMin/t2*100):0)+'%;background:#1d4ed8;height:100%;border-radius:2px;"></div><div style="width:'+(t2>0?(sn.remMin/t2*100):0)+'%;background:#6d28d9;height:100%;border-radius:2px;"></div><div style="width:'+(t2>0?(sn.leveMin/t2*100):0)+'%;background:#64748b;height:100%;border-radius:2px;"></div></div><div class="hi-meta">'+fmtMin(sn.totalMin)+' · RMSSD '+sn.rmssd+'ms · SpO2 '+sn.spo2+'%</div></div><div class="hi-right"><div class="hi-score" style="color:'+cor2+'">'+sn.score+'</div><div class="hi-grade">'+(sn.tipo==='dia'?'Dia':'Noite')+'</div></div></div>';
     });
-    document.getElementById('home-hist-lista').innerHTML = histHtml;
-  } else {
-    histCard.style.display='none';
-  }
+    document.getElementById('home-hist-lista').innerHTML=histHtml;
+  }else{histCard.style.display='none';}
 }
 
-function renderHistorico() {
-  var sonos = loadSonos();
-  var el = document.getElementById('hist-lista');
-  if(!sonos.length){
-    el.innerHTML='<div class="hist-empty">Nenhuma noite registrada ainda.<br>Complete seu primeiro registro!</div>';return;
-  }
-  var html = '';
+function renderHistorico(){
+  var sonos=loadSonos();var el=document.getElementById('hist-lista');
+  if(!sonos.length){el.innerHTML='<div class="hist-empty">Nenhuma noite registrada ainda.</div>';return;}
+  var html='';
   sonos.forEach(function(s,i){
-    var d = new Date(s.data);
-    var day = String(d.getDate()).padStart(2,'0');
-    var mon = d.toLocaleDateString('pt-BR',{month:'short'}).toUpperCase();
-    var time = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-    var cor = s.score>=80?'#2dd4bf':s.score>=60?'#3b82f6':s.score>=40?'#eab308':'#ef4444';
-    var t = s.totalMin;
-    html += '<div class="hist-item">';
-    html += '<div class="hi-date"><div class="hi-d">'+day+'</div><div class="hi-m">'+mon+'</div></div>';
-    html += '<div class="hi-bar">';
-    html += '<div class="hi-hipo">';
-    html += '<div style="width:'+(t>0?(s.deepMin/t*100):0)+'%;background:#1d4ed8;height:100%;border-radius:2px;"></div>';
-    html += '<div style="width:'+(t>0?(s.remMin/t*100):0)+'%;background:#6d28d9;height:100%;border-radius:2px;"></div>';
-    html += '<div style="width:'+(t>0?(s.leveMin/t*100):0)+'%;background:#64748b;height:100%;border-radius:2px;"></div>';
-    html += '</div>';
-    html += '<div class="hi-meta">'+time+' · '+fmtMin(s.totalMin)+' · Score '+s.score+' · '+(s.tipo==='dia'?'Dia':'Noite')+'</div>';
-    html += '</div>';
-    html += '<div class="hi-right"><div class="hi-score" style="color:'+cor+'">'+s.score+'</div>';
-    html += '<button class="del-btn" onclick="deletarSono('+i+')">DEL</button></div>';
-    html += '</div>';
+    var d=new Date(s.data);var day=String(d.getDate()).padStart(2,'0');var mon=d.toLocaleDateString('pt-BR',{month:'short'}).toUpperCase();var time=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    var cor=s.score>=80?'#2dd4bf':s.score>=60?'#3b82f6':s.score>=40?'#eab308':'#ef4444';var t=s.totalMin;
+    html+='<div class="hist-item"><div class="hi-date"><div class="hi-d">'+day+'</div><div class="hi-m">'+mon+'</div></div><div class="hi-bar"><div class="hi-hipo"><div style="width:'+(t>0?(s.deepMin/t*100):0)+'%;background:#1d4ed8;height:100%;border-radius:2px;"></div><div style="width:'+(t>0?(s.remMin/t*100):0)+'%;background:#6d28d9;height:100%;border-radius:2px;"></div><div style="width:'+(t>0?(s.leveMin/t*100):0)+'%;background:#64748b;height:100%;border-radius:2px;"></div></div><div class="hi-meta">'+time+' · '+fmtMin(s.totalMin)+' · Score '+s.score+' · '+(s.tipo==='dia'?'Dia':'Noite')+'</div></div><div class="hi-right"><div class="hi-score" style="color:'+cor+'">'+s.score+'</div><button class="del-btn" onclick="deletarSono('+i+')">DEL</button></div></div>';
   });
-  el.innerHTML = html;
+  el.innerHTML=html;
 }
 
-function deletarSono(i) {
-  if(!confirm('Apagar este registro?'))return;
-  var sonos = loadSonos();sonos.splice(i,1);saveSonos(sonos);
-  renderHistorico();
-}
+function deletarSono(i){if(!confirm('Apagar este registro?'))return;var sonos=loadSonos();sonos.splice(i,1);saveSonos(sonos);renderHistorico();}
 
 window.addEventListener('load',function(){
-  // Registrar PWA service worker
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});
-
-  setTimeout(function(){
-    var sp = document.getElementById('splash');
-    if(sp){sp.classList.add('hide');setTimeout(function(){try{sp.remove();}catch(e){}},1000);}
-  },2400);
-  document.getElementById('hdr-date').textContent =
-    new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
-  initBG();
-  renderHome();
-  showScreen('sc-home');
-  setTimeout(atualizarTotal,300);
-  atualizarBridgeChip();
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(function(){});
+  setTimeout(function(){var sp=document.getElementById('splash');if(sp){sp.classList.add('hide');setTimeout(function(){try{sp.remove();}catch(e){}},1000);}},2400);
+  document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
+  initBG();renderHome();showScreen('sc-home');
+  setTimeout(atualizarTotal,300);atualizarBridgeChip();
 });
 </script>
 </body>
