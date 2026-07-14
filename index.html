@@ -250,6 +250,13 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
           <input type="number" class="inp-val" id="in-despertares" value="1" min="0" max="20" style="width:72px;">
         </div>
         <div class="inp-row">
+          <span class="inp-lbl" style="color:#f87171">⏱️ Tempo acordado</span>
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+            <input type="number" class="inp-val" id="in-tempo-acordado" value="" min="0" max="120" placeholder="0" style="color:#f87171;width:62px;">
+            <span class="inp-unit">min</span>
+          </div>
+        </div>
+        <div class="inp-row">
           <span class="inp-lbl" style="color:#fbbf24">Estresse</span>
           <input type="number" class="inp-val" id="in-estresse" value="" min="0" max="100" placeholder="0-99" style="color:#fbbf24;width:72px;">
         </div>
@@ -427,6 +434,9 @@ function analisarSono(){
   var fcNoite=g('in-fc-noite')||55;
   var resp=gf('in-resp')||14;
   var despert=g('in-despertares');
+  // Tempo acordado: manual se preenchido, senão estima despertares × 4
+  var tempoAcordadoManual=g('in-tempo-acordado');
+  var tempoAcordado=tempoAcordadoManual>0?tempoAcordadoManual:despert*4;
   var estresse=g('in-estresse');
   // NOVO: temperatura corporal
   var temp=parseFloat(document.getElementById('in-temp').value)||36.5;
@@ -460,7 +470,7 @@ function analisarSono(){
   var sessao={
     data:Date.now(),tipo,totalMin,deepMin,remMin,leveMin,
     pctDeep:Math.round(pctDeep*10)/10,pctREM:Math.round(pctREM*10)/10,pctLeve:Math.round(pctLeve*10)/10,
-    rmssd,spo2,fcNoite,resp,despert,estresse,temp,
+    rmssd,spo2,fcNoite,resp,despert,tempoAcordado,estresse,temp,
     score,scoreBase:Math.round(scoreBase),scoreSWS:Math.round(scoreSWS),scoreREM:Math.round(scoreREM),scoreDur:Math.round(scoreDur),
     modHRV,baseRMSSD:Math.round(baseRMSSD),penalidades,desvRMSSD:Math.round(desvRMSSD*10)/10
   };
@@ -579,6 +589,7 @@ function salvarSono(){
   var enviou=false;
   if(typeof BioBridge!=='undefined'){
     var tempoAcordado=Math.min(s.despert*4,Math.round(s.totalMin*0.1));
+    if(s.tempoAcordado>0)tempoAcordado=s.tempoAcordado;
     var cocholoMin=parseInt(document.getElementById('in-cochilo-min').value)||0;
     var cocholoTipo=document.getElementById('in-cochilo-tipo').value;
     enviou=BioBridge.push('sleep',{
