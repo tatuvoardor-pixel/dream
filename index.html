@@ -128,6 +128,9 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
 .bridge-chip.ok{border-color:rgba(45,212,191,0.4);color:var(--acc);}
 .bridge-flash{position:fixed;top:env(safe-area-inset-top,12px);left:50%;transform:translateX(-50%) translateY(-30px);background:var(--s1);border:1px solid var(--acc);color:var(--acc);font-family:'Roboto Mono',monospace;font-size:0.62rem;letter-spacing:0;text-transform:uppercase;padding:8px 14px;border-radius:18px;z-index:200;opacity:0;transition:opacity 0.3s,transform 0.3s;pointer-events:none;white-space:nowrap;}
 .bridge-flash.show{opacity:1;transform:translateX(-50%) translateY(8px);}
+.presono-btn{padding:10px 6px;border-radius:8px;font-family:'Roboto Mono',monospace;font-size:0.62rem;text-transform:uppercase;border:1px solid var(--bd);background:var(--s2);color:var(--t3);cursor:pointer;text-align:center;transition:all 0.15s;width:100%;}
+.presono-btn.sel-bom{background:rgba(29,78,216,0.15);border-color:rgba(29,78,216,0.4);color:#93c5fd;}
+.presono-btn.sel-ruim{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.4);color:#fca5a5;}
 </style>
 </head>
 <body>
@@ -284,6 +287,22 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
           </select>
         </div>
       </div>
+      <!-- PRÉ-SONO -->
+      <div class="card" style="border-color:rgba(29,78,216,0.3)">
+        <div class="lbl" style="color:#93c5fd">🌙 PRÉ-SONO (OPCIONAL)</div>
+        <div style="font-size:0.65rem;color:var(--t3);margin-bottom:10px;">O que fez antes de dormir — afeta o score</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <button onclick="togglePresono('leitura')"    id="presono-leitura"     class="presono-btn">📖 Leitura</button>
+          <button onclick="togglePresono('banho')"      id="presono-banho"       class="presono-btn">🛁 Banho Quente</button>
+          <button onclick="togglePresono('luzvermelha')"id="presono-luzvermelha" class="presono-btn">🔴 Luz Vermelha</button>
+          <button onclick="togglePresono('meditacao')"  id="presono-meditacao"   class="presono-btn">🧘 Meditação</button>
+          <button onclick="togglePresono('agua')"       id="presono-agua"        class="presono-btn">💧 Hidratação</button>
+          <button onclick="togglePresono('trabalho')"   id="presono-trabalho"    class="presono-btn">💼 Trabalho</button>
+          <button onclick="togglePresono('cafeina')"    id="presono-cafeina"     class="presono-btn">☕ Cafeína</button>
+          <button onclick="togglePresono('alcool')"     id="presono-alcool"      class="presono-btn">🍺 Álcool</button>
+        </div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:0.54rem;color:var(--t3);text-align:center;margin-top:8px;" id="presono-efeito-txt"></div>
+      </div>
       <button class="btn-primary" onclick="analisarSono()">Analisar Sono</button>
       <button class="btn-secondary" onclick="showScreen('sc-home')">← Voltar</button>
     </div>
@@ -360,6 +379,39 @@ input[type=number]{-webkit-appearance:none;appearance:none;font-size:16px !impor
 <script src="bio-bridge.js"></script>
 <script>
 var ST = { tipo: 'noite', sessao: null };
+
+var PRESONO={
+  leitura:    {efeito:3,  tipo:'bom'},
+  banho:      {efeito:4,  tipo:'bom'},
+  luzvermelha:{efeito:3,  tipo:'bom'},
+  meditacao:  {efeito:4,  tipo:'bom'},
+  agua:       {efeito:-3, tipo:'ruim'},
+  trabalho:   {efeito:-5, tipo:'ruim'},
+  cafeina:    {efeito:-8, tipo:'ruim'},
+  alcool:     {efeito:-10,tipo:'ruim'},
+};
+var presonoSelecionados=new Set();
+
+function togglePresono(id){
+  if(presonoSelecionados.has(id))presonoSelecionados.delete(id);
+  else presonoSelecionados.add(id);
+  var btn=document.getElementById('presono-'+id);
+  btn.classList.remove('sel-bom','sel-ruim');
+  if(presonoSelecionados.has(id))btn.classList.add('sel-'+(PRESONO[id]?PRESONO[id].tipo:'bom'));
+  var total=0;presonoSelecionados.forEach(function(k){if(PRESONO[k])total+=PRESONO[k].efeito;});
+  var el=document.getElementById('presono-efeito-txt');
+  if(el){el.textContent=total===0?'':total>0?'Impacto estimado: +'+total+' pts no score':'Impacto estimado: '+total+' pts no score';el.style.color=total>0?'#2dd4bf':total<0?'#ef4444':'var(--t3)';}
+}
+
+function calcularEfeitoPresono(){
+  var total=0;presonoSelecionados.forEach(function(k){if(PRESONO[k])total+=PRESONO[k].efeito;});return total;
+}
+
+function resetPresono(){
+  presonoSelecionados.clear();
+  document.querySelectorAll('.presono-btn').forEach(function(b){b.classList.remove('sel-bom','sel-ruim');});
+  var el=document.getElementById('presono-efeito-txt');if(el)el.textContent='';
+}
 
 function loadSonos(){try{var s=JSON.parse(localStorage.getItem('sleep_v1'));return Array.isArray(s)?s:[];}catch(e){return[];}}
 function saveSonos(arr){localStorage.setItem('sleep_v1',JSON.stringify(arr.slice(0,90)));}
@@ -466,11 +518,13 @@ function analisarSono(){
   if(fcNoite>65)penalidades+=5;
   // Penalidade temperatura no score do sono
   if(temp>=38.5)penalidades+=15;else if(temp>=38.0)penalidades+=8;else if(temp>=37.3)penalidades+=4;
-  var score=Math.round(Math.max(0,Math.min(100,scoreBase+modHRV-penalidades)));
+  var efeitoPresono=calcularEfeitoPresono();
+  var score=Math.round(Math.max(0,Math.min(100,scoreBase+modHRV-penalidades+efeitoPresono)));
   var sessao={
     data:Date.now(),tipo,totalMin,deepMin,remMin,leveMin,
     pctDeep:Math.round(pctDeep*10)/10,pctREM:Math.round(pctREM*10)/10,pctLeve:Math.round(pctLeve*10)/10,
     rmssd,spo2,fcNoite,resp,despert,tempoAcordado,estresse,temp,
+    presono:Array.from(presonoSelecionados),efeitoPresono,
     score,scoreBase:Math.round(scoreBase),scoreSWS:Math.round(scoreSWS),scoreREM:Math.round(scoreREM),scoreDur:Math.round(scoreDur),
     modHRV,baseRMSSD:Math.round(baseRMSSD),penalidades,desvRMSSD:Math.round(desvRMSSD*10)/10
   };
@@ -608,7 +662,7 @@ function salvarSono(){
   }
   var btn=document.getElementById('btn-salvar');
   if(btn){if(enviou){btn.textContent='✓ Salvo + Enviado pro BioMetrics';btn.classList.add('salvo');bridgeFlash('Enviado pro BioMetrics');atualizarBridgeChip(true);}else{btn.textContent='Salvo!';}btn.disabled=true;}
-  setTimeout(function(){showScreen('sc-home');},1800);
+  setTimeout(function(){showScreen('sc-home');resetPresono();},1800);
 }
 
 function atualizarBridgeChip(forceOk){var chip=document.getElementById('bridge-chip');if(!chip)return;if(forceOk){chip.classList.add('ok');chip.textContent='🔗 OK';return;}if(typeof BioBridge!=='undefined'){chip.classList.add('ok');chip.textContent='BRIDGE';}}
